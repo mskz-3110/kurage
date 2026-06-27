@@ -1,16 +1,8 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import type { PackageJson } from '../kurage.js';
+import kurage from '../kurage.js';
 
 const cliModes = ['repl', 'exec', 'run'];
 const arg = (process.argv[2] ?? cliModes[0]!).toLowerCase();
-type PackageJson = {
-  name: string;
-  version: string;
-  description: string;
-};
-
-const getPackageJson = (): PackageJson =>
-  JSON.parse(readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8')) as PackageJson;
 
 const getHelpMessage = (packageJson: PackageJson): string => {
   return `
@@ -38,11 +30,11 @@ Examples:
 if (cliModes.includes(arg)) {
   import(`./kurage-${arg}.js`);
 } else if (['-v', '--version'].includes(arg)) {
-  console.log(getPackageJson().version);
+  console.log(kurage.getPackageJson().version);
 } else if (['-h', '--help'].includes(arg)) {
-  console.log(getHelpMessage(getPackageJson()));
+  console.log(getHelpMessage(kurage.getPackageJson()));
 } else {
   console.error(`Invalid command: ${process.argv.slice(2).join(' ')}`);
-  console.error(getHelpMessage(getPackageJson()));
+  console.error(getHelpMessage(kurage.getPackageJson()));
   process.exit(1);
 }
