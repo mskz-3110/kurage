@@ -1,17 +1,17 @@
 function detectRuntime() {
-  if (typeof Deno !== "undefined") {
-    return "deno";
+  if (typeof Deno !== 'undefined') {
+    return 'deno';
   }
 
-  if (typeof Bun !== "undefined") {
-    return "bun";
+  if (typeof Bun !== 'undefined') {
+    return 'bun';
   }
 
-  if (typeof process !== "undefined" && process.versions?.node) {
-    return "node";
+  if (typeof process !== 'undefined' && process.versions?.node) {
+    return 'node';
   }
 
-  return "unknown";
+  return 'unknown';
 }
 
 console.log(detectRuntime());
