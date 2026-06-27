@@ -1,0 +1,43 @@
+{
+  "name": "kurage",
+  "version": "0.1.0",
+  "description": "A flexible runtime for REPL, exec, and run.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mskz-3110/kurage.git"
+  },
+  "homepage": "https://github.com/mskz-3110/kurage",
+  "author": "mskz-3110",
+  "keywords": [
+    "typescript",
+    "cli",
+    "command-line",
+    "repl",
+    "runtime",
+    "shell",
+    "script",
+    "automation"
+  ],
+  "type": "module",
+  "bin": {
+    "kurage": "./dist/cli/kurage.js"
+  },
+  "main": "./dist/kurage.js",
+  "types": "./dist/kurage.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/kurage.d.ts",
+      "import": "./dist/kurage.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -12,6 +12,16 @@ kurage は、`TypeScript` ベースでコマンド実行、対話的な試行、
 
 スクリプトを書かずにその場で試したいときは `REPL` を使い、単発の処理は `exec` で、ファイルにまとめた処理は `run` で実行できるようにする。
 
+対話的な試行と `exec`、`run` をひとつの流れで扱える、柔軟な実行環境を目指す。
+
+## package.json の description
+
+`package.json` の `description` は、このコンセプトを短く要約したものとして扱う。
+
+| English | 日本語 |
+| --- | --- |
+| A flexible runtime for REPL, exec, and run. | REPL、exec、run のための柔軟な実行環境。 |
+
 ## 対象ユーザー
 
 - `bash` の変数や引数の扱いに不満がある人
