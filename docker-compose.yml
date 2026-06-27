@@ -1,0 +1,18 @@
+services:
+  kurage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - WORKDIR=/kurage
+    working_dir: /kurage
+    volumes:
+      - ./:/kurage
+      - kurage_node_modules:/kurage/node_modules
+      - kurage_bun_cache:/root/.bun
+      - kurage_deno_cache:/root/.cache/deno
+
+volumes:
+  kurage_node_modules:
+  kurage_bun_cache:
+  kurage_deno_cache:

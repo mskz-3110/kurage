@@ -35,7 +35,8 @@
     "dist"
   ],
   "scripts": {
-
+    "docker:build": "docker compose up -d --build",
+    "docker:bash": "docker compose run --rm kurage bash"
   },
   "engines": {
     "node": ">=20"
