@@ -27,7 +27,7 @@ Examples:
   ${packageJson.name} run script.js
 `.trim();
 };
-if (cliModes.includes(arg)) import(`./kurage-${arg}.js`);
+if (cliModes.includes(arg)) import(`./${arg}.js`);
 else if (['-v', '--version'].includes(arg)) console.log(kurage.parsePackageJson().version);
 else if (['-h', '--help'].includes(arg)) console.log(createHelpMessage(kurage.parsePackageJson()));
 else {

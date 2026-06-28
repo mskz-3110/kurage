@@ -30,7 +30,7 @@ Examples:
 };
 
 if (cliModes.includes(arg)) {
-  import(`./kurage-${arg}.js`);
+  import(`./${arg}.js`);
 } else if (['-v', '--version'].includes(arg)) {
   console.log(kurage.parsePackageJson().version);
 } else if (['-h', '--help'].includes(arg)) {

@@ -4,10 +4,10 @@ export default defineConfig({
   input: {
     'kurage': 'src/kurage.ts',
     'cli/kurage': 'src/cli/kurage.ts',
-    'cli/kurage-info': 'src/cli/kurage-info.ts',
-    'cli/kurage-repl': 'src/cli/kurage-repl.ts',
-    'cli/kurage-exec': 'src/cli/kurage-exec.ts',
-    'cli/kurage-run': 'src/cli/kurage-run.ts',
+    'cli/info': 'src/cli/info.ts',
+    'cli/repl': 'src/cli/repl.ts',
+    'cli/exec': 'src/cli/exec.ts',
+    'cli/run': 'src/cli/run.ts',
   },
   platform: 'node',
   resolve: {
