@@ -10,8 +10,7 @@ process.on('unhandledRejection', (reason) => {
 });
 const kurage = {
   $: async (...args) => {
-    if (args.length === 0) return;
-    await Command.new(args[0], ...args.slice(1)).execAsync();
+    await Command.new(...args).execAsync();
   },
   command: Command,
   parsePackageJson: () => JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')),

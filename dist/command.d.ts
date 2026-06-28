@@ -5,7 +5,7 @@ export declare class Command {
   get command(): string;
   get args(): string[];
   get process(): ChildProcess | undefined;
-  constructor(command: string, ...args: string[]);
-  execAsync(stdio?: StdioOptions): Promise<void>;
+  constructor(...args: string[]);
+  execAsync(stdio?: StdioOptions, env?: NodeJS.ProcessEnv): Promise<void>;
   toString(): string;
 }

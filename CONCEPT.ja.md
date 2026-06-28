@@ -53,7 +53,7 @@ kurage は、`TypeScript` ベースでコマンド実行、対話的な試行、
   - 実装言語と実行形式を分けて考えることで、設計の自由度と実行時の互換性の両方を確保しやすくするため
 
 ```js
-const module = await import("./script.js");
+const {kurage} = await import('kurage');
 ```
 
 ## 入出力方針

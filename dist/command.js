@@ -17,26 +17,30 @@ var Command = class Command {
   get process() {
     return this.#process;
   }
-  constructor(command, ...args) {
-    this.#command = command;
-    this.#args = args;
+  constructor(...args) {
+    this.#command = args[0] ?? '';
+    this.#args = args.slice(1);
   }
-  async execAsync(stdio = 'inherit') {
+  async execAsync(stdio = 'inherit', env = process.env) {
     return new Promise((resolve, reject) => {
       try {
-        this.#process = childProcessModule.spawn(this.command, this.args, { stdio });
+        if (this.#command === '') return resolve();
+        this.#process = childProcessModule.spawn(this.command, this.args, {
+          stdio,
+          env,
+        });
         this.#process.on('close', (exitCode, signalName) => {
-          if (signalName != null) reject(/* @__PURE__ */ new Error(`${signalName} @ ${this}`));
-          else if (exitCode !== 0) reject(/* @__PURE__ */ new Error(`${exitCode} @ ${this}`));
-          else resolve();
+          if (signalName != null) return reject(/* @__PURE__ */ new Error(`${signalName} @ ${this}`));
+          else if (exitCode !== 0) return reject(/* @__PURE__ */ new Error(`${exitCode} @ ${this}`));
+          else return resolve();
         });
         this.#process.on('error', (e) => {
           e.message = `${e.message} @ ${this}`;
-          reject(e);
+          return reject(e);
         });
       } catch (e) {
         if (e instanceof Error) e.message = `${e.message} @ ${this}`;
-        reject(e);
+        return reject(e);
       }
     });
   }

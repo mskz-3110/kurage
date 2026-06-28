@@ -18,12 +18,7 @@ process.on('unhandledRejection', (reason) => {
 
 export const kurage = {
   $: async (...args: string[]): Promise<void> => {
-    if (args.length === 0) {
-      return;
-    }
-
-    const command = Command.new(args[0]!, ...args.slice(1));
-    await command.execAsync();
+    await Command.new(...args).execAsync();
   },
   command: Command,
   parsePackageJson: (): PackageJson =>
