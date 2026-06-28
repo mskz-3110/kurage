@@ -15,11 +15,9 @@ process.on('unhandledRejection', (reason) => {
   console.error(`Unhandled Rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
 });
 
-const getPackageJson = (): PackageJson =>
-  JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')) as PackageJson;
-
 export const kurage = {
-  getPackageJson,
+  parsePackageJson: (): PackageJson =>
+    JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')) as PackageJson,
 };
 
 export default kurage;

@@ -5,7 +5,7 @@ import utilModule from 'node:util';
 import type { Context } from 'node:vm';
 import kurage from 'kurage';
 
-const packageJson = kurage.getPackageJson();
+const packageJson = kurage.parsePackageJson();
 const kurageContext = {
   kurage,
 };

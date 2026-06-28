@@ -4,6 +4,6 @@ export type PackageJson = {
   description: string;
 };
 export declare const kurage: {
-  getPackageJson: () => PackageJson;
+  parsePackageJson: () => PackageJson;
 };
 export default kurage;

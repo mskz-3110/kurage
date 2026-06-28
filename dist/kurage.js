@@ -7,8 +7,8 @@ process.on('uncaughtException', (e) => {
 process.on('unhandledRejection', (reason) => {
   console.error(`Unhandled Rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
 });
-const getPackageJson = () =>
-  JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8'));
-const kurage = { getPackageJson };
+const kurage = {
+  parsePackageJson: () => JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')),
+};
 
 export { kurage as default, kurage };

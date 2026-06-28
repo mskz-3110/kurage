@@ -5,7 +5,7 @@ import replModule from 'node:repl';
 import utilModule from 'node:util';
 import kurage from 'kurage';
 
-const packageJson = kurage.getPackageJson();
+const packageJson = kurage.parsePackageJson();
 const kurageContext = { kurage };
 const replServer = replModule.start({
   prompt: `${packageJson.name}> `,

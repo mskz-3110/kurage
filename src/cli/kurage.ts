@@ -4,7 +4,7 @@ import kurage from '../kurage.js';
 const cliModes = ['repl', 'exec', 'run'];
 const arg = (process.argv[2] ?? cliModes[0]!).toLowerCase();
 
-const getHelpMessage = (packageJson: PackageJson): string => {
+const createHelpMessage = (packageJson: PackageJson): string => {
   return `
 Usage: ${packageJson.name} [options] [commands...]
 
@@ -30,11 +30,11 @@ Examples:
 if (cliModes.includes(arg)) {
   import(`./kurage-${arg}.js`);
 } else if (['-v', '--version'].includes(arg)) {
-  console.log(kurage.getPackageJson().version);
+  console.log(kurage.parsePackageJson().version);
 } else if (['-h', '--help'].includes(arg)) {
-  console.log(getHelpMessage(kurage.getPackageJson()));
+  console.log(createHelpMessage(kurage.parsePackageJson()));
 } else {
   console.error(`Invalid command: ${process.argv.slice(2).join(' ')}`);
-  console.error(getHelpMessage(kurage.getPackageJson()));
+  console.error(createHelpMessage(kurage.parsePackageJson()));
   process.exit(1);
 }
