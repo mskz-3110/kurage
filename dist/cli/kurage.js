@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-const cliModes = ['repl', 'exec', 'run'];
+const cliModes = ['info', 'repl', 'exec', 'run'];
 const arg = (process.argv[2] ?? cliModes[0]).toLowerCase();
 const createHelpMessage = (packageJson) => {
   return `
@@ -10,6 +10,7 @@ Usage: ${packageJson.name} [options] [commands...]
 ${packageJson.description}
 
 Commands:
+  info                   show info (default)
   repl                   start REPL mode
   exec <command...>      execute a command
   run <file> [args...]   run a file
@@ -20,6 +21,7 @@ Options:
 
 Examples:
   ${packageJson.name}
+  ${packageJson.name} info
   ${packageJson.name} repl
   ${packageJson.name} exec cat script.js
   ${packageJson.name} run script.js
