@@ -51,5 +51,13 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["dist/**/*.d.ts"],
+      "linter": {
+        "enabled": false
+      }
+    }
+  ]
 }

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { Command } from './command.js';
 
 export type PackageJson = {
   name: string;
@@ -16,6 +17,15 @@ process.on('unhandledRejection', (reason) => {
 });
 
 export const kurage = {
+  $: async (...args: string[]): Promise<void> => {
+    if (args.length === 0) {
+      return;
+    }
+
+    const command = Command.new(args[0]!, ...args.slice(1));
+    await command.execAsync();
+  },
+  command: Command,
   parsePackageJson: (): PackageJson =>
     JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')) as PackageJson,
 };
