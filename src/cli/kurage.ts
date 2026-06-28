@@ -2,7 +2,7 @@ import type { PackageJson } from '../kurage.js';
 import kurage from '../kurage.js';
 
 const cliModes = ['info', 'repl', 'exec', 'run'];
-const arg = (process.argv[2] ?? cliModes[0]!).toLowerCase();
+const mode = (process.argv[2] ?? cliModes[0]!).toLowerCase();
 
 const createHelpMessage = (packageJson: PackageJson): string => {
   return `
@@ -29,11 +29,11 @@ Examples:
 `.trim();
 };
 
-if (cliModes.includes(arg)) {
-  import(`./${arg}.js`);
-} else if (['-v', '--version'].includes(arg)) {
+if (cliModes.includes(mode)) {
+  import(`./${mode}.js`);
+} else if (['-v', '--version'].includes(mode)) {
   console.log(kurage.parsePackageJson().version);
-} else if (['-h', '--help'].includes(arg)) {
+} else if (['-h', '--help'].includes(mode)) {
   console.log(createHelpMessage(kurage.parsePackageJson()));
 } else {
   console.error(`Invalid command: ${process.argv.slice(2).join(' ')}`);
