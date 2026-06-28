@@ -1,4 +1,4 @@
-import type { ChildProcess, StdioOptions } from 'node:child_process';
+import type { ChildProcess, SpawnOptions } from 'node:child_process';
 export declare class Command {
   #private;
   static new(...args: ConstructorParameters<typeof Command>): Command;
@@ -6,6 +6,6 @@ export declare class Command {
   get args(): string[];
   get process(): ChildProcess | undefined;
   constructor(...args: string[]);
-  execAsync(stdio?: StdioOptions, env?: NodeJS.ProcessEnv): Promise<void>;
+  execAsync({ stdio, ...others }?: SpawnOptions): Promise<void>;
   toString(): string;
 }

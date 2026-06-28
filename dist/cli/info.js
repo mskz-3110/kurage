@@ -6,7 +6,10 @@ console.log(
   JSON.stringify(
     {
       kurage: { version: packageJson.version },
-      process: { argv: process.argv },
+      process: {
+        argv: process.argv,
+        versions: process.versions,
+      },
     },
     null,
     2

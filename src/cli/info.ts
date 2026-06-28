@@ -10,6 +10,7 @@ console.log(
       },
       process: {
         argv: process.argv,
+        versions: process.versions,
       },
     },
     null,

@@ -1,4 +1,4 @@
-import type { ChildProcess, StdioOptions } from 'node:child_process';
+import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 
 export class Command {
@@ -31,14 +31,14 @@ export class Command {
     this.#args = args.slice(1);
   }
 
-  async execAsync(stdio: StdioOptions = 'inherit', env: NodeJS.ProcessEnv = process.env): Promise<void> {
+  async execAsync({ stdio = 'inherit', ...others }: SpawnOptions = {}): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         if (this.#command === '') {
           return resolve();
         }
 
-        this.#process = childProcessModule.spawn(this.command, this.args, { stdio, env });
+        this.#process = childProcessModule.spawn(this.command, this.args, { stdio, ...others });
 
         this.#process.on('close', (exitCode, signalName) => {
           if (signalName != null) {

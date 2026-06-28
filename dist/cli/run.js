@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-console.log('run');
+import kurage from '../kurage.js';
 
-export {};
+await kurage.$(...[process.argv[0], ...process.argv.slice(3)]);

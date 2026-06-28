@@ -3,10 +3,10 @@ import { fileURLToPath } from 'node:url';
 import { Command } from './command.js';
 
 process.on('uncaughtException', (e) => {
-  console.error(`Uncaught Exception: ${e instanceof Error ? e.message : String(e)}`);
+  console.error(`Uncaught Exception: ${e instanceof Error ? e.stack : String(e)}`);
 });
 process.on('unhandledRejection', (reason) => {
-  console.error(`Unhandled Rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
+  console.error(`Unhandled Rejection: ${reason instanceof Error ? reason.stack : String(reason)}`);
 });
 const kurage = {
   $: async (...args) => {

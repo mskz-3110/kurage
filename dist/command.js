@@ -21,13 +21,13 @@ var Command = class Command {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
-  async execAsync(stdio = 'inherit', env = process.env) {
+  async execAsync({ stdio = 'inherit', ...others } = {}) {
     return new Promise((resolve, reject) => {
       try {
         if (this.#command === '') return resolve();
         this.#process = childProcessModule.spawn(this.command, this.args, {
           stdio,
-          env,
+          ...others,
         });
         this.#process.on('close', (exitCode, signalName) => {
           if (signalName != null) return reject(/* @__PURE__ */ new Error(`${signalName} @ ${this}`));
