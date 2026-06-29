@@ -5,7 +5,13 @@ const packageJson = kurage.parsePackageJson();
 console.log(
   JSON.stringify(
     {
-      kurage: { version: packageJson.version },
+      kurage: {
+        version: packageJson.version,
+        runtime: {
+          name: kurage.runtime.name,
+          config: kurage.runtime.config,
+        },
+      },
       process: {
         argv: process.argv,
         versions: process.versions,

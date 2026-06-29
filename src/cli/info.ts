@@ -7,6 +7,10 @@ console.log(
     {
       kurage: {
         version: packageJson.version,
+        runtime: {
+          name: kurage.runtime.name,
+          config: kurage.runtime.config,
+        },
       },
       process: {
         argv: process.argv,

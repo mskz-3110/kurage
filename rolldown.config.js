@@ -4,10 +4,12 @@ export default defineConfig({
   input: {
     'kurage': 'src/kurage.ts',
     'command': 'src/command.ts',
+    'exception': 'src/exception.ts',
+    'runtime': 'src/runtime.ts',
     'cli/kurage': 'src/cli/kurage.ts',
+    'cli/exec': 'src/cli/exec.ts',
     'cli/info': 'src/cli/info.ts',
     'cli/repl': 'src/cli/repl.ts',
-    'cli/exec': 'src/cli/exec.ts',
     'cli/run': 'src/cli/run.ts',
   },
   platform: 'node',

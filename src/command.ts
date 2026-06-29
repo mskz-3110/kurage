@@ -1,5 +1,6 @@
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
+import { Exception } from './exception.js';
 
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
@@ -26,41 +27,66 @@ export class Command {
     return this.#process;
   }
 
+  #exception: Exception | undefined;
+
+  get exception(): Exception | undefined {
+    return this.#exception;
+  }
+
   constructor(...args: string[]) {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
 
-  async execAsync({ stdio = 'inherit', ...others }: SpawnOptions = {}): Promise<void> {
-    return new Promise((resolve, reject) => {
+  async execAsync({ stdio = 'inherit', ...others }: SpawnOptions = {}): Promise<Command> {
+    return new Promise((resolve) => {
       try {
+        this.#process = undefined;
+        this.#exception = undefined;
+
         if (this.#command === '') {
-          return resolve();
+          return resolve(this);
         }
 
         this.#process = childProcessModule.spawn(this.command, this.args, { stdio, ...others });
 
         this.#process.on('close', (exitCode, signalName) => {
           if (signalName != null) {
-            return reject(new Error(`${signalName} @ ${this}`));
-          } else if (exitCode !== 0) {
-            return reject(new Error(`${exitCode} @ ${this}`));
-          } else {
-            return resolve();
+            this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
+            return resolve(this);
           }
+
+          if (exitCode !== 0) {
+            this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
+            return resolve(this);
+          }
+
+          return resolve(this);
         });
 
         this.#process.on('error', (e) => {
-          e.message = `${e.message} @ ${this}`;
-          return reject(e);
+          this.#exception = Exception.new(e).appendMessage(` @ ${this}`);
+          return resolve(this);
         });
       } catch (e: unknown) {
-        if (e instanceof Error) {
-          e.message = `${e.message} @ ${this}`;
-        }
-        return reject(e);
+        this.#exception = Exception.new(e).appendMessage(` @ ${this}`);
+        return resolve(this);
       }
     });
+  }
+
+  throw() {
+    if (this.#exception != null) {
+      throw this.#exception;
+    }
+  }
+
+  exit() {
+    let exitCode = this.#exception != null ? 1 : 0;
+    if (this.#process != null && this.#process.exitCode != null) {
+      exitCode = this.#process.exitCode;
+    }
+    process.exit(exitCode);
   }
 
   toString(): string {

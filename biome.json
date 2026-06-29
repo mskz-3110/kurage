@@ -28,6 +28,9 @@
         "noConsole": "off",
         "noExplicitAny": "off",
         "noAssignInExpressions": "off"
+      },
+      "complexity": {
+        "noStaticOnlyClass": "off"
       }
     }
   },
