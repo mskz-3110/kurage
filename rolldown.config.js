@@ -6,6 +6,8 @@ export default defineConfig({
     'command': 'src/command.ts',
     'exception': 'src/exception.ts',
     'runtime': 'src/runtime.ts',
+    'stopwatch': 'src/stopwatch.ts',
+    'timestamp': 'src/timestamp.ts',
     'cli/kurage': 'src/cli/kurage.ts',
     'cli/exec': 'src/cli/exec.ts',
     'cli/info': 'src/cli/info.ts',

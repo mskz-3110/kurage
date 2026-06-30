@@ -37,10 +37,9 @@
   "scripts": {
     "docker:build": "docker compose up -d --build",
     "docker:bash": "docker compose run --rm kurage bash",
-    "build:js": "pnpm rolldown --config && pnpm biome format dist/ --write && chmod +x dist/cli/*.js",
-    "build:dts": "pnpm tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts",
-    "build:lint": "pnpm biome check --write .",
-    "build:all": "pnpm run build:lint && pnpm run build:js && pnpm run build:dts && pnpm run build:lint"
+    "build:js": "rolldown --config && biome format dist --write && chmod +x dist/cli/*.js",
+    "build:dts": "tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts",
+    "build:all": "biome check --write src && npm run build:js && npm run build:dts && biome check --write ."
   },
   "engines": {
     "node": ">=20"

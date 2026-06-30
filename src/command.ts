@@ -1,6 +1,12 @@
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 import { Exception } from './exception.js';
+import { Stopwatch } from './stopwatch.js';
+
+export interface ExecHooks<T> {
+  onStart?: (command: Command) => T;
+  onEnd?: (command: Command, context: T) => void;
+}
 
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
@@ -21,6 +27,12 @@ export class Command {
     return this.#args;
   }
 
+  #stopwatch: Stopwatch = Stopwatch.new();
+
+  get elapsedTime(): number {
+    return this.#stopwatch.elapsedTime;
+  }
+
   #process: ChildProcess | undefined;
 
   get process(): ChildProcess | undefined {
@@ -38,44 +50,60 @@ export class Command {
     this.#args = args.slice(1);
   }
 
-  async execAsync({ stdio = 'inherit', ...others }: SpawnOptions = {}): Promise<Command> {
+  #appendExceptionMessage(): Command {
+    if (this.#exception != null) {
+      this.#exception.error.message =
+        this.#exception.error.message === '' ? this.toString() : `${this.#exception.error.message} @ ${this}`;
+    }
+    return this;
+  }
+
+  async execAsync<T = void>(options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<Command> {
+    this.#stopwatch.start();
+    const context = hooks.onStart?.(this);
     return new Promise((resolve) => {
       try {
         this.#process = undefined;
         this.#exception = undefined;
 
         if (this.#command === '') {
+          this.#stopwatch.stop();
+          hooks.onEnd?.(this, context as T);
           return resolve(this);
         }
 
-        this.#process = childProcessModule.spawn(this.command, this.args, { stdio, ...others });
+        this.#process = childProcessModule.spawn(this.command, this.args, { stdio: 'inherit', ...options });
 
         this.#process.on('close', (exitCode, signalName) => {
           if (signalName != null) {
             this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
-            return resolve(this);
-          }
-
-          if (exitCode !== 0) {
+          } else if (exitCode !== 0) {
             this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
-            return resolve(this);
           }
 
+          this.#stopwatch.stop();
+          hooks.onEnd?.(this, context as T);
           return resolve(this);
         });
 
         this.#process.on('error', (e) => {
-          this.#exception = Exception.new(e).appendMessage(` @ ${this}`);
+          this.#exception = Exception.new(e);
+          this.#appendExceptionMessage();
+          this.#stopwatch.stop();
+          hooks.onEnd?.(this, context as T);
           return resolve(this);
         });
       } catch (e: unknown) {
-        this.#exception = Exception.new(e).appendMessage(` @ ${this}`);
+        this.#exception = Exception.new(e);
+        this.#appendExceptionMessage();
+        this.#stopwatch.stop();
+        hooks.onEnd?.(this, context as T);
         return resolve(this);
       }
     });
   }
 
-  throw() {
+  throwIfException() {
     if (this.#exception != null) {
       throw this.#exception;
     }

@@ -15,11 +15,6 @@ export class Exception {
     }
   }
 
-  appendMessage(message: string): Exception {
-    this.error.message = `${this.error.message}${message}`;
-    return this;
-  }
-
   toString(): string {
     return this.error.stack ?? this.error.message;
   }

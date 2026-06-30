@@ -8,10 +8,6 @@ var Exception = class Exception {
     else if (error instanceof Error) this.error = error;
     else this.error = new Error(String(error));
   }
-  appendMessage(message) {
-    this.error.message = `${this.error.message}${message}`;
-    return this;
-  }
   toString() {
     return this.error.stack ?? this.error.message;
   }

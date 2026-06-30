@@ -1,8 +1,12 @@
+import type { SpawnOptions } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
 import { Exception } from './exception.js';
 import { Runtime } from './runtime.js';
+import { Stopwatch } from './stopwatch.js';
+import { Timestamp } from './timestamp.js';
 
 export type PackageJson = {
   name: string;
@@ -18,23 +22,33 @@ process.on('unhandledRejection', (reason) => {
   console.error(`UnhandledRejection: ${Exception.new(reason)}`);
 });
 
-const execAsync = async (...args: string[]): Promise<Command> => {
-  return await Command.new(...args).execAsync();
+const execAsync = async <T = void>(
+  args: string[],
+  options: SpawnOptions = {},
+  hooks: ExecHooks<T> = {}
+): Promise<Command> => {
+  return await Command.new(...args).execAsync<T>(options, hooks);
 };
 
 export const kurage = {
-  $: async (...args: string[]): Promise<void> => {
-    (await execAsync(...args)).throw();
+  $: async <T = void>(args: string[], options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<void> => {
+    (await execAsync(args, options, hooks)).throwIfException();
   },
-  $command: async (...args: string[]): Promise<Command> => {
-    return await execAsync(...args);
+  $command: async <T = void>(
+    args: string[],
+    options: SpawnOptions = {},
+    hooks: ExecHooks<T> = {}
+  ): Promise<Command> => {
+    return await execAsync(args, options, hooks);
   },
-  $exit: async (...args: string[]): Promise<void> => {
-    (await execAsync(...args)).exit();
+  $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<void> => {
+    (await execAsync(args, options, hooks)).exit();
   },
   command: Command,
   exception: Exception,
   runtime: Runtime,
+  stopwatch: Stopwatch,
+  timestamp: Timestamp,
   parsePackageJson: (): PackageJson =>
     JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')) as PackageJson,
 };

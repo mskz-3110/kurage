@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { Command } from './command.js';
 import { Exception } from './exception.js';
 import { Runtime } from './runtime.js';
+import { Stopwatch } from './stopwatch.js';
+import { Timestamp } from './timestamp.js';
 
 process.on('uncaughtException', (e) => {
   console.error(`UncaughtException: ${Exception.new(e)}`);
@@ -10,22 +12,24 @@ process.on('uncaughtException', (e) => {
 process.on('unhandledRejection', (reason) => {
   console.error(`UnhandledRejection: ${Exception.new(reason)}`);
 });
-const execAsync = async (...args) => {
-  return await Command.new(...args).execAsync();
+const execAsync = async (args, options = {}, hooks = {}) => {
+  return await Command.new(...args).execAsync(options, hooks);
 };
 const kurage = {
-  $: async (...args) => {
-    (await execAsync(...args)).throw();
+  $: async (args, options = {}, hooks = {}) => {
+    (await execAsync(args, options, hooks)).throwIfException();
   },
-  $command: async (...args) => {
-    return await execAsync(...args);
+  $command: async (args, options = {}, hooks = {}) => {
+    return await execAsync(args, options, hooks);
   },
-  $exit: async (...args) => {
-    (await execAsync(...args)).exit();
+  $exit: async (args, options = {}, hooks = {}) => {
+    (await execAsync(args, options, hooks)).exit();
   },
   command: Command,
   exception: Exception,
   runtime: Runtime,
+  stopwatch: Stopwatch,
+  timestamp: Timestamp,
   parsePackageJson: () => JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')),
 };
 
