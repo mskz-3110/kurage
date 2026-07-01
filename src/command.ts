@@ -36,6 +36,8 @@ export const defaultExecHooks: ExecHooks<void> = {
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
 
+  static #signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
+
   static new(...args: ConstructorParameters<typeof Command>): Command {
     return new Command(...args);
   }
@@ -97,9 +99,24 @@ export class Command {
     return this;
   }
 
-  async execAsync<T = void>(options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<Command> {
+  #setupExec<T = void>(hooks: ExecHooks<T>): T {
     this.#stopwatch.start();
-    const context = hooks.onStart?.(this);
+    for (const signal of Command.#signals) {
+      process.on(signal, () => this.#kill(signal));
+    }
+    return hooks.onStart?.(this) as T;
+  }
+
+  #cleanupExec<T = void>(hooks: ExecHooks<T>, context: T) {
+    this.#stopwatch.stop();
+    for (const signal of Command.#signals) {
+      process.off(signal, this.#kill);
+    }
+    hooks.onEnd?.(this, context);
+  }
+
+  async execAsync<T = void>(options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<Command> {
+    const context = this.#setupExec<T>(hooks);
     return new Promise((resolve) => {
       try {
         this.#process = undefined;
@@ -113,9 +130,6 @@ export class Command {
 
         this.#process = childProcessModule.spawn(this.command, this.args, { stdio: 'inherit', ...options });
 
-        // TODO signal
-        process.on('SIGINT', (signal) => this.#kill(signal));
-
         this.#process.on('close', (exitCode, signalName) => {
           this.#stopwatch.stop();
 
@@ -125,10 +139,7 @@ export class Command {
             this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
           }
 
-          // TODO signal
-          process.off('SIGINT', this.#kill);
-
-          hooks.onEnd?.(this, context as T);
+          this.#cleanupExec(hooks, context);
           return resolve(this);
         });
 
@@ -137,10 +148,7 @@ export class Command {
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();
 
-          // TODO signal
-          process.off('SIGINT', this.#kill);
-
-          hooks.onEnd?.(this, context as T);
+          this.#cleanupExec(hooks, context);
           return resolve(this);
         });
       } catch (e: unknown) {
@@ -148,10 +156,7 @@ export class Command {
         this.#exception = Exception.new(e);
         this.#appendExceptionMessage();
 
-        // TODO signal
-        process.off('SIGINT', this.#kill);
-
-        hooks.onEnd?.(this, context as T);
+        this.#cleanupExec(hooks, context);
         return resolve(this);
       }
     });

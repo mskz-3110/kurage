@@ -28,6 +28,7 @@ const defaultExecHooks = {
 };
 var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
+  static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
   static new(...args) {
     return new Command(...args);
   }
@@ -68,9 +69,18 @@ var Command = class Command {
         this.#exception.error.message === '' ? this.toString() : `${this.#exception.error.message} @ ${this}`;
     return this;
   }
-  async execAsync(options = {}, hooks = {}) {
+  #setupExec(hooks) {
     this.#stopwatch.start();
-    const context = hooks.onStart?.(this);
+    for (const signal of Command.#signals) process.on(signal, () => this.#kill(signal));
+    return hooks.onStart?.(this);
+  }
+  #cleanupExec(hooks, context) {
+    this.#stopwatch.stop();
+    for (const signal of Command.#signals) process.off(signal, this.#kill);
+    hooks.onEnd?.(this, context);
+  }
+  async execAsync(options = {}, hooks = {}) {
+    const context = this.#setupExec(hooks);
     return new Promise((resolve) => {
       try {
         this.#process = void 0;
@@ -84,29 +94,25 @@ var Command = class Command {
           stdio: 'inherit',
           ...options,
         });
-        process.on('SIGINT', (signal) => this.#kill(signal));
         this.#process.on('close', (exitCode, signalName) => {
           this.#stopwatch.stop();
           if (signalName != null) this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
           else if (exitCode !== 0) this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
-          process.off('SIGINT', this.#kill);
-          hooks.onEnd?.(this, context);
+          this.#cleanupExec(hooks, context);
           return resolve(this);
         });
         this.#process.on('error', (e) => {
           this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();
-          process.off('SIGINT', this.#kill);
-          hooks.onEnd?.(this, context);
+          this.#cleanupExec(hooks, context);
           return resolve(this);
         });
       } catch (e) {
         this.#stopwatch.stop();
         this.#exception = Exception.new(e);
         this.#appendExceptionMessage();
-        process.off('SIGINT', this.#kill);
-        hooks.onEnd?.(this, context);
+        this.#cleanupExec(hooks, context);
         return resolve(this);
       }
     });
