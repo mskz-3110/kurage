@@ -25,7 +25,7 @@ export const defaultExecHooks: ExecHooks<void> = {
     console.error(
       [
         Color.paint('cyan', `[${Timestamp.new()}]`),
-        Color.paint('gray', `${command.elapsedTime.toFixed(3)}ms`),
+        Color.paint('gray', `${command.duration.toFixed(3)}s`),
         `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
         `@ ${Color.paint('gray', command.toString())}`,
       ].join(' ')
@@ -54,8 +54,8 @@ export class Command {
 
   #stopwatch: Stopwatch = Stopwatch.new();
 
-  get elapsedTime(): number {
-    return this.#stopwatch.elapsedTime;
+  get duration(): number {
+    return this.#stopwatch.duration;
   }
 
   #process: ChildProcess | undefined;

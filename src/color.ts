@@ -1,4 +1,6 @@
 export class Color {
+  static #invalidNames: string[] = Object.getOwnPropertyNames(Color);
+
   static #colors: Record<string, string> = {};
 
   static get(name: string): string | undefined {
@@ -6,6 +8,10 @@ export class Color {
   }
 
   static set(name: string, value: string) {
+    if (Color.#invalidNames.includes(name)) {
+      return;
+    }
+
     if (!Object.hasOwn(Color.#colors, name)) {
       Object.defineProperty(Color, name, {
         get: () => Color.get(name),

@@ -12,7 +12,7 @@ var Stopwatch = class Stopwatch {
   get endTime() {
     return this.#stopTime;
   }
-  get elapsedTime() {
+  get duration() {
     const stopTime = this.#stopTime ?? new Timestamp();
     const startTime = this.#startTime ?? stopTime;
     return (stopTime.date.getTime() - startTime.date.getTime()) / 1e3;

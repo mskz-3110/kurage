@@ -1,9 +1,11 @@
 var Color = class Color {
+  static #invalidNames = Object.getOwnPropertyNames(Color);
   static #colors = {};
   static get(name) {
     return Color.#colors[name];
   }
   static set(name, value) {
+    if (Color.#invalidNames.includes(name)) return;
     if (!Object.hasOwn(Color.#colors, name))
       Object.defineProperty(Color, name, {
         get: () => Color.get(name),

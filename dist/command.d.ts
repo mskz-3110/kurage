@@ -10,7 +10,7 @@ export declare class Command {
   static new(...args: ConstructorParameters<typeof Command>): Command;
   get command(): string;
   get args(): string[];
-  get elapsedTime(): number;
+  get duration(): number;
   get process(): ChildProcess | undefined;
   get exitCode(): number;
   get exception(): Exception | undefined;

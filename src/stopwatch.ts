@@ -17,7 +17,7 @@ export class Stopwatch {
     return this.#stopTime;
   }
 
-  get elapsedTime(): number {
+  get duration(): number {
     const stopTime = this.#stopTime ?? new Timestamp();
     const startTime = this.#startTime ?? stopTime;
     return (stopTime.date.getTime() - startTime.date.getTime()) / 1000;

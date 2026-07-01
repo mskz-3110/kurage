@@ -4,7 +4,7 @@ export declare class Stopwatch {
   static new(...args: ConstructorParameters<typeof Stopwatch>): Stopwatch;
   get startTime(): Timestamp | undefined;
   get endTime(): Timestamp | undefined;
-  get elapsedTime(): number;
+  get duration(): number;
   start(): void;
   stop(): void;
 }

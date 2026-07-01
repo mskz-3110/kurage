@@ -19,7 +19,7 @@ const defaultExecHooks = {
     console.error(
       [
         Color.paint('cyan', `[${Timestamp.new()}]`),
-        Color.paint('gray', `${command.elapsedTime.toFixed(3)}ms`),
+        Color.paint('gray', `${command.duration.toFixed(3)}s`),
         `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
         `@ ${Color.paint('gray', command.toString())}`,
       ].join(' ')
@@ -40,8 +40,8 @@ var Command = class Command {
     return this.#args;
   }
   #stopwatch = Stopwatch.new();
-  get elapsedTime() {
-    return this.#stopwatch.elapsedTime;
+  get duration() {
+    return this.#stopwatch.duration;
   }
   #process;
   get process() {
