@@ -1,7 +1,16 @@
 import childProcessModule from 'node:child_process';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
+import { Timestamp } from './timestamp.js';
 
+const defaultExecHooks = {
+  onStart: (command) => {
+    console.error(`[${Timestamp.new()}] ${process.cwd()} @ ${command}`);
+  },
+  onEnd: (command) => {
+    console.error(`[${Timestamp.new()}] ${command.elapsedTime.toFixed(3)}ms (${command.exitCode}) @ ${command}`);
+  },
+};
 var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static new(...args) {
@@ -22,6 +31,10 @@ var Command = class Command {
   #process;
   get process() {
     return this.#process;
+  }
+  get exitCode() {
+    if (this.#process != null && this.#process.exitCode != null) return this.#process.exitCode;
+    return this.#exception != null ? 1 : 0;
   }
   #exception;
   get exception() {
@@ -80,9 +93,7 @@ var Command = class Command {
     if (this.#exception != null) throw this.#exception;
   }
   exit() {
-    let exitCode = this.#exception != null ? 1 : 0;
-    if (this.#process != null && this.#process.exitCode != null) exitCode = this.#process.exitCode;
-    process.exit(exitCode);
+    process.exit(this.exitCode);
   }
   toString() {
     return [
@@ -92,4 +103,4 @@ var Command = class Command {
   }
 };
 
-export { Command };
+export { Command, defaultExecHooks };

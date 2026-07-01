@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { Command } from './command.js';
+import { Command, defaultExecHooks } from './command.js';
 import { Exception } from './exception.js';
 import { Runtime } from './runtime.js';
 import { Stopwatch } from './stopwatch.js';
@@ -16,14 +16,14 @@ const execAsync = async (args, options = {}, hooks = {}) => {
   return await Command.new(...args).execAsync(options, hooks);
 };
 const kurage = {
-  $: async (args, options = {}, hooks = {}) => {
-    (await execAsync(args, options, hooks)).throwIfException();
+  $: async (args, options = {}, hooks) => {
+    (await execAsync(args, options, hooks ?? defaultExecHooks)).throwIfException();
   },
-  $command: async (args, options = {}, hooks = {}) => {
-    return await execAsync(args, options, hooks);
+  $command: async (args, options = {}, hooks) => {
+    return await execAsync(args, options, hooks ?? defaultExecHooks);
   },
-  $exit: async (args, options = {}, hooks = {}) => {
-    (await execAsync(args, options, hooks)).exit();
+  $exit: async (args, options = {}, hooks) => {
+    (await execAsync(args, options, hooks ?? defaultExecHooks)).exit();
   },
   command: Command,
   exception: Exception,

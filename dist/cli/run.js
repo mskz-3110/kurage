@@ -1,16 +1,4 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-await kurage.$command(
-  [kurage.runtime.name, ...process.argv.slice(3)],
-  {},
-  {
-    onStart: (command) => {
-      console.error(`[${(/* @__PURE__ */ new Date()).toISOString()}] ${process.cwd()} @ ${command}`);
-    },
-    onEnd: (command) => {
-      console.error(`[${(/* @__PURE__ */ new Date()).toISOString()}] ${command.elapsedTime.toFixed(3)}ms @ ${command}`);
-      command.exit();
-    },
-  }
-);
+await kurage.$exit([kurage.runtime.name, ...process.argv.slice(3)]);

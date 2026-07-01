@@ -6,9 +6,10 @@ var Timestamp = class Timestamp {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
+    hour12: false,
     fractionalSecondDigits: 3,
   };
-  static #formatter = new Intl.DateTimeFormat(void 0, Timestamp.#options);
+  static formatter = new Intl.DateTimeFormat('ja-JP', Timestamp.#options);
   static new(...args) {
     return new Timestamp(...args);
   }
@@ -22,7 +23,7 @@ var Timestamp = class Timestamp {
     else this.#date = new Date(value);
   }
   toString() {
-    return Timestamp.#formatter.format(this.#date);
+    return Timestamp.formatter.format(this.#date);
   }
 };
 

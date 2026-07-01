@@ -2,11 +2,21 @@ import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
+import { Timestamp } from './timestamp.js';
 
 export interface ExecHooks<T> {
   onStart?: (command: Command) => T;
   onEnd?: (command: Command, context: T) => void;
 }
+
+export const defaultExecHooks: ExecHooks<void> = {
+  onStart: (command) => {
+    console.error(`[${Timestamp.new()}] ${process.cwd()} @ ${command}`);
+  },
+  onEnd: (command) => {
+    console.error(`[${Timestamp.new()}] ${command.elapsedTime.toFixed(3)}ms (${command.exitCode}) @ ${command}`);
+  },
+};
 
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
@@ -37,6 +47,14 @@ export class Command {
 
   get process(): ChildProcess | undefined {
     return this.#process;
+  }
+
+  get exitCode(): number {
+    if (this.#process != null && this.#process.exitCode != null) {
+      return this.#process!.exitCode!;
+    }
+
+    return this.#exception != null ? 1 : 0;
   }
 
   #exception: Exception | undefined;
@@ -110,11 +128,7 @@ export class Command {
   }
 
   exit() {
-    let exitCode = this.#exception != null ? 1 : 0;
-    if (this.#process != null && this.#process.exitCode != null) {
-      exitCode = this.#process.exitCode;
-    }
-    process.exit(exitCode);
+    process.exit(this.exitCode);
   }
 
   toString(): string {

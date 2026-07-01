@@ -2,7 +2,7 @@ import type { SpawnOptions } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { ExecHooks } from './command.js';
-import { Command } from './command.js';
+import { Command, defaultExecHooks } from './command.js';
 import { Exception } from './exception.js';
 import { Runtime } from './runtime.js';
 import { Stopwatch } from './stopwatch.js';
@@ -31,18 +31,14 @@ const execAsync = async <T = void>(
 };
 
 export const kurage = {
-  $: async <T = void>(args: string[], options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<void> => {
-    (await execAsync(args, options, hooks)).throwIfException();
+  $: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
+    (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).throwIfException();
   },
-  $command: async <T = void>(
-    args: string[],
-    options: SpawnOptions = {},
-    hooks: ExecHooks<T> = {}
-  ): Promise<Command> => {
-    return await execAsync(args, options, hooks);
+  $command: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<Command> => {
+    return await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>);
   },
-  $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<void> => {
-    (await execAsync(args, options, hooks)).exit();
+  $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
+    (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).exit();
   },
   command: Command,
   exception: Exception,
