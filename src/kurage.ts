@@ -1,6 +1,7 @@
 import type { SpawnOptions } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command, defaultExecHooks } from './command.js';
 import { Exception } from './exception.js';
@@ -15,11 +16,11 @@ export type PackageJson = {
 };
 
 process.on('uncaughtException', (e) => {
-  console.error(`UncaughtException: ${Exception.new(e)}`);
+  console.error(Color.paint('red', `UncaughtException: ${Exception.new(e)}`));
 });
 
 process.on('unhandledRejection', (reason) => {
-  console.error(`UnhandledRejection: ${Exception.new(reason)}`);
+  console.error(Color.paint('red', `UnhandledRejection: ${Exception.new(reason)}`));
 });
 
 const execAsync = async <T = void>(
@@ -40,6 +41,7 @@ export const kurage = {
   $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
     (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).exit();
   },
+  color: Color,
   command: Command,
   exception: Exception,
   runtime: Runtime,

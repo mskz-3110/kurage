@@ -1,14 +1,29 @@
 import childProcessModule from 'node:child_process';
+import { Color } from './color.js';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 
 const defaultExecHooks = {
   onStart: (command) => {
-    console.error(`[${Timestamp.new()}] ${process.cwd()} @ ${command}`);
+    console.error(
+      [
+        Color.paint('cyan', `[${Timestamp.new()}]`),
+        Color.paint('yellow', process.cwd()),
+        `@ ${Color.paint('gray', command.toString())}`,
+      ].join(' ')
+    );
   },
   onEnd: (command) => {
-    console.error(`[${Timestamp.new()}] ${command.elapsedTime.toFixed(3)}ms (${command.exitCode}) @ ${command}`);
+    const exitCode = command.exitCode;
+    console.error(
+      [
+        Color.paint('cyan', `[${Timestamp.new()}]`),
+        Color.paint('gray', `${command.elapsedTime.toFixed(3)}ms`),
+        `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+        `@ ${Color.paint('gray', command.toString())}`,
+      ].join(' ')
+    );
   },
 };
 var Command = class Command {
@@ -44,6 +59,9 @@ var Command = class Command {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
+  #kill(signal) {
+    if (this.#process != null && !this.#process.killed) this.#process.kill(signal);
+  }
   #appendExceptionMessage() {
     if (this.#exception != null)
       this.#exception.error.message =
@@ -66,24 +84,28 @@ var Command = class Command {
           stdio: 'inherit',
           ...options,
         });
+        process.on('SIGINT', (signal) => this.#kill(signal));
         this.#process.on('close', (exitCode, signalName) => {
+          this.#stopwatch.stop();
           if (signalName != null) this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
           else if (exitCode !== 0) this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
-          this.#stopwatch.stop();
+          process.off('SIGINT', this.#kill);
           hooks.onEnd?.(this, context);
           return resolve(this);
         });
         this.#process.on('error', (e) => {
+          this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();
-          this.#stopwatch.stop();
+          process.off('SIGINT', this.#kill);
           hooks.onEnd?.(this, context);
           return resolve(this);
         });
       } catch (e) {
+        this.#stopwatch.stop();
         this.#exception = Exception.new(e);
         this.#appendExceptionMessage();
-        this.#stopwatch.stop();
+        process.off('SIGINT', this.#kill);
         hooks.onEnd?.(this, context);
         return resolve(this);
       }

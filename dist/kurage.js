@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { Color } from './color.js';
 import { Command, defaultExecHooks } from './command.js';
 import { Exception } from './exception.js';
 import { Runtime } from './runtime.js';
@@ -7,10 +8,10 @@ import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 
 process.on('uncaughtException', (e) => {
-  console.error(`UncaughtException: ${Exception.new(e)}`);
+  console.error(Color.paint('red', `UncaughtException: ${Exception.new(e)}`));
 });
 process.on('unhandledRejection', (reason) => {
-  console.error(`UnhandledRejection: ${Exception.new(reason)}`);
+  console.error(Color.paint('red', `UnhandledRejection: ${Exception.new(reason)}`));
 });
 const execAsync = async (args, options = {}, hooks = {}) => {
   return await Command.new(...args).execAsync(options, hooks);
@@ -25,6 +26,7 @@ const kurage = {
   $exit: async (args, options = {}, hooks) => {
     (await execAsync(args, options, hooks ?? defaultExecHooks)).exit();
   },
+  color: Color,
   command: Command,
   exception: Exception,
   runtime: Runtime,

@@ -1,5 +1,6 @@
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
+import { Color } from './color.js';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
@@ -11,10 +12,24 @@ export interface ExecHooks<T> {
 
 export const defaultExecHooks: ExecHooks<void> = {
   onStart: (command) => {
-    console.error(`[${Timestamp.new()}] ${process.cwd()} @ ${command}`);
+    console.error(
+      [
+        Color.paint('cyan', `[${Timestamp.new()}]`),
+        Color.paint('yellow', process.cwd()),
+        `@ ${Color.paint('gray', command.toString())}`,
+      ].join(' ')
+    );
   },
   onEnd: (command) => {
-    console.error(`[${Timestamp.new()}] ${command.elapsedTime.toFixed(3)}ms (${command.exitCode}) @ ${command}`);
+    const exitCode = command.exitCode;
+    console.error(
+      [
+        Color.paint('cyan', `[${Timestamp.new()}]`),
+        Color.paint('gray', `${command.elapsedTime.toFixed(3)}ms`),
+        `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+        `@ ${Color.paint('gray', command.toString())}`,
+      ].join(' ')
+    );
   },
 };
 
@@ -68,6 +83,12 @@ export class Command {
     this.#args = args.slice(1);
   }
 
+  #kill(signal: NodeJS.Signals) {
+    if (this.#process != null && !this.#process.killed) {
+      this.#process.kill(signal);
+    }
+  }
+
   #appendExceptionMessage(): Command {
     if (this.#exception != null) {
       this.#exception.error.message =
@@ -92,29 +113,44 @@ export class Command {
 
         this.#process = childProcessModule.spawn(this.command, this.args, { stdio: 'inherit', ...options });
 
+        // TODO signal
+        process.on('SIGINT', (signal) => this.#kill(signal));
+
         this.#process.on('close', (exitCode, signalName) => {
+          this.#stopwatch.stop();
+
           if (signalName != null) {
             this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
           } else if (exitCode !== 0) {
             this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
           }
 
-          this.#stopwatch.stop();
+          // TODO signal
+          process.off('SIGINT', this.#kill);
+
           hooks.onEnd?.(this, context as T);
           return resolve(this);
         });
 
         this.#process.on('error', (e) => {
+          this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();
-          this.#stopwatch.stop();
+
+          // TODO signal
+          process.off('SIGINT', this.#kill);
+
           hooks.onEnd?.(this, context as T);
           return resolve(this);
         });
       } catch (e: unknown) {
+        this.#stopwatch.stop();
         this.#exception = Exception.new(e);
         this.#appendExceptionMessage();
-        this.#stopwatch.stop();
+
+        // TODO signal
+        process.off('SIGINT', this.#kill);
+
         hooks.onEnd?.(this, context as T);
         return resolve(this);
       }
