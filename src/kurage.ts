@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command, defaultExecHooks } from './command.js';
+import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Runtime } from './runtime.js';
 import { Stopwatch } from './stopwatch.js';
@@ -43,6 +44,7 @@ export const kurage = {
   },
   color: Color,
   command: Command,
+  duration: Duration,
   exception: Exception,
   runtime: Runtime,
   stopwatch: Stopwatch,

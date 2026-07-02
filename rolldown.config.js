@@ -5,6 +5,7 @@ export default defineConfig({
     'kurage': 'src/kurage.ts',
     'color': 'src/color.ts',
     'command': 'src/command.ts',
+    'duration': 'src/duration.ts',
     'exception': 'src/exception.ts',
     'runtime': 'src/runtime.ts',
     'stopwatch': 'src/stopwatch.ts',

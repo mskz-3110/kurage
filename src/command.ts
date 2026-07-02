@@ -1,6 +1,7 @@
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 import { Color } from './color.js';
+import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
 
@@ -24,7 +25,7 @@ export const defaultExecHooks: ExecHooks<void> = {
     console.error(
       [
         Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
-        Color.paint('gray', `${command.stopwatch.duration}ms`),
+        Color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
         `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
         `@ ${Color.paint('gray', command.toString())}`,
       ].join(' ')
