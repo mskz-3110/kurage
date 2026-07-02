@@ -30,13 +30,17 @@ Examples:
 };
 
 if (cliModes.includes(mode)) {
+  process.argv = process.argv.slice(1);
+  if (process.argv.length < 2) {
+    process.argv.push(mode);
+  }
   import(`./${mode}.js`);
 } else if (['-v', '--version'].includes(mode)) {
   console.log(kurage.parsePackageJson().version);
 } else if (['-h', '--help'].includes(mode)) {
   console.log(createHelpMessage(kurage.parsePackageJson()));
 } else {
-  console.error(`Invalid command: ${process.argv.slice(2).join(' ')}`);
+  console.error(`Invalid command: ${kurage.process.args.join(' ')}`);
   console.error(createHelpMessage(kurage.parsePackageJson()));
   process.exit(1);
 }

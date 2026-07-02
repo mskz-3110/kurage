@@ -6,6 +6,7 @@ import type { ExecHooks } from './command.js';
 import { Command, defaultExecHooks } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
+import { Process } from './process.js';
 import { Runtime } from './runtime.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
@@ -15,14 +16,6 @@ export type PackageJson = {
   version: string;
   description: string;
 };
-
-process.on('uncaughtException', (e) => {
-  console.error(Color.paint('red', `UncaughtException: ${Exception.new(e)}`));
-});
-
-process.on('unhandledRejection', (reason) => {
-  console.error(Color.paint('red', `UnhandledRejection: ${Exception.new(reason)}`));
-});
 
 const execAsync = async <T = void>(
   args: string[],
@@ -46,6 +39,7 @@ export const kurage = {
   command: Command,
   duration: Duration,
   exception: Exception,
+  process: Process,
   runtime: Runtime,
   stopwatch: Stopwatch,
   timestamp: Timestamp,

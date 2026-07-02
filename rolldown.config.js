@@ -7,6 +7,7 @@ export default defineConfig({
     'command': 'src/command.ts',
     'duration': 'src/duration.ts',
     'exception': 'src/exception.ts',
+    'process': 'src/process.ts',
     'runtime': 'src/runtime.ts',
     'stopwatch': 'src/stopwatch.ts',
     'timestamp': 'src/timestamp.ts',

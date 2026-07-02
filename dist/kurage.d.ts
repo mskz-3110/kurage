@@ -4,6 +4,7 @@ import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
+import { Process } from './process.js';
 import { Runtime } from './runtime.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
@@ -20,6 +21,7 @@ export declare const kurage: {
   command: typeof Command;
   duration: typeof Duration;
   exception: typeof Exception;
+  process: typeof Process;
   runtime: typeof Runtime;
   stopwatch: typeof Stopwatch;
   timestamp: typeof Timestamp;

@@ -13,8 +13,8 @@ console.log(
         },
       },
       process: {
-        argv: process.argv,
         versions: process.versions,
+        argv: process.argv,
       },
     },
     null,

@@ -1,3 +1,3 @@
 import kurage from '../kurage.js';
 
-await kurage.$exit(process.argv.slice(3));
+await kurage.$exit(kurage.process.args);
