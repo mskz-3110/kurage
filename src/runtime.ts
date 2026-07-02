@@ -1,11 +1,11 @@
-export type RuntimeName = 'bun' | 'deno' | 'node';
+export type Name = 'bun' | 'deno' | 'node';
 
-export interface RuntimeConfig {
+export interface Config {
   readonly replArgs: string[];
 }
 
 export class Runtime {
-  static #supportedRuntimes: Record<RuntimeName, RuntimeConfig> = {
+  static #supportedRuntimes: Record<Name, Config> = {
     'bun': {
       replArgs: ['bun', 'repl'],
     },
@@ -17,18 +17,18 @@ export class Runtime {
     },
   } as const;
 
-  static #name: RuntimeName = 'node';
+  static #name: Name = 'node';
 
-  static get name(): RuntimeName {
+  static get name(): Name {
     return Runtime.#name;
   }
 
-  static get config(): RuntimeConfig {
+  static get config(): Config {
     return Runtime.#supportedRuntimes[Runtime.#name];
   }
 
   static {
-    for (const name of Object.keys(Runtime.#supportedRuntimes) as RuntimeName[]) {
+    for (const name of Object.keys(Runtime.#supportedRuntimes) as Name[]) {
       if (Object.hasOwn(process.versions, name)) {
         Runtime.#name = name;
         break;

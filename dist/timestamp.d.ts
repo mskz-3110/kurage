@@ -3,6 +3,6 @@ export declare class Timestamp {
   static formatter: Intl.DateTimeFormat;
   static new(...args: ConstructorParameters<typeof Timestamp>): Timestamp;
   get date(): Date;
-  constructor(value?: Timestamp | Date | string);
+  constructor(date?: Date);
   toString(): string;
 }

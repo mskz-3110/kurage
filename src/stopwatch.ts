@@ -13,14 +13,14 @@ export class Stopwatch {
 
   #stopTime: Timestamp | undefined;
 
-  get endTime(): Timestamp | undefined {
+  get stopTime(): Timestamp | undefined {
     return this.#stopTime;
   }
 
   get duration(): number {
     const stopTime = this.#stopTime ?? new Timestamp();
     const startTime = this.#startTime ?? stopTime;
-    return (stopTime.date.getTime() - startTime.date.getTime()) / 1000;
+    return stopTime.date.getTime() - startTime.date.getTime();
   }
 
   start() {
@@ -29,6 +29,8 @@ export class Stopwatch {
   }
 
   stop() {
-    this.#stopTime = this.#stopTime ?? new Timestamp();
+    if (this.#stopTime == null) {
+      this.#stopTime = new Timestamp();
+    }
   }
 }

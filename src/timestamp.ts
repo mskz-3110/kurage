@@ -22,14 +22,8 @@ export class Timestamp {
     return this.#date;
   }
 
-  constructor(value: Timestamp | Date | string = new Date()) {
-    if (value instanceof Timestamp) {
-      this.#date = value.date;
-    } else if (value instanceof Date) {
-      this.#date = value;
-    } else {
-      this.#date = new Date(value);
-    }
+  constructor(date: Date = new Date()) {
+    this.#date = date;
   }
 
   toString(): string {

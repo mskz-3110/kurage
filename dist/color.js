@@ -19,8 +19,7 @@ var Color = class Color {
     const value = Color.get(name);
     if (value == null) return message;
     const reset = Color.get('reset');
-    const paintedMessage = `${value}${message}`;
-    return value === reset ? paintedMessage : `${paintedMessage}${reset}`;
+    return value === reset ? `${value}${message}` : `${value}${message}${reset}`;
   }
   static {
     Color.set('reset', '\x1B[0m');

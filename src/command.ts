@@ -3,7 +3,6 @@ import childProcessModule from 'node:child_process';
 import { Color } from './color.js';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
-import { Timestamp } from './timestamp.js';
 
 export interface ExecHooks<T> {
   onStart?: (command: Command) => T;
@@ -14,7 +13,7 @@ export const defaultExecHooks: ExecHooks<void> = {
   onStart: (command) => {
     console.error(
       [
-        Color.paint('cyan', `[${Timestamp.new()}]`),
+        Color.paint('cyan', `[${command.stopwatch.startTime}]`),
         Color.paint('yellow', process.cwd()),
         `@ ${Color.paint('gray', command.toString())}`,
       ].join(' ')
@@ -24,8 +23,8 @@ export const defaultExecHooks: ExecHooks<void> = {
     const exitCode = command.exitCode;
     console.error(
       [
-        Color.paint('cyan', `[${Timestamp.new()}]`),
-        Color.paint('gray', `${command.duration.toFixed(3)}s`),
+        Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
+        Color.paint('gray', `${command.stopwatch.duration}ms`),
         `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
         `@ ${Color.paint('gray', command.toString())}`,
       ].join(' ')
@@ -56,8 +55,8 @@ export class Command {
 
   #stopwatch: Stopwatch = Stopwatch.new();
 
-  get duration(): number {
-    return this.#stopwatch.duration;
+  get stopwatch(): Stopwatch {
+    return this.#stopwatch;
   }
 
   #process: ChildProcess | undefined;
@@ -123,8 +122,7 @@ export class Command {
         this.#exception = undefined;
 
         if (this.#command === '') {
-          this.#stopwatch.stop();
-          hooks.onEnd?.(this, context as T);
+          this.#cleanupExec(hooks, context);
           return resolve(this);
         }
 

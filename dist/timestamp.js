@@ -17,10 +17,8 @@ var Timestamp = class Timestamp {
   get date() {
     return this.#date;
   }
-  constructor(value = /* @__PURE__ */ new Date()) {
-    if (value instanceof Timestamp) this.#date = value.date;
-    else if (value instanceof Date) this.#date = value;
-    else this.#date = new Date(value);
+  constructor(date = /* @__PURE__ */ new Date()) {
+    this.#date = date;
   }
   toString() {
     return Timestamp.formatter.format(this.#date);

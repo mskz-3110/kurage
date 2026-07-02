@@ -9,20 +9,20 @@ var Stopwatch = class Stopwatch {
     return this.#startTime;
   }
   #stopTime;
-  get endTime() {
+  get stopTime() {
     return this.#stopTime;
   }
   get duration() {
     const stopTime = this.#stopTime ?? new Timestamp();
     const startTime = this.#startTime ?? stopTime;
-    return (stopTime.date.getTime() - startTime.date.getTime()) / 1e3;
+    return stopTime.date.getTime() - startTime.date.getTime();
   }
   start() {
     this.#startTime = new Timestamp();
     this.#stopTime = void 0;
   }
   stop() {
-    this.#stopTime = this.#stopTime ?? new Timestamp();
+    if (this.#stopTime == null) this.#stopTime = new Timestamp();
   }
 };
 
