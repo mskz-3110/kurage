@@ -3,6 +3,8 @@ import childProcessModule from 'node:child_process';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
+import type { Payload } from './logger.js';
+import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
 
 export interface ExecHooks<T> {
@@ -11,32 +13,42 @@ export interface ExecHooks<T> {
 }
 
 export const defaultExecHooks: ExecHooks<void> = {
-  onStart: (command) => {
-    console.error(
-      [
-        Color.paint('cyan', `[${command.stopwatch.startTime}]`),
-        Color.paint('yellow', process.cwd()),
-        `@ ${Color.paint('gray', command.toString())}`,
-      ].join(' ')
-    );
-  },
-  onEnd: (command) => {
-    const exitCode = command.exitCode;
-    console.error(
-      [
-        Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
-        Color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-        `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-        `@ ${Color.paint('gray', command.toString())}`,
-      ].join(' ')
-    );
-  },
+  onStart: (command) => Logger.logger.write('command-start', [command]),
+  onEnd: (command) => Logger.logger.write('command-end', [command]),
 };
 
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
 
   static #signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
+
+  static {
+    Logger.logger.addHandler('command-start', {
+      write: console.error,
+      format: (payload: Payload) => {
+        const command = payload.args[0]! as Command;
+        return [
+          Color.paint('cyan', `[${command.stopwatch.startTime}]`),
+          Color.paint('yellow', process.cwd()),
+          `@ ${Color.paint('gray', command.toString())}`,
+        ].join(' ');
+      },
+    });
+
+    Logger.logger.addHandler('command-end', {
+      write: console.error,
+      format: (payload: Payload) => {
+        const command = payload.args[0]! as Command;
+        const exitCode = command.exitCode;
+        return [
+          Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
+          Color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+          `@ ${Color.paint('gray', command.toString())}`,
+        ].join(' ');
+      },
+    });
+  }
 
   static new(...args: ConstructorParameters<typeof Command>): Command {
     return new Command(...args);

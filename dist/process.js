@@ -1,12 +1,12 @@
-import { Color } from './color.js';
 import { Exception } from './exception.js';
+import { Logger } from './logger.js';
 
 var Process = class Process {
   static #uncaughtException = (e) => {
-    console.error(Color.paint('red', `UncaughtException: ${Exception.new(e)}`));
+    Logger.logger.write('error', [`UncaughtException: ${Exception.new(e)}`]);
   };
   static #unhandledRejection = (reason) => {
-    console.error(Color.paint('red', `UnhandledRejection: ${Exception.new(reason)}`));
+    Logger.logger.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
   };
   static #listeners = {
     uncaughtException: Process.#uncaughtException,

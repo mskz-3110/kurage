@@ -2,10 +2,10 @@ var Color = class Color {
   static #invalidNames = Object.getOwnPropertyNames(Color);
   static #colors = {};
   static get(name) {
-    return Color.#colors[name];
+    return Color.#colors[name] ?? '';
   }
   static set(name, value) {
-    if (Color.#invalidNames.includes(name)) return;
+    if (Color.#invalidNames.includes(name) || name === '') return;
     if (!Object.hasOwn(Color.#colors, name))
       Object.defineProperty(Color, name, {
         get: () => Color.get(name),
@@ -17,7 +17,7 @@ var Color = class Color {
   static paint(name, message) {
     if (message === '') return message;
     const value = Color.get(name);
-    if (value == null) return message;
+    if (value === '') return message;
     const reset = Color.get('reset');
     return value === reset ? `${value}${message}` : `${value}${message}${reset}`;
   }

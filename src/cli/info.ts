@@ -1,7 +1,6 @@
 import kurage from '../kurage.js';
 
 const packageJson = kurage.parsePackageJson();
-
 console.log(
   JSON.stringify(
     {

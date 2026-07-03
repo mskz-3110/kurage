@@ -3,12 +3,12 @@ export class Color {
 
   static #colors: Record<string, string> = {};
 
-  static get(name: string): string | undefined {
-    return Color.#colors[name];
+  static get(name: string): string {
+    return Color.#colors[name] ?? '';
   }
 
   static set(name: string, value: string) {
-    if (Color.#invalidNames.includes(name)) {
+    if (Color.#invalidNames.includes(name) || name === '') {
       return;
     }
 
@@ -29,7 +29,7 @@ export class Color {
     }
 
     const value = Color.get(name);
-    if (value == null) {
+    if (value === '') {
       return message;
     }
 

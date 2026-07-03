@@ -2,33 +2,42 @@ import childProcessModule from 'node:child_process';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
+import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
 
 const defaultExecHooks = {
-  onStart: (command) => {
-    console.error(
-      [
-        Color.paint('cyan', `[${command.stopwatch.startTime}]`),
-        Color.paint('yellow', process.cwd()),
-        `@ ${Color.paint('gray', command.toString())}`,
-      ].join(' ')
-    );
-  },
-  onEnd: (command) => {
-    const exitCode = command.exitCode;
-    console.error(
-      [
-        Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
-        Color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-        `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-        `@ ${Color.paint('gray', command.toString())}`,
-      ].join(' ')
-    );
-  },
+  onStart: (command) => Logger.logger.write('command-start', [command]),
+  onEnd: (command) => Logger.logger.write('command-end', [command]),
 };
 var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
+  static {
+    Logger.logger.addHandler('command-start', {
+      write: console.error,
+      format: (payload) => {
+        const command = payload.args[0];
+        return [
+          Color.paint('cyan', `[${command.stopwatch.startTime}]`),
+          Color.paint('yellow', process.cwd()),
+          `@ ${Color.paint('gray', command.toString())}`,
+        ].join(' ');
+      },
+    });
+    Logger.logger.addHandler('command-end', {
+      write: console.error,
+      format: (payload) => {
+        const command = payload.args[0];
+        const exitCode = command.exitCode;
+        return [
+          Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
+          Color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+          `@ ${Color.paint('gray', command.toString())}`,
+        ].join(' ');
+      },
+    });
+  }
   static new(...args) {
     return new Command(...args);
   }

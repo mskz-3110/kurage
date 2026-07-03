@@ -1,5 +1,5 @@
-import { Color } from './color.js';
 import { Exception } from './exception.js';
+import { Logger } from './logger.js';
 
 type Listeners = {
   uncaughtException: (e: unknown) => void;
@@ -8,11 +8,11 @@ type Listeners = {
 
 export class Process {
   static #uncaughtException = (e: unknown) => {
-    console.error(Color.paint('red', `UncaughtException: ${Exception.new(e)}`));
+    Logger.logger.write('error', [`UncaughtException: ${Exception.new(e)}`]);
   };
 
   static #unhandledRejection = (reason: unknown) => {
-    console.error(Color.paint('red', `UnhandledRejection: ${Exception.new(reason)}`));
+    Logger.logger.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
   };
 
   static #listeners: Listeners = {
