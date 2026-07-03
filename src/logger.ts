@@ -1,4 +1,4 @@
-import utilModule from 'node:util';
+import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Timestamp } from './timestamp.js';
 
@@ -17,13 +17,47 @@ interface Handler {
 }
 
 export class Logger {
-  static #invalidNames: string[] = Object.getOwnPropertyNames(Logger);
-
   static logger: Logger = new Logger();
+
+  static format(payload: Payload): string {
+    return `[${payload.timestamp}] ${String(payload.args)}`;
+  }
+
+  static {
+    Logger.logger.addHandler('debug', {
+      write: console.log,
+      format: (payload: Payload) => {
+        return Color.color.paint('cyan', Logger.format(payload));
+      },
+    });
+
+    Logger.logger.addHandler('info', {
+      write: console.log,
+      format: (payload: Payload) => {
+        return Color.color.paint('reset', Logger.format(payload));
+      },
+    });
+
+    Logger.logger.addHandler('warn', {
+      write: console.error,
+      format: (payload: Payload) => {
+        return Color.color.paint('yellow', Logger.format(payload));
+      },
+    });
+
+    Logger.logger.addHandler('error', {
+      write: console.error,
+      format: (payload: Payload) => {
+        return Color.color.paint('red', Logger.format(payload));
+      },
+    });
+  }
 
   static new(...args: ConstructorParameters<typeof Logger>): Logger {
     return new Logger(...args);
   }
+
+  #invalidNames: string[] = [...Object.getOwnPropertyNames(Logger), ...Object.getOwnPropertyNames(Logger.prototype)];
 
   #handlers: Record<string, Handler[]> = {};
 
@@ -31,54 +65,8 @@ export class Logger {
     return Object.keys(this.#handlers);
   }
 
-  constructor() {
-    this.addHandler('debug', {
-      write: console.log,
-      format: (payload: Payload) => {
-        return Color.paint('cyan', this.format(payload));
-      },
-    });
-
-    this.addHandler('info', {
-      write: console.log,
-      format: (payload: Payload) => {
-        return Color.paint('reset', this.format(payload));
-      },
-    });
-
-    this.addHandler('warn', {
-      write: console.error,
-      format: (payload: Payload) => {
-        return Color.paint('yellow', this.format(payload));
-      },
-    });
-
-    this.addHandler('error', {
-      write: console.error,
-      format: (payload: Payload) => {
-        return Color.paint('red', this.format(payload));
-      },
-    });
-  }
-
-  write(name: string, args: unknown[], timestamp?: Timestamp) {
-    if (!Object.hasOwn(this.#handlers, name)) {
-      console.error(utilModule.inspect(args, false, null, true));
-      return;
-    }
-
-    const payload = { timestamp: timestamp ?? Timestamp.new(), args };
-    for (const handler of this.#handlers[name]!) {
-      handler.write(handler.format(payload));
-    }
-  }
-
-  format: Format = (payload: Payload): string => {
-    return `[${payload.timestamp}] ${String(payload.args)}`;
-  };
-
   addHandler(name: string, handler: Handler) {
-    if (Logger.#invalidNames.includes(name) || name === '') {
+    if (this.#invalidNames.includes(name) || name === '') {
       return;
     }
 
@@ -86,6 +74,18 @@ export class Logger {
       this.#handlers[name]!.push(handler);
     } else {
       this.#handlers[name] = [handler];
+    }
+  }
+
+  write(name: string, args: unknown[], timestamp?: Timestamp) {
+    if (!Object.hasOwn(this.#handlers, name)) {
+      console.error(`${String(args)}\n${Backtrace.new()}`);
+      return;
+    }
+
+    const payload = { timestamp: timestamp ?? Timestamp.new(), args };
+    for (const handler of this.#handlers[name]!) {
+      handler.write(handler.format(payload));
     }
   }
 }

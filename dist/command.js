@@ -17,10 +17,11 @@ var Command = class Command {
       write: console.error,
       format: (payload) => {
         const command = payload.args[0];
+        if (!(command instanceof Command)) return Logger.format(payload);
         return [
-          Color.paint('cyan', `[${command.stopwatch.startTime}]`),
-          Color.paint('yellow', process.cwd()),
-          `@ ${Color.paint('gray', command.toString())}`,
+          Color.color.paint('cyan', `[${command.stopwatch.startTime}]`),
+          Color.color.paint('yellow', process.cwd()),
+          `@ ${Color.color.paint('gray', command.toString())}`,
         ].join(' ');
       },
     });
@@ -28,12 +29,13 @@ var Command = class Command {
       write: console.error,
       format: (payload) => {
         const command = payload.args[0];
+        if (!(command instanceof Command)) return Logger.format(payload);
         const exitCode = command.exitCode;
         return [
-          Color.paint('cyan', `[${command.stopwatch.stopTime}]`),
-          Color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-          `(${Color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-          `@ ${Color.paint('gray', command.toString())}`,
+          Color.color.paint('cyan', `[${command.stopwatch.stopTime}]`),
+          Color.color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+          `@ ${Color.color.paint('gray', command.toString())}`,
         ].join(' ');
       },
     });

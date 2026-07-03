@@ -12,11 +12,10 @@ interface Handler {
 export declare class Logger {
   #private;
   static logger: Logger;
+  static format(payload: Payload): string;
   static new(...args: ConstructorParameters<typeof Logger>): Logger;
   get names(): string[];
-  constructor();
-  write(name: string, args: unknown[], timestamp?: Timestamp): void;
-  format: Format;
   addHandler(name: string, handler: Handler): void;
+  write(name: string, args: unknown[], timestamp?: Timestamp): void;
 }
 export {};
