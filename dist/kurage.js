@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Command, defaultExecHooks } from './command.js';
 import { Duration } from './duration.js';
@@ -22,6 +23,7 @@ const kurage = {
   $exit: async (args, options = {}, hooks) => {
     (await execAsync(args, options, hooks ?? defaultExecHooks)).exit();
   },
+  backtrace: Backtrace,
   color: Color,
   command: Command,
   duration: Duration,

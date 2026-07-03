@@ -1,6 +1,7 @@
 import type { SpawnOptions } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command, defaultExecHooks } from './command.js';
@@ -35,6 +36,7 @@ export const kurage = {
   $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
     (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).exit();
   },
+  backtrace: Backtrace,
   color: Color,
   command: Command,
   duration: Duration,

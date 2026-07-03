@@ -1,4 +1,5 @@
 import type { SpawnOptions } from 'node:child_process';
+import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
@@ -17,6 +18,7 @@ export declare const kurage: {
   $: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<void>;
   $command: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<Command>;
   $exit: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<void>;
+  backtrace: typeof Backtrace;
   color: typeof Color;
   command: typeof Command;
   duration: typeof Duration;
