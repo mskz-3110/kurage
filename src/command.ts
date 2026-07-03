@@ -161,10 +161,12 @@ export class Command {
     });
   }
 
-  throwIfException() {
+  throwIfException(): Command {
     if (this.#exception != null) {
       throw this.#exception;
     }
+
+    return this;
   }
 
   exit() {

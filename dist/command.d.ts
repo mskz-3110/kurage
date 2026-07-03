@@ -17,7 +17,7 @@ export declare class Command {
   get exception(): Exception | undefined;
   constructor(...args: string[]);
   execAsync<T = void>(options?: SpawnOptions, hooks?: ExecHooks<T>): Promise<Command>;
-  throwIfException(): void;
+  throwIfException(): Command;
   exit(): void;
   toString(): string;
 }

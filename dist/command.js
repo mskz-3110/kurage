@@ -118,6 +118,7 @@ var Command = class Command {
   }
   throwIfException() {
     if (this.#exception != null) throw this.#exception;
+    return this;
   }
   exit() {
     process.exit(this.exitCode);

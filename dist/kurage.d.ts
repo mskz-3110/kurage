@@ -18,6 +18,7 @@ export declare const kurage: {
   $: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<void>;
   $command: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<Command>;
   $exit: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<void>;
+  $out: (args: string[], encoding?: BufferEncoding) => Promise<string>;
   backtrace: typeof Backtrace;
   color: typeof Color;
   command: typeof Command;

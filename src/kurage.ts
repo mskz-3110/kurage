@@ -36,6 +36,16 @@ export const kurage = {
   $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
     (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).exit();
   },
+  $out: async (args: string[], encoding: BufferEncoding = 'utf8'): Promise<string> => {
+    const command = Command.new(...args);
+    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] });
+    const chunks: Buffer[] = [];
+    command.process!.stdout!.on('data', (chunk) => {
+      chunks.push(Buffer.from(chunk));
+    });
+    (await exec).throwIfException();
+    return Buffer.concat(chunks).toString(encoding).trimEnd();
+  },
   backtrace: Backtrace,
   color: Color,
   command: Command,

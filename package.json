@@ -37,10 +37,10 @@
   "scripts": {
     "docker:build": "docker compose up -d --build",
     "docker:bash": "docker compose run --rm kurage bash",
-    "build:js": "rolldown --config && biome format dist --write && chmod +x scripts/*.js dist/cli/*.js",
+    "build:js": "rolldown --config && biome format dist --write",
     "build:dts": "tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts",
     "build:all": "biome check --write src && npm run build:js && npm run build:dts && biome check --write .",
-    "git:chmod": "git update-index --chmod=+x scripts/*.js dist/cli/*.js"
+    "build:chmod": "chmod +x scripts/*.js dist/cli/*.js && git update-index --chmod=+x scripts/*.js dist/cli/*.js"
   },
   "engines": {
     "node": ">=20"
