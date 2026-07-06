@@ -10,7 +10,7 @@ export class Runtime {
       replArgs: ['bun', 'repl'],
     },
     'deno': {
-      replArgs: ['script', '-qec', 'deno repl -A', '/dev/null'],
+      replArgs: ['deno', 'repl', '-A'],
     },
     'node': {
       replArgs: ['node', '-i'],

@@ -1,7 +1,7 @@
 var Runtime = class Runtime {
   static #supportedRuntimes = {
     'bun': { replArgs: ['bun', 'repl'] },
-    'deno': { replArgs: ['script', '-qec', 'deno repl -A', '/dev/null'] },
+    'deno': { replArgs: ['deno', 'repl', '-A'] },
     'node': { replArgs: ['node', '-i'] },
   };
   static #name = 'node';
