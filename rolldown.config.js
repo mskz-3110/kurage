@@ -9,6 +9,7 @@ export default defineConfig({
     'duration': 'src/duration.ts',
     'exception': 'src/exception.ts',
     'logger': 'src/logger.ts',
+    'path': 'src/path.ts',
     'process': 'src/process.ts',
     'runtime': 'src/runtime.ts',
     'stopwatch': 'src/stopwatch.ts',
