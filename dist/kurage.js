@@ -11,22 +11,22 @@ import { Runtime } from './runtime.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 
-const execAsync = async (args, options = {}, hooks = {}) => {
-  return await Command.new(...args).execAsync(options, hooks);
+const execAsync = async (args, options = {}, hooks = defaultExecHooks) => {
+  return await Command.new(args).execAsync(options, hooks);
 };
 const kurage = {
   $: async (args, options = {}, hooks) => {
-    (await execAsync(args, options, hooks ?? defaultExecHooks)).throwIfException();
+    (await execAsync(args, options, hooks)).throwIfException();
   },
   $command: async (args, options = {}, hooks) => {
-    return await execAsync(args, options, hooks ?? defaultExecHooks);
+    return await execAsync(args, options, hooks);
   },
   $exit: async (args, options = {}, hooks) => {
-    (await execAsync(args, options, hooks ?? defaultExecHooks)).exit();
+    (await execAsync(args, options, hooks)).exit();
   },
   $out: async (args, encoding = 'utf8') => {
-    const command = Command.new(...args);
-    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] });
+    const command = Command.new(args);
+    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] }, {});
     const chunks = [];
     command.process.stdout.on('data', (chunk) => {
       chunks.push(Buffer.from(chunk));
@@ -39,8 +39,8 @@ const kurage = {
   command: Command,
   duration: Duration,
   exception: Exception,
-  log: (name, args, timestamp) => {
-    return Logger.logger.write(name, args, timestamp);
+  log: (name, arg, timestamp) => {
+    return Logger.$.write(name, arg, timestamp);
   },
   logger: Logger,
   process: Process,

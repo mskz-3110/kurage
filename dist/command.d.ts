@@ -15,7 +15,7 @@ export declare class Command {
   get process(): ChildProcess | undefined;
   get exitCode(): number;
   get exception(): Exception | undefined;
-  constructor(...args: string[]);
+  constructor(args: string[]);
   execAsync<T = void>(options?: SpawnOptions, hooks?: ExecHooks<T>): Promise<Command>;
   throwIfException(): Command;
   exit(): void;

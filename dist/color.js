@@ -1,14 +1,14 @@
 var Color = class Color {
-  static color = new Color();
+  static $ = new Color();
   static {
-    Color.color.set('reset', '\x1B[0m');
-    Color.color.set('red', '\x1B[31m');
-    Color.color.set('green', '\x1B[32m');
-    Color.color.set('yellow', '\x1B[33m');
-    Color.color.set('blue', '\x1B[34m');
-    Color.color.set('magenta', '\x1B[35m');
-    Color.color.set('cyan', '\x1B[36m');
-    Color.color.set('gray', '\x1B[90m');
+    Color.$.set('reset', '\x1B[0m');
+    Color.$.set('red', '\x1B[31m');
+    Color.$.set('green', '\x1B[32m');
+    Color.$.set('yellow', '\x1B[33m');
+    Color.$.set('blue', '\x1B[34m');
+    Color.$.set('magenta', '\x1B[35m');
+    Color.$.set('cyan', '\x1B[36m');
+    Color.$.set('gray', '\x1B[90m');
   }
   #invalidNames = [...Object.getOwnPropertyNames(Color), ...Object.getOwnPropertyNames(Color.prototype)];
   #colors = {};

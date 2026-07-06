@@ -2,53 +2,48 @@ import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Timestamp } from './timestamp.js';
 
-export interface Payload {
-  timestamp: Timestamp;
-  args: unknown[];
-}
-
 export type Write = (message: string) => void;
 
-export type Format = (payload: Payload) => string;
+export type Format<T = any> = (timestamp: Timestamp, arg: T) => string;
 
-interface Handler {
+interface Handler<T = any> {
   write: Write;
-  format: Format;
+  format: Format<T>;
 }
 
 export class Logger {
-  static logger: Logger = new Logger();
+  static $: Logger = new Logger();
 
-  static format(payload: Payload): string {
-    return `[${payload.timestamp}] ${String(payload.args)}`;
+  static format(timestamp: Timestamp, arg: any): string {
+    return `[${timestamp}] ${String(arg)}`;
   }
 
   static {
-    Logger.logger.addHandler('debug', {
+    Logger.$.addHandler('debug', {
       write: console.log,
-      format: (payload: Payload) => {
-        return Color.color.paint('cyan', Logger.format(payload));
+      format: (timestamp: Timestamp, arg: any) => {
+        return Color.$.paint('cyan', Logger.format(timestamp, arg));
       },
     });
 
-    Logger.logger.addHandler('info', {
+    Logger.$.addHandler('info', {
       write: console.log,
-      format: (payload: Payload) => {
-        return Color.color.paint('reset', Logger.format(payload));
+      format: (timestamp: Timestamp, arg: any) => {
+        return Color.$.paint('reset', Logger.format(timestamp, arg));
       },
     });
 
-    Logger.logger.addHandler('warn', {
+    Logger.$.addHandler('warn', {
       write: console.error,
-      format: (payload: Payload) => {
-        return Color.color.paint('yellow', Logger.format(payload));
+      format: (timestamp: Timestamp, arg: any) => {
+        return Color.$.paint('yellow', Logger.format(timestamp, arg));
       },
     });
 
-    Logger.logger.addHandler('error', {
+    Logger.$.addHandler('error', {
       write: console.error,
-      format: (payload: Payload) => {
-        return Color.color.paint('red', Logger.format(payload));
+      format: (timestamp: Timestamp, arg: any) => {
+        return Color.$.paint('red', Logger.format(timestamp, arg));
       },
     });
   }
@@ -65,7 +60,7 @@ export class Logger {
     return Object.keys(this.#handlers);
   }
 
-  addHandler(name: string, handler: Handler) {
+  addHandler<T>(name: string, handler: Handler<T>) {
     if (this.#invalidNames.includes(name) || name === '') {
       return;
     }
@@ -77,15 +72,14 @@ export class Logger {
     }
   }
 
-  write(name: string, args: unknown[], timestamp?: Timestamp) {
+  write<T>(name: string, arg: T, timestamp: Timestamp = Timestamp.new()) {
     if (!Object.hasOwn(this.#handlers, name)) {
-      console.error(`${String(args)}\n${Backtrace.new()}`);
+      console.error(`${String(arg)}\n${Backtrace.new()}`);
       return;
     }
 
-    const payload = { timestamp: timestamp ?? Timestamp.new(), args };
     for (const handler of this.#handlers[name]!) {
-      handler.write(handler.format(payload));
+      handler.write(handler.format(timestamp, arg));
     }
   }
 }

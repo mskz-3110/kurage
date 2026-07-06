@@ -1,15 +1,15 @@
 export class Color {
-  static color: Color = new Color();
+  static $: Color = new Color();
 
   static {
-    Color.color.set('reset', '\u001b[0m');
-    Color.color.set('red', '\u001b[31m');
-    Color.color.set('green', '\u001b[32m');
-    Color.color.set('yellow', '\u001b[33m');
-    Color.color.set('blue', '\u001b[34m');
-    Color.color.set('magenta', '\u001b[35m');
-    Color.color.set('cyan', '\u001b[36m');
-    Color.color.set('gray', '\u001b[90m');
+    Color.$.set('reset', '\u001b[0m');
+    Color.$.set('red', '\u001b[31m');
+    Color.$.set('green', '\u001b[32m');
+    Color.$.set('yellow', '\u001b[33m');
+    Color.$.set('blue', '\u001b[34m');
+    Color.$.set('magenta', '\u001b[35m');
+    Color.$.set('cyan', '\u001b[36m');
+    Color.$.set('gray', '\u001b[90m');
   }
 
   #invalidNames: string[] = [...Object.getOwnPropertyNames(Color), ...Object.getOwnPropertyNames(Color.prototype)];

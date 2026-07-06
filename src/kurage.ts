@@ -22,24 +22,24 @@ export type PackageJson = {
 const execAsync = async <T = void>(
   args: string[],
   options: SpawnOptions = {},
-  hooks: ExecHooks<T> = {}
+  hooks: ExecHooks<T> = defaultExecHooks as any
 ): Promise<Command> => {
-  return await Command.new(...args).execAsync<T>(options, hooks);
+  return await Command.new(args).execAsync<T>(options, hooks);
 };
 
 export const kurage = {
   $: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
-    (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).throwIfException();
+    (await execAsync(args, options, hooks)).throwIfException();
   },
   $command: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<Command> => {
-    return await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>);
+    return await execAsync(args, options, hooks);
   },
   $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
-    (await execAsync(args, options, (hooks ?? defaultExecHooks) as ExecHooks<T>)).exit();
+    (await execAsync(args, options, hooks)).exit();
   },
   $out: async (args: string[], encoding: BufferEncoding = 'utf8'): Promise<string> => {
-    const command = Command.new(...args);
-    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] });
+    const command = Command.new(args);
+    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] }, {});
     const chunks: Buffer[] = [];
     command.process!.stdout!.on('data', (chunk) => {
       chunks.push(Buffer.from(chunk));
@@ -52,8 +52,8 @@ export const kurage = {
   command: Command,
   duration: Duration,
   exception: Exception,
-  log: (name: string, args: unknown[], timestamp?: Timestamp) => {
-    return Logger.logger.write(name, args, timestamp);
+  log: (name: string, arg: unknown, timestamp?: Timestamp) => {
+    return Logger.$.write(name, arg, timestamp);
   },
   logger: Logger,
   process: Process,

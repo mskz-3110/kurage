@@ -40,7 +40,7 @@ if (cliModes.includes(mode)) {
 } else if (['-h', '--help'].includes(mode)) {
   console.log(createHelpMessage(kurage.parsePackageJson()));
 } else {
-  console.error(`Invalid command: ${kurage.process.args.join(' ')}`);
-  console.error(createHelpMessage(kurage.parsePackageJson()));
+  console.error(kurage.color.$.paint('red', `Invalid args: ${kurage.process.args.join(' ')}`));
+  console.log(createHelpMessage(kurage.parsePackageJson()));
   process.exit(1);
 }

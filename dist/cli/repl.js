@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-const packageJson = kurage.parsePackageJson();
-console.error(
-  `${kurage.color.color.paint('cyan', `const {${packageJson.name}} = await import('${packageJson.name}');`)}`
-);
-await kurage.$exit([...kurage.runtime.config.replArgs, ...process.argv.slice(2)], {}, {});
+const command = kurage.command.new(kurage.runtime.config.replArgs);
+const exec = command.execAsync({ stdio: ['pipe', 'inherit', 'inherit'] });
+if (command.process != null && command.process.stdin != null) {
+  command.process.stdin.write(`const {kurage} = await import('kurage');\n`);
+  process.stdin.pipe(command.process.stdin);
+  process.stdin.setRawMode(true);
+}
+(await exec).exit();

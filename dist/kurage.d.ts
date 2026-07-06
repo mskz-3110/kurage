@@ -25,7 +25,7 @@ export declare const kurage: {
   command: typeof Command;
   duration: typeof Duration;
   exception: typeof Exception;
-  log: (name: string, args: unknown[], timestamp?: Timestamp) => void;
+  log: (name: string, arg: unknown, timestamp?: Timestamp) => void;
   logger: typeof Logger;
   process: typeof Process;
   runtime: typeof Runtime;

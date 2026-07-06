@@ -3,9 +3,9 @@ import childProcessModule from 'node:child_process';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
-import type { Payload } from './logger.js';
 import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
+import type { Timestamp } from './timestamp.js';
 
 export interface ExecHooks<T> {
   onStart?: (command: Command) => T;
@@ -13,8 +13,8 @@ export interface ExecHooks<T> {
 }
 
 export const defaultExecHooks: ExecHooks<void> = {
-  onStart: (command) => Logger.logger.write('command-start', [command]),
-  onEnd: (command) => Logger.logger.write('command-end', [command]),
+  onStart: (command) => Logger.$.write('command-start', command),
+  onEnd: (command) => Logger.$.write('command-end', command),
 };
 
 export class Command {
@@ -23,36 +23,26 @@ export class Command {
   static #signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
 
   static {
-    Logger.logger.addHandler('command-start', {
+    Logger.$.addHandler<Command>('command-start', {
       write: console.error,
-      format: (payload: Payload) => {
-        const command = payload.args[0] as Command;
-        if (!(command instanceof Command)) {
-          return Logger.format(payload);
-        }
-
+      format: (_: Timestamp, command: Command): string => {
         return [
-          Color.color.paint('cyan', `[${command.stopwatch.startTime}]`),
-          Color.color.paint('yellow', process.cwd()),
-          `@ ${Color.color.paint('gray', command.toString())}`,
+          Color.$.paint('cyan', `[${command.stopwatch.startTime}]`),
+          Color.$.paint('yellow', process.cwd()),
+          `@ ${Color.$.paint('gray', command.toString())}`,
         ].join(' ');
       },
     });
 
-    Logger.logger.addHandler('command-end', {
+    Logger.$.addHandler<Command>('command-end', {
       write: console.error,
-      format: (payload: Payload) => {
-        const command = payload.args[0] as Command;
-        if (!(command instanceof Command)) {
-          return Logger.format(payload);
-        }
-
+      format: (_: Timestamp, command: Command): string => {
         const exitCode = command.exitCode;
         return [
-          Color.color.paint('cyan', `[${command.stopwatch.stopTime}]`),
-          Color.color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-          `(${Color.color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-          `@ ${Color.color.paint('gray', command.toString())}`,
+          Color.$.paint('cyan', `[${command.stopwatch.stopTime}]`),
+          Color.$.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.$.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+          `@ ${Color.$.paint('gray', command.toString())}`,
         ].join(' ');
       },
     });
@@ -100,7 +90,7 @@ export class Command {
     return this.#exception;
   }
 
-  constructor(...args: string[]) {
+  constructor(args: string[]) {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
@@ -135,7 +125,10 @@ export class Command {
     hooks.onEnd?.(this, context);
   }
 
-  async execAsync<T = void>(options: SpawnOptions = {}, hooks: ExecHooks<T> = {}): Promise<Command> {
+  async execAsync<T = void>(
+    options: SpawnOptions = {},
+    hooks: ExecHooks<T> = defaultExecHooks as any
+  ): Promise<Command> {
     const context = this.#setupExec<T>(hooks);
     return new Promise((resolve) => {
       try {

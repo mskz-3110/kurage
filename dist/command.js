@@ -6,36 +6,32 @@ import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
 
 const defaultExecHooks = {
-  onStart: (command) => Logger.logger.write('command-start', [command]),
-  onEnd: (command) => Logger.logger.write('command-end', [command]),
+  onStart: (command) => Logger.$.write('command-start', command),
+  onEnd: (command) => Logger.$.write('command-end', command),
 };
 var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
   static {
-    Logger.logger.addHandler('command-start', {
+    Logger.$.addHandler('command-start', {
       write: console.error,
-      format: (payload) => {
-        const command = payload.args[0];
-        if (!(command instanceof Command)) return Logger.format(payload);
+      format: (_, command) => {
         return [
-          Color.color.paint('cyan', `[${command.stopwatch.startTime}]`),
-          Color.color.paint('yellow', process.cwd()),
-          `@ ${Color.color.paint('gray', command.toString())}`,
+          Color.$.paint('cyan', `[${command.stopwatch.startTime}]`),
+          Color.$.paint('yellow', process.cwd()),
+          `@ ${Color.$.paint('gray', command.toString())}`,
         ].join(' ');
       },
     });
-    Logger.logger.addHandler('command-end', {
+    Logger.$.addHandler('command-end', {
       write: console.error,
-      format: (payload) => {
-        const command = payload.args[0];
-        if (!(command instanceof Command)) return Logger.format(payload);
+      format: (_, command) => {
         const exitCode = command.exitCode;
         return [
-          Color.color.paint('cyan', `[${command.stopwatch.stopTime}]`),
-          Color.color.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-          `(${Color.color.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-          `@ ${Color.color.paint('gray', command.toString())}`,
+          Color.$.paint('cyan', `[${command.stopwatch.stopTime}]`),
+          Color.$.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.$.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
+          `@ ${Color.$.paint('gray', command.toString())}`,
         ].join(' ');
       },
     });
@@ -67,7 +63,7 @@ var Command = class Command {
   get exception() {
     return this.#exception;
   }
-  constructor(...args) {
+  constructor(args) {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
@@ -90,7 +86,7 @@ var Command = class Command {
     for (const signal of Command.#signals) process.off(signal, this.#kill);
     hooks.onEnd?.(this, context);
   }
-  async execAsync(options = {}, hooks = {}) {
+  async execAsync(options = {}, hooks = defaultExecHooks) {
     const context = this.#setupExec(hooks);
     return new Promise((resolve) => {
       try {

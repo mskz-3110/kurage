@@ -5,5 +5,6 @@ export interface Config {
 export declare class Runtime {
   #private;
   static get name(): Name;
+  static get names(): string[];
   static get config(): Config;
 }

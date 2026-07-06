@@ -8,11 +8,9 @@ console.log(
         version: packageJson.version,
         runtime: {
           name: kurage.runtime.name,
-          config: kurage.runtime.config,
         },
       },
       process: {
-        versions: process.versions,
         argv: process.argv,
       },
     },

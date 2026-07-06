@@ -3,10 +3,10 @@ import { Logger } from './logger.js';
 
 var Process = class Process {
   static #uncaughtException = (e) => {
-    Logger.logger.write('error', [`UncaughtException: ${Exception.new(e)}`]);
+    Logger.$.write('error', [`UncaughtException: ${Exception.new(e)}`]);
   };
   static #unhandledRejection = (reason) => {
-    Logger.logger.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
+    Logger.$.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
   };
   static #listeners = {
     uncaughtException: Process.#uncaughtException,
@@ -17,7 +17,13 @@ var Process = class Process {
   }
   static setup() {
     for (const [name, handler] of Object.entries(Process.#listeners))
-      if (!process.listeners(name).includes(handler)) process.on(name, handler);
+      try {
+        if (!process.listeners(name).includes(handler)) process.on(name, handler);
+      } catch (e) {
+        if (e instanceof Error && 'code' in e) {
+          if (e.code !== 'ERR_INVALID_REPL_INPUT') throw e;
+        }
+      }
   }
   static cleanup() {
     for (const [name, handler] of Object.entries(Process.#listeners))

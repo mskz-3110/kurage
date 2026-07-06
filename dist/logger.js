@@ -3,33 +3,33 @@ import { Color } from './color.js';
 import { Timestamp } from './timestamp.js';
 
 var Logger = class Logger {
-  static logger = new Logger();
-  static format(payload) {
-    return `[${payload.timestamp}] ${String(payload.args)}`;
+  static $ = new Logger();
+  static format(timestamp, arg) {
+    return `[${timestamp}] ${String(arg)}`;
   }
   static {
-    Logger.logger.addHandler('debug', {
+    Logger.$.addHandler('debug', {
       write: console.log,
-      format: (payload) => {
-        return Color.color.paint('cyan', Logger.format(payload));
+      format: (timestamp, arg) => {
+        return Color.$.paint('cyan', Logger.format(timestamp, arg));
       },
     });
-    Logger.logger.addHandler('info', {
+    Logger.$.addHandler('info', {
       write: console.log,
-      format: (payload) => {
-        return Color.color.paint('reset', Logger.format(payload));
+      format: (timestamp, arg) => {
+        return Color.$.paint('reset', Logger.format(timestamp, arg));
       },
     });
-    Logger.logger.addHandler('warn', {
+    Logger.$.addHandler('warn', {
       write: console.error,
-      format: (payload) => {
-        return Color.color.paint('yellow', Logger.format(payload));
+      format: (timestamp, arg) => {
+        return Color.$.paint('yellow', Logger.format(timestamp, arg));
       },
     });
-    Logger.logger.addHandler('error', {
+    Logger.$.addHandler('error', {
       write: console.error,
-      format: (payload) => {
-        return Color.color.paint('red', Logger.format(payload));
+      format: (timestamp, arg) => {
+        return Color.$.paint('red', Logger.format(timestamp, arg));
       },
     });
   }
@@ -46,16 +46,12 @@ var Logger = class Logger {
     if (Object.hasOwn(this.#handlers, name)) this.#handlers[name].push(handler);
     else this.#handlers[name] = [handler];
   }
-  write(name, args, timestamp) {
+  write(name, arg, timestamp = Timestamp.new()) {
     if (!Object.hasOwn(this.#handlers, name)) {
-      console.error(`${String(args)}\n${Backtrace.new()}`);
+      console.error(`${String(arg)}\n${Backtrace.new()}`);
       return;
     }
-    const payload = {
-      timestamp: timestamp ?? Timestamp.new(),
-      args,
-    };
-    for (const handler of this.#handlers[name]) handler.write(handler.format(payload));
+    for (const handler of this.#handlers[name]) handler.write(handler.format(timestamp, arg));
   }
 };
 

@@ -10,17 +10,21 @@ export class Runtime {
       replArgs: ['bun', 'repl'],
     },
     'deno': {
-      replArgs: ['deno', 'repl'],
+      replArgs: ['script', '-qec', 'deno repl -A', '/dev/null'],
     },
     'node': {
       replArgs: ['node', '-i'],
     },
-  } as const;
+  };
 
   static #name: Name = 'node';
 
   static get name(): Name {
     return Runtime.#name;
+  }
+
+  static get names(): string[] {
+    return Object.keys(Runtime.#supportedRuntimes);
   }
 
   static get config(): Config {
