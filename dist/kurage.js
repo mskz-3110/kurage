@@ -35,6 +35,9 @@ const kurage = {
     (await exec).throwIfException();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
+  $which: async (commandName) => {
+    return (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {})).exitCode === 0;
+  },
   backtrace: Backtrace,
   color: Color,
   command: Command,

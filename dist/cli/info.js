@@ -9,7 +9,11 @@ console.log(
         version: packageJson.version,
         runtime: { name: kurage.runtime.name },
       },
-      process: { argv: process.argv },
+      process: {
+        INIT_CWD: process.env.INIT_CWD,
+        cwd: process.cwd(),
+        argv: process.argv,
+      },
     },
     null,
     2

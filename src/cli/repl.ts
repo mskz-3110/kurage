@@ -1,11 +1,12 @@
 import type { SpawnOptions } from 'node:child_process';
 import kurage from '../kurage.js';
 
-const replCode = `const {kurage} = await import('kurage');`;
+const packageJson = kurage.parsePackageJson();
+const replCode = `const {${packageJson.name}} = await import('${packageJson.name}');`;
 const options: SpawnOptions = { stdio: ['pipe', 'inherit', 'inherit'] };
 let args = kurage.runtime.config.replArgs;
 if (kurage.runtime.name === 'deno') {
-  if ((await kurage.$command(['which', 'script'], { stdio: 'ignore' }, {})).exitCode === 0) {
+  if (await kurage.$which('script')) {
     args = ['script', '-qec', args.join(' '), '/dev/null'];
   } else {
     options.stdio = 'inherit';

@@ -11,6 +11,8 @@ console.log(
         },
       },
       process: {
+        INIT_CWD: process.env.INIT_CWD,
+        cwd: process.cwd(),
         argv: process.argv,
       },
     },
