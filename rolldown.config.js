@@ -12,6 +12,7 @@ export default defineConfig({
     'path': 'src/path.ts',
     'process': 'src/process.ts',
     'runtime': 'src/runtime.ts',
+    'spellbook': 'src/spellbook.ts',
     'stopwatch': 'src/stopwatch.ts',
     'timestamp': 'src/timestamp.ts',
     'cli/kurage': 'src/cli/kurage.ts',

@@ -2,7 +2,10 @@
 import kurage from '../kurage.js';
 
 const packageJson = kurage.parsePackageJson();
-const replCode = `const {${packageJson.name}} = await import('${packageJson.name}');`;
+const replCodes = [
+  `const { ${packageJson.name} } = await import('${packageJson.name}');`,
+  `const $ = ${packageJson.name}.spellbook;`,
+];
 const options = { stdio: ['pipe', 'inherit', 'inherit'] };
 let args = kurage.runtime.config.replArgs;
 if (kurage.runtime.name === 'deno')
@@ -11,8 +14,8 @@ if (kurage.runtime.name === 'deno')
 const command = kurage.command.new(args);
 const exec = command.execAsync(options);
 if (command.process != null && command.process.stdin != null) {
-  command.process.stdin.write(`${replCode}\n`);
+  command.process.stdin.write(`${replCodes.join('')}\n`);
   process.stdin.pipe(command.process.stdin);
   process.stdin.setRawMode(true);
-} else console.error(kurage.color.$.paint('cyan', replCode));
+} else console.error(kurage.color.$.paint('cyan', replCodes.join('\n')));
 (await exec).exit();

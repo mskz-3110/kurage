@@ -11,6 +11,7 @@ import { Logger } from './logger.js';
 import { Path } from './path.js';
 import { Process } from './process.js';
 import { Runtime } from './runtime.js';
+import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 
@@ -63,6 +64,7 @@ export const kurage = {
   path: Path,
   process: Process,
   runtime: Runtime,
+  spellbook: Spellbook,
   stopwatch: Stopwatch,
   timestamp: Timestamp,
   parsePackageJson: (): PackageJson =>

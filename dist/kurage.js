@@ -9,6 +9,7 @@ import { Logger } from './logger.js';
 import { Path } from './path.js';
 import { Process } from './process.js';
 import { Runtime } from './runtime.js';
+import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 
@@ -50,6 +51,7 @@ const kurage = {
   path: Path,
   process: Process,
   runtime: Runtime,
+  spellbook: Spellbook,
   stopwatch: Stopwatch,
   timestamp: Timestamp,
   parsePackageJson: () => JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')),

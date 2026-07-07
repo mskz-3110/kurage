@@ -9,6 +9,7 @@ import { Logger } from './logger.js';
 import { Path } from './path.js';
 import { Process } from './process.js';
 import { Runtime } from './runtime.js';
+import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 export type PackageJson = {
@@ -32,6 +33,7 @@ export declare const kurage: {
   path: typeof Path;
   process: typeof Process;
   runtime: typeof Runtime;
+  spellbook: typeof Spellbook;
   stopwatch: typeof Stopwatch;
   timestamp: typeof Timestamp;
   parsePackageJson: () => PackageJson;
