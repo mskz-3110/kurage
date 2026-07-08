@@ -15,7 +15,8 @@ var Backtrace = class Backtrace {
       Error.prepareStackTrace = (_, stackTraces) => {
         return stackTraces.slice(Backtrace.#normalizeOffset(offset) + 1);
       };
-      for (const frame of /* @__PURE__ */ new Error().stack) if (!frame.isNative()) this.#frames.push(frame);
+      for (const frame of /* @__PURE__ */ new Error().stack)
+        if (!frame.isNative()) this.#frames.push(frame);
     } finally {
       Error.prepareStackTrace = Backtrace.#prepareStackTrace;
     }

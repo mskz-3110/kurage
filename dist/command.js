@@ -56,7 +56,8 @@ var Command = class Command {
     return this.#process;
   }
   get exitCode() {
-    if (this.#process != null && this.#process.exitCode != null) return this.#process.exitCode;
+    if (this.#process != null && this.#process.exitCode != null)
+      return this.#process.exitCode;
     return this.#exception != null ? 1 : 0;
   }
   #exception;
@@ -73,12 +74,14 @@ var Command = class Command {
   #appendExceptionMessage() {
     if (this.#exception != null)
       this.#exception.error.message =
-        this.#exception.error.message === '' ? this.toString() : `${this.#exception.error.message} @ ${this}`;
+        this.#exception.error.message === ''
+          ? this.toString()
+          : `${this.#exception.error.message} @ ${this}`;
     return this;
   }
   #setupExec(hooks) {
     this.#stopwatch.start();
-    for (const signal of Command.#signals) process.on(signal, () => this.#kill(signal));
+    for (const signal of Command.#signals) process.on(signal, this.#kill);
     return hooks.onStart?.(this);
   }
   #cleanupExec(hooks, context) {
@@ -102,8 +105,10 @@ var Command = class Command {
         });
         this.#process.on('close', (exitCode, signalName) => {
           this.#stopwatch.stop();
-          if (signalName != null) this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
-          else if (exitCode !== 0) this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
+          if (signalName != null)
+            this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
+          else if (exitCode !== 0)
+            this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
           this.#cleanupExec(hooks, context);
           return resolve(this);
         });
@@ -133,7 +138,9 @@ var Command = class Command {
   toString() {
     return [
       this.#command,
-      ...this.#args.map((arg) => (Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg))),
+      ...this.#args.map((arg) =>
+        Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg)
+      ),
     ].join(' ');
   }
 };

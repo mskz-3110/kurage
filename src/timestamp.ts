@@ -10,7 +10,10 @@ export class Timestamp {
     fractionalSecondDigits: 3,
   };
 
-  static formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat('ja-JP', Timestamp.#options);
+  static formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
+    'ja-JP',
+    Timestamp.#options
+  );
 
   static new(...args: ConstructorParameters<typeof Timestamp>): Timestamp {
     return new Timestamp(...args);
@@ -18,7 +21,7 @@ export class Timestamp {
 
   #date: Date;
 
-  get date() {
+  get date(): Date {
     return this.#date;
   }
 

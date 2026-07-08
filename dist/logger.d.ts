@@ -10,7 +10,7 @@ export declare class Logger {
   static $: Logger;
   static format(timestamp: Timestamp, arg: any): string;
   static new(...args: ConstructorParameters<typeof Logger>): Logger;
-  get names(): string[];
+  get names(): readonly string[];
   addHandler<T>(name: string, handler: Handler<T>): void;
   write<T>(name: string, arg: T, timestamp?: Timestamp): void;
 }

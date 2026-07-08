@@ -52,11 +52,14 @@ export class Logger {
     return new Logger(...args);
   }
 
-  #invalidNames: string[] = [...Object.getOwnPropertyNames(Logger), ...Object.getOwnPropertyNames(Logger.prototype)];
+  #invalidNames: string[] = [
+    ...Object.getOwnPropertyNames(Logger),
+    ...Object.getOwnPropertyNames(Logger.prototype),
+  ];
 
   #handlers: Record<string, Handler[]> = {};
 
-  get names(): string[] {
+  get names(): readonly string[] {
     return Object.keys(this.#handlers);
   }
 

@@ -10,12 +10,12 @@ export declare class Command {
   #private;
   static new(...args: ConstructorParameters<typeof Command>): Command;
   get command(): string;
-  get args(): string[];
+  get args(): readonly string[];
   get stopwatch(): Stopwatch;
   get process(): ChildProcess | undefined;
   get exitCode(): number;
   get exception(): Exception | undefined;
-  constructor(args: string[]);
+  constructor(args: readonly string[]);
   execAsync<T = void>(options?: SpawnOptions, hooks?: ExecHooks<T>): Promise<Command>;
   throwIfException(): Command;
   exit(): void;

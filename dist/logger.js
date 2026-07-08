@@ -36,7 +36,10 @@ var Logger = class Logger {
   static new(...args) {
     return new Logger(...args);
   }
-  #invalidNames = [...Object.getOwnPropertyNames(Logger), ...Object.getOwnPropertyNames(Logger.prototype)];
+  #invalidNames = [
+    ...Object.getOwnPropertyNames(Logger),
+    ...Object.getOwnPropertyNames(Logger.prototype),
+  ];
   #handlers = {};
   get names() {
     return Object.keys(this.#handlers);
@@ -51,7 +54,8 @@ var Logger = class Logger {
       console.error(`${String(arg)}\n${Backtrace.new()}`);
       return;
     }
-    for (const handler of this.#handlers[name]) handler.write(handler.format(timestamp, arg));
+    for (const handler of this.#handlers[name])
+      handler.write(handler.format(timestamp, arg));
   }
 };
 

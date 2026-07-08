@@ -22,7 +22,7 @@ export type PackageJson = {
 };
 
 const execAsync = async <T = void>(
-  args: string[],
+  args: readonly string[],
   options: SpawnOptions = {},
   hooks: ExecHooks<T> = defaultExecHooks as any
 ): Promise<Command> => {
@@ -30,16 +30,31 @@ const execAsync = async <T = void>(
 };
 
 export const kurage = {
-  $: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
+  $: async <T = void>(
+    args: readonly string[],
+    options: SpawnOptions = {},
+    hooks?: ExecHooks<T>
+  ): Promise<void> => {
     (await execAsync(args, options, hooks)).throwIfException();
   },
-  $command: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<Command> => {
+  $command: async <T = void>(
+    args: readonly string[],
+    options: SpawnOptions = {},
+    hooks?: ExecHooks<T>
+  ): Promise<Command> => {
     return await execAsync(args, options, hooks);
   },
-  $exit: async <T = void>(args: string[], options: SpawnOptions = {}, hooks?: ExecHooks<T>): Promise<void> => {
+  $exit: async <T = void>(
+    args: readonly string[],
+    options: SpawnOptions = {},
+    hooks?: ExecHooks<T>
+  ): Promise<void> => {
     (await execAsync(args, options, hooks)).exit();
   },
-  $out: async (args: string[], encoding: BufferEncoding = 'utf8'): Promise<string> => {
+  $out: async (
+    args: readonly string[],
+    encoding: BufferEncoding = 'utf8'
+  ): Promise<string> => {
     const command = Command.new(args);
     const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] }, {});
     const chunks: Buffer[] = [];
@@ -50,7 +65,10 @@ export const kurage = {
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
   $which: async (commandName: string): Promise<boolean> => {
-    return (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {})).exitCode === 0;
+    return (
+      (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {}))
+        .exitCode === 0
+    );
   },
   backtrace: Backtrace,
   color: Color,
@@ -68,7 +86,9 @@ export const kurage = {
   stopwatch: Stopwatch,
   timestamp: Timestamp,
   parsePackageJson: (): PackageJson =>
-    JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')) as PackageJson,
+    JSON.parse(
+      readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')
+    ) as PackageJson,
 };
 
 export default kurage;

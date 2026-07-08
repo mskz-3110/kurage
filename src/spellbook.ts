@@ -1,9 +1,21 @@
+import type { Dirent, GlobOptionsWithFileTypes } from 'node:fs';
 import fsModule from 'node:fs';
+import pathModule from 'node:path';
+import urlModule from 'node:url';
 
 export type Block = () => void | Promise<void>;
 
 export class Spellbook {
-  static chdir(directory: string, block?: Block): void | Promise<void> {
+  static #root: string = process.env.INIT_CWD ?? process.cwd();
+
+  static root(value?: string): string {
+    if (value != null) {
+      Spellbook.#root = value;
+    }
+    return Spellbook.#root;
+  }
+
+  static chdir(dir: string, block?: Block): void | Promise<void> {
     const cwd = process.cwd();
     const cleanup = () => {
       if (cwd !== process.cwd()) {
@@ -11,7 +23,7 @@ export class Spellbook {
       }
     };
     try {
-      process.chdir(directory);
+      process.chdir(dir);
       const result = block?.();
       if (result instanceof Promise) {
         return result.finally(cleanup);
@@ -31,15 +43,39 @@ export class Spellbook {
     });
   }
 
-  static mkdir(directory: string, block?: Block): void | Promise<void> {
-    fsModule.mkdirSync(directory, {
+  static mkdir(dir: string, block?: Block): void | Promise<void> {
+    fsModule.mkdirSync(dir, {
       recursive: true,
     });
-    return Spellbook.chdir(directory, block);
+    return Spellbook.chdir(dir, block);
   }
 
-  static rmkdir(directory: string, block?: Block): void | Promise<void> {
-    Spellbook.remove(directory);
-    return Spellbook.mkdir(directory, block);
+  static rmkdir(dir: string, block?: Block): void | Promise<void> {
+    Spellbook.remove(dir);
+    return Spellbook.mkdir(dir, block);
+  }
+
+  static glob(pattern: string, options: GlobOptionsWithFileTypes): Dirent<string>[] {
+    return fsModule.globSync(pattern, options);
+  }
+
+  static urlToPath(url: string): string {
+    return urlModule.fileURLToPath(url);
+  }
+
+  static dirname(path: string): string {
+    return pathModule.parse(path).dir;
+  }
+
+  static filename(path: string): string {
+    return pathModule.parse(path).name;
+  }
+
+  static extname(path: string): string {
+    return pathModule.parse(path).ext;
+  }
+
+  static basename(path: string): string {
+    return pathModule.parse(path).base;
   }
 }

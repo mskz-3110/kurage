@@ -10,7 +10,10 @@ var Color = class Color {
     Color.$.set('cyan', '\x1B[36m');
     Color.$.set('gray', '\x1B[90m');
   }
-  #invalidNames = [...Object.getOwnPropertyNames(Color), ...Object.getOwnPropertyNames(Color.prototype)];
+  #invalidNames = [
+    ...Object.getOwnPropertyNames(Color),
+    ...Object.getOwnPropertyNames(Color.prototype),
+  ];
   #colors = {};
   get names() {
     return Object.keys(this.#colors);

@@ -20,7 +20,13 @@ export const defaultExecHooks: ExecHooks<void> = {
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
 
-  static #signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
+  static #signals: NodeJS.Signals[] = [
+    'SIGINT',
+    'SIGTERM',
+    'SIGHUP',
+    'SIGQUIT',
+    'SIGBREAK',
+  ];
 
   static {
     Logger.$.addHandler<Command>('command-start', {
@@ -60,7 +66,7 @@ export class Command {
 
   #args: string[] = [];
 
-  get args(): string[] {
+  get args(): readonly string[] {
     return this.#args;
   }
 
@@ -90,7 +96,7 @@ export class Command {
     return this.#exception;
   }
 
-  constructor(args: string[]) {
+  constructor(args: readonly string[]) {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
@@ -104,7 +110,9 @@ export class Command {
   #appendExceptionMessage(): Command {
     if (this.#exception != null) {
       this.#exception.error.message =
-        this.#exception.error.message === '' ? this.toString() : `${this.#exception.error.message} @ ${this}`;
+        this.#exception.error.message === ''
+          ? this.toString()
+          : `${this.#exception.error.message} @ ${this}`;
     }
     return this;
   }
@@ -112,7 +120,7 @@ export class Command {
   #setupExec<T = void>(hooks: ExecHooks<T>): T {
     this.#stopwatch.start();
     for (const signal of Command.#signals) {
-      process.on(signal, () => this.#kill(signal));
+      process.on(signal, this.#kill);
     }
     return hooks.onStart?.(this) as T;
   }
@@ -140,7 +148,10 @@ export class Command {
           return resolve(this);
         }
 
-        this.#process = childProcessModule.spawn(this.command, this.args, { stdio: 'inherit', ...options });
+        this.#process = childProcessModule.spawn(this.command, this.args, {
+          stdio: 'inherit',
+          ...options,
+        });
 
         this.#process.on('close', (exitCode, signalName) => {
           this.#stopwatch.stop();
@@ -189,7 +200,9 @@ export class Command {
   toString(): string {
     return [
       this.#command,
-      ...this.#args.map((arg) => (Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg))),
+      ...this.#args.map((arg) =>
+        Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg)
+      ),
     ].join(' ');
   }
 }

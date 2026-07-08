@@ -40,10 +40,11 @@
     "build:js": "rolldown --config && biome format dist --write",
     "build:dts": "tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts",
     "build:all": "biome check --write src && npm run build:js && npm run build:dts && biome check --write .",
-    "build:chmod": "chmod +x scripts/*.js dist/cli/*.js && git update-index --chmod=+x scripts/*.js dist/cli/*.js"
+    "build:chmod": "chmod +x scripts/*.js dist/cli/*.js && git update-index --chmod=+x scripts/*.js dist/cli/*.js",
+    "check:scripts": "node ./scripts/check-scripts.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.1",

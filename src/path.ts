@@ -3,11 +3,11 @@ import pathModule from 'node:path';
 
 export type Split = (path: string) => string[];
 
-export type Join = (paths: string[]) => string;
+export type Join = (paths: readonly string[]) => string;
 
 export const defaultSplit = (path: string) => path.split(/[\\/]+/).filter(Boolean);
 
-export const defaultJoin = (paths: string[]) => pathModule.join(...paths);
+export const defaultJoin = (paths: readonly string[]) => pathModule.join(...paths);
 
 export class Path {
   static exists(path: string): boolean {
@@ -26,7 +26,7 @@ export class Path {
     return split(path);
   }
 
-  static join(paths: string[], join: Join = defaultJoin): string {
+  static join(paths: readonly string[], join: Join = defaultJoin): string {
     return join(paths);
   }
 
@@ -34,7 +34,10 @@ export class Path {
     return join(split(path));
   }
 
-  static with(path: string, args: Partial<{ dir: string; name: string; ext: string }>): string {
+  static with(
+    path: string,
+    args: Partial<{ dir: string; name: string; ext: string }>
+  ): string {
     return pathModule.format({
       ...pathModule.parse(path),
       ...args,

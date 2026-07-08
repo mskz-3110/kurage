@@ -43,7 +43,9 @@ if (cliModes.includes(mode)) {
 } else if (kurage.path.exists(process.argv[2]!)) {
   import(`./run.js`);
 } else {
-  console.error(kurage.color.$.paint('red', `Invalid args: ${kurage.process.args.join(' ')}`));
+  console.error(
+    kurage.color.$.paint('red', `Invalid args: ${kurage.process.args.join(' ')}`)
+  );
   console.log(createHelpMessage(kurage.parsePackageJson()));
   process.exit(1);
 }

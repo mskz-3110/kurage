@@ -13,7 +13,7 @@ export class Backtrace {
 
   #frames: Frame[] = [];
 
-  get frames(): Frame[] {
+  get frames(): readonly Frame[] {
     return this.#frames;
   }
 

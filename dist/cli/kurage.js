@@ -32,11 +32,15 @@ if (cliModes.includes(mode)) {
   process.argv = process.argv.slice(1);
   if (process.argv.length < 2) process.argv.push(mode);
   import(`./${mode}.js`);
-} else if (['-v', '--version'].includes(mode)) console.log(kurage.parsePackageJson().version);
-else if (['-h', '--help'].includes(mode)) console.log(createHelpMessage(kurage.parsePackageJson()));
+} else if (['-v', '--version'].includes(mode))
+  console.log(kurage.parsePackageJson().version);
+else if (['-h', '--help'].includes(mode))
+  console.log(createHelpMessage(kurage.parsePackageJson()));
 else if (kurage.path.exists(process.argv[2])) import('./run.js');
 else {
-  console.error(kurage.color.$.paint('red', `Invalid args: ${kurage.process.args.join(' ')}`));
+  console.error(
+    kurage.color.$.paint('red', `Invalid args: ${kurage.process.args.join(' ')}`)
+  );
   console.log(createHelpMessage(kurage.parsePackageJson()));
   process.exit(1);
 }

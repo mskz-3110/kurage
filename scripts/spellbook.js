@@ -5,7 +5,7 @@ const $ = kurage.spellbook;
 kurage.log('debug', process.cwd());
 $.chdir('/tmp', () => {
   kurage.log('debug', process.cwd());
-  $.rmkdir('kurage', () => {
+  $.mkdir('kurage', () => {
     kurage.log('debug', process.cwd());
   });
 });

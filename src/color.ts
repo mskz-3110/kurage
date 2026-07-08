@@ -12,11 +12,14 @@ export class Color {
     Color.$.set('gray', '\u001b[90m');
   }
 
-  #invalidNames: string[] = [...Object.getOwnPropertyNames(Color), ...Object.getOwnPropertyNames(Color.prototype)];
+  #invalidNames: string[] = [
+    ...Object.getOwnPropertyNames(Color),
+    ...Object.getOwnPropertyNames(Color.prototype),
+  ];
 
   #colors: Record<string, string> = {};
 
-  get names(): string[] {
+  get names(): readonly string[] {
     return Object.keys(this.#colors);
   }
 

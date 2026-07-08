@@ -37,7 +37,10 @@ const kurage = {
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
   $which: async (commandName) => {
-    return (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {})).exitCode === 0;
+    return (
+      (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {}))
+        .exitCode === 0
+    );
   },
   backtrace: Backtrace,
   color: Color,
@@ -54,7 +57,10 @@ const kurage = {
   spellbook: Spellbook,
   stopwatch: Stopwatch,
   timestamp: Timestamp,
-  parsePackageJson: () => JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')),
+  parsePackageJson: () =>
+    JSON.parse(
+      readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')
+    ),
 };
 
 export { kurage as default, kurage };

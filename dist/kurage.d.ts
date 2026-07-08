@@ -18,10 +18,22 @@ export type PackageJson = {
   description: string;
 };
 export declare const kurage: {
-  $: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<void>;
-  $command: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<Command>;
-  $exit: <T = void>(args: string[], options?: SpawnOptions, hooks?: ExecHooks<T>) => Promise<void>;
-  $out: (args: string[], encoding?: BufferEncoding) => Promise<string>;
+  $: <T = void>(
+    args: readonly string[],
+    options?: SpawnOptions,
+    hooks?: ExecHooks<T>
+  ) => Promise<void>;
+  $command: <T = void>(
+    args: readonly string[],
+    options?: SpawnOptions,
+    hooks?: ExecHooks<T>
+  ) => Promise<Command>;
+  $exit: <T = void>(
+    args: readonly string[],
+    options?: SpawnOptions,
+    hooks?: ExecHooks<T>
+  ) => Promise<void>;
+  $out: (args: readonly string[], encoding?: BufferEncoding) => Promise<string>;
   $which: (commandName: string) => Promise<boolean>;
   backtrace: typeof Backtrace;
   color: typeof Color;
