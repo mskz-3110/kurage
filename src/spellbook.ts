@@ -1,9 +1,19 @@
-import type { Dirent, GlobOptionsWithFileTypes } from 'node:fs';
+import type {
+  CopySyncOptions,
+  Dirent,
+  GlobOptionsWithFileTypes,
+  PathOrFileDescriptor,
+  RmOptions,
+  Stats,
+  WriteFileOptions,
+} from 'node:fs';
 import fsModule from 'node:fs';
 import pathModule from 'node:path';
+import readlineModule from 'node:readline';
+import type { URL } from 'node:url';
 import urlModule from 'node:url';
 
-export type Block = () => void | Promise<void>;
+export type Block = () => Promise<void>;
 
 export class Spellbook {
   static #root: string = process.env.INIT_CWD ?? process.cwd();
@@ -15,51 +25,53 @@ export class Spellbook {
     return Spellbook.#root;
   }
 
-  static chdir(dir: string, block?: Block): void | Promise<void> {
+  static async chdirAsync(dir: string, block?: Block): Promise<void> {
     const cwd = process.cwd();
-    const cleanup = () => {
+    try {
+      process.chdir(dir);
+      await block?.();
+    } finally {
       if (cwd !== process.cwd()) {
         process.chdir(cwd);
       }
-    };
-    try {
-      process.chdir(dir);
-      const result = block?.();
-      if (result instanceof Promise) {
-        return result.finally(cleanup);
-      }
-
-      cleanup();
-    } catch (e: unknown) {
-      cleanup();
-      throw e;
     }
   }
 
-  static remove(path: string) {
+  static stat(path: string): Stats {
+    return fsModule.statSync(path);
+  }
+
+  static copy(srcPath: string | URL, newPath: string | URL, options?: CopySyncOptions) {
+    fsModule.cpSync(srcPath, newPath, options);
+  }
+
+  static move(oldPath: string, newPath: string) {
+    fsModule.renameSync(oldPath, newPath);
+  }
+
+  static remove(path: string, options: RmOptions = {}) {
     fsModule.rmSync(path, {
       recursive: true,
       force: true,
+      ...options,
     });
   }
 
-  static mkdir(dir: string, block?: Block): void | Promise<void> {
+  static async mkdirAsync(dir: string, block?: Block): Promise<void> {
     fsModule.mkdirSync(dir, {
       recursive: true,
     });
-    return Spellbook.chdir(dir, block);
+    return await Spellbook.chdirAsync(dir, block);
   }
 
-  static rmkdir(dir: string, block?: Block): void | Promise<void> {
-    Spellbook.remove(dir);
-    return Spellbook.mkdir(dir, block);
-  }
-
-  static glob(pattern: string, options: GlobOptionsWithFileTypes): Dirent<string>[] {
+  static glob(
+    pattern: string | readonly string[],
+    options: GlobOptionsWithFileTypes
+  ): Dirent<string>[] {
     return fsModule.globSync(pattern, options);
   }
 
-  static urlToPath(url: string): string {
+  static urlToPath(url: string | URL): string {
     return urlModule.fileURLToPath(url);
   }
 
@@ -77,5 +89,48 @@ export class Spellbook {
 
   static basename(path: string): string {
     return pathModule.parse(path).base;
+  }
+
+  static write(
+    path: PathOrFileDescriptor,
+    data: string | NodeJS.ArrayBufferView,
+    options: WriteFileOptions = { encoding: 'utf8' }
+  ) {
+    fsModule.writeFileSync(path, data, options);
+  }
+
+  static append(
+    path: PathOrFileDescriptor,
+    data: string | Uint8Array,
+    options: WriteFileOptions = { encoding: 'utf8' }
+  ) {
+    fsModule.appendFileSync(path, data, options);
+  }
+
+  static read(
+    path: PathOrFileDescriptor,
+    encoding: BufferEncoding = 'utf8'
+  ): string | Buffer<ArrayBuffer> {
+    return fsModule.readFileSync(path, { encoding });
+  }
+
+  static async readlinesAsync(
+    path: string,
+    encoding: BufferEncoding = 'utf8'
+  ): Promise<string[]> {
+    const lines = [];
+    for await (const line of readlineModule.createInterface({
+      input: fsModule.createReadStream(pathModule.resolve(path), { encoding }),
+      crlfDelay: Infinity,
+    })) {
+      lines.push(line);
+    }
+    return lines;
+  }
+
+  static assertEqual(value1: unknown, value2: unknown) {
+    if (value1 !== value2) {
+      throw new Error(JSON.stringify([value1, value2], null, 2));
+    }
   }
 }

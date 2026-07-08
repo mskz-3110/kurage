@@ -4,9 +4,11 @@ import { Logger } from './logger.js';
 var Process = class Process {
   static #uncaughtException = (e) => {
     Logger.$.write('error', [`UncaughtException: ${Exception.new(e)}`]);
+    process.exit(1);
   };
   static #unhandledRejection = (reason) => {
     Logger.$.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
+    process.exit(1);
   };
   static #listeners = {
     uncaughtException: Process.#uncaughtException,

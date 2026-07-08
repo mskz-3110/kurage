@@ -1,16 +1,50 @@
-import type { Dirent, GlobOptionsWithFileTypes } from 'node:fs';
-export type Block = () => void | Promise<void>;
+import type {
+  CopySyncOptions,
+  Dirent,
+  GlobOptionsWithFileTypes,
+  PathOrFileDescriptor,
+  RmOptions,
+  Stats,
+  WriteFileOptions,
+} from 'node:fs';
+import type { URL } from 'node:url';
+export type Block = () => Promise<void>;
 export declare class Spellbook {
   #private;
   static root(value?: string): string;
-  static chdir(dir: string, block?: Block): void | Promise<void>;
-  static remove(path: string): void;
-  static mkdir(dir: string, block?: Block): void | Promise<void>;
-  static rmkdir(dir: string, block?: Block): void | Promise<void>;
-  static glob(pattern: string, options: GlobOptionsWithFileTypes): Dirent<string>[];
-  static urlToPath(url: string): string;
+  static chdirAsync(dir: string, block?: Block): Promise<void>;
+  static stat(path: string): Stats;
+  static copy(
+    srcPath: string | URL,
+    newPath: string | URL,
+    options?: CopySyncOptions
+  ): void;
+  static move(oldPath: string, newPath: string): void;
+  static remove(path: string, options?: RmOptions): void;
+  static mkdirAsync(dir: string, block?: Block): Promise<void>;
+  static glob(
+    pattern: string | readonly string[],
+    options: GlobOptionsWithFileTypes
+  ): Dirent<string>[];
+  static urlToPath(url: string | URL): string;
   static dirname(path: string): string;
   static filename(path: string): string;
   static extname(path: string): string;
   static basename(path: string): string;
+  static write(
+    path: PathOrFileDescriptor,
+    data: string | NodeJS.ArrayBufferView,
+    options?: WriteFileOptions
+  ): void;
+  static append(
+    path: PathOrFileDescriptor,
+    data: string | Uint8Array,
+    options?: WriteFileOptions
+  ): void;
+  static read(
+    path: PathOrFileDescriptor,
+    encoding?: BufferEncoding
+  ): string | Buffer<ArrayBuffer>;
+  static readlinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
+  static assertEqual(value1: unknown, value2: unknown): void;
 }
