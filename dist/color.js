@@ -1,5 +1,8 @@
 var Color = class Color {
   static $ = new Color();
+  static get enabled() {
+    return process.stdout.hasColors();
+  }
   static {
     Color.$.set('reset', '\x1B[0m');
     Color.$.set('red', '\x1B[31m');
@@ -19,14 +22,15 @@ var Color = class Color {
     return Object.keys(this.#colors);
   }
   get(name) {
+    if (!Color.enabled) return '';
     return this.#colors[name] ?? '';
   }
   set(name, value) {
     if (this.#invalidNames.includes(name) || name === '') return;
     this.#colors[name] = value;
   }
-  paint(name, message) {
-    if (message === '') return message;
+  paint(name, message, enabled = true) {
+    if (!enabled || message === '') return message;
     const value = this.get(name);
     if (value === '') return message;
     const reset = this.get('reset');

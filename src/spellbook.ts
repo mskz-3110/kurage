@@ -14,8 +14,20 @@ import pathModule from 'node:path';
 import readlineModule from 'node:readline';
 import type { URL } from 'node:url';
 import urlModule from 'node:url';
+import type { InspectOptions } from 'node:util';
+import utilModule from 'node:util';
+import { Color } from './color.js';
 
 export type Block = () => Promise<void>;
+
+export interface ClassSummary {
+  propertyNames: string[];
+  accessorNames: string[];
+  methodNames: string[];
+}
+
+const ignoreStaticNames: string[] = ['length', 'name', 'prototype'];
+const ignoreInstanceNames: string[] = ['constructor'];
 
 export class Spellbook {
   static #root: string = process.env.INIT_CWD ?? process.cwd();
@@ -154,5 +166,65 @@ export class Spellbook {
     if (value1 !== value2) {
       throw new Error(JSON.stringify([value1, value2], null, 2));
     }
+  }
+
+  static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary {
+    const target = typeof value === 'function' ? value : Object.getPrototypeOf(value);
+    const propertyNames: string[] = Object.keys(target);
+    const accessorNames: string[] = [];
+    const methodNames: string[] = [];
+    for (const propertyName of Object.getOwnPropertyNames(target)) {
+      if (propertyNames.includes(propertyName) || ignoreNames.includes(propertyName)) {
+        continue;
+      }
+
+      const descriptor = Object.getOwnPropertyDescriptor(target, propertyName);
+      if (
+        typeof descriptor!.get === 'function' ||
+        typeof descriptor!.set === 'function'
+      ) {
+        accessorNames.push(propertyName);
+        continue;
+      }
+
+      if (typeof Reflect.get(target, propertyName) === 'function') {
+        methodNames.push(propertyName);
+      }
+    }
+
+    return {
+      propertyNames,
+      accessorNames,
+      methodNames,
+    };
+  }
+
+  static inspect(
+    value: unknown,
+    options: InspectOptions = { depth: null, colors: false, compact: false }
+  ): string {
+    if (value == null) {
+      return String(value);
+    }
+
+    if (typeof value === 'function') {
+      return `${Color.$.paint('cyan', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(
+        Spellbook.analyzeClass(value, ignoreStaticNames),
+        options
+      )}`;
+    }
+
+    if (typeof value === 'object') {
+      if ('toJSON' in value && typeof value.toJSON === 'function') {
+        return utilModule.inspect(value.toJSON(), options);
+      }
+
+      return utilModule.inspect(
+        Spellbook.analyzeClass(value, ignoreInstanceNames),
+        options
+      );
+    }
+
+    return utilModule.inspect(value, options);
   }
 }

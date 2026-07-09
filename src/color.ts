@@ -1,7 +1,9 @@
 export class Color {
   static $: Color = new Color();
 
-  static get enabled(): boolean {return process.stdout.hasColors();}
+  static get enabled(): boolean {
+    return process.stdout.hasColors();
+  }
 
   static {
     Color.$.set('reset', '\u001b[0m');
@@ -41,8 +43,8 @@ export class Color {
     this.#colors[name] = value;
   }
 
-  paint(name: string, message: string): string {
-    if (message === '') {
+  paint(name: string, message: string, enabled: boolean = true): string {
+    if (!enabled || message === '') {
       return message;
     }
 

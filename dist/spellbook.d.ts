@@ -8,7 +8,13 @@ import type {
   WriteFileOptions,
 } from 'node:fs';
 import type { URL } from 'node:url';
+import type { InspectOptions } from 'node:util';
 export type Block = () => Promise<void>;
+export interface ClassSummary {
+  propertyNames: string[];
+  accessorNames: string[];
+  methodNames: string[];
+}
 export declare class Spellbook {
   #private;
   static root(value?: string): string;
@@ -52,4 +58,6 @@ export declare class Spellbook {
   ): string | Buffer<ArrayBuffer>;
   static readlinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
   static assertEqual(value1: unknown, value2: unknown): void;
+  static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary;
+  static inspect(value: unknown, options?: InspectOptions): string;
 }

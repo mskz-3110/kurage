@@ -4,7 +4,11 @@ import osModule from 'node:os';
 import pathModule from 'node:path';
 import readlineModule from 'node:readline';
 import urlModule from 'node:url';
+import utilModule from 'node:util';
+import { Color } from './color.js';
 
+const ignoreStaticNames = ['length', 'name', 'prototype'];
+const ignoreInstanceNames = ['constructor'];
 var Spellbook = class Spellbook {
   static #root = process.env.INIT_CWD ?? process.cwd();
   static root(value) {
@@ -93,6 +97,49 @@ var Spellbook = class Spellbook {
   }
   static assertEqual(value1, value2) {
     if (value1 !== value2) throw new Error(JSON.stringify([value1, value2], null, 2));
+  }
+  static analyzeClass(value, ignoreNames) {
+    const target = typeof value === 'function' ? value : Object.getPrototypeOf(value);
+    const propertyNames = Object.keys(target);
+    const accessorNames = [];
+    const methodNames = [];
+    for (const propertyName of Object.getOwnPropertyNames(target)) {
+      if (propertyNames.includes(propertyName) || ignoreNames.includes(propertyName))
+        continue;
+      const descriptor = Object.getOwnPropertyDescriptor(target, propertyName);
+      if (typeof descriptor.get === 'function' || typeof descriptor.set === 'function') {
+        accessorNames.push(propertyName);
+        continue;
+      }
+      if (typeof Reflect.get(target, propertyName) === 'function')
+        methodNames.push(propertyName);
+    }
+    return {
+      propertyNames,
+      accessorNames,
+      methodNames,
+    };
+  }
+  static inspect(
+    value,
+    options = {
+      depth: null,
+      colors: false,
+      compact: false,
+    }
+  ) {
+    if (value == null) return String(value);
+    if (typeof value === 'function')
+      return `${Color.$.paint('cyan', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(Spellbook.analyzeClass(value, ignoreStaticNames), options)}`;
+    if (typeof value === 'object') {
+      if ('toJSON' in value && typeof value.toJSON === 'function')
+        return utilModule.inspect(value.toJSON(), options);
+      return utilModule.inspect(
+        Spellbook.analyzeClass(value, ignoreInstanceNames),
+        options
+      );
+    }
+    return utilModule.inspect(value, options);
   }
 };
 
