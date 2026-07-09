@@ -1,3 +1,4 @@
+import cryptoModule from 'node:crypto';
 import type {
   CopySyncOptions,
   Dirent,
@@ -8,6 +9,7 @@ import type {
   WriteFileOptions,
 } from 'node:fs';
 import fsModule from 'node:fs';
+import osModule from 'node:os';
 import pathModule from 'node:path';
 import readlineModule from 'node:readline';
 import type { URL } from 'node:url';
@@ -25,6 +27,26 @@ export class Spellbook {
     return Spellbook.#root;
   }
 
+  static tmpdir(): string {
+    return osModule.tmpdir();
+  }
+
+  static randomBytes(size: number = 16): Buffer<ArrayBuffer> {
+    return cryptoModule.randomBytes(size);
+  }
+
+  static exists(path: string): boolean {
+    return fsModule.existsSync(path);
+  }
+
+  static absolute(path: string): string {
+    return pathModule.resolve(path);
+  }
+
+  static relative(toPath: string, fromPath: string = process.cwd()): string {
+    return pathModule.relative(fromPath, toPath);
+  }
+
   static async chdirAsync(dir: string, block?: Block): Promise<void> {
     const cwd = process.cwd();
     try {
@@ -35,6 +57,13 @@ export class Spellbook {
         process.chdir(cwd);
       }
     }
+  }
+
+  static async mkdirAsync(dir: string, block?: Block): Promise<void> {
+    fsModule.mkdirSync(dir, {
+      recursive: true,
+    });
+    return await Spellbook.chdirAsync(dir, block);
   }
 
   static stat(path: string): Stats {
@@ -55,13 +84,6 @@ export class Spellbook {
       force: true,
       ...options,
     });
-  }
-
-  static async mkdirAsync(dir: string, block?: Block): Promise<void> {
-    fsModule.mkdirSync(dir, {
-      recursive: true,
-    });
-    return await Spellbook.chdirAsync(dir, block);
   }
 
   static glob(

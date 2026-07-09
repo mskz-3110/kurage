@@ -40,7 +40,7 @@ if (cliModes.includes(mode)) {
   console.log(kurage.parsePackageJson().version);
 } else if (['-h', '--help'].includes(mode)) {
   console.log(createHelpMessage(kurage.parsePackageJson()));
-} else if (kurage.path.exists(process.argv[2]!)) {
+} else if (kurage.spellbook.exists(process.argv[2]!)) {
   import(`./run.js`);
 } else {
   console.error(

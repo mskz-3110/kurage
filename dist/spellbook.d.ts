@@ -12,7 +12,13 @@ export type Block = () => Promise<void>;
 export declare class Spellbook {
   #private;
   static root(value?: string): string;
+  static tmpdir(): string;
+  static randomBytes(size?: number): Buffer<ArrayBuffer>;
+  static exists(path: string): boolean;
+  static absolute(path: string): string;
+  static relative(toPath: string, fromPath?: string): string;
   static chdirAsync(dir: string, block?: Block): Promise<void>;
+  static mkdirAsync(dir: string, block?: Block): Promise<void>;
   static stat(path: string): Stats;
   static copy(
     srcPath: string | URL,
@@ -21,7 +27,6 @@ export declare class Spellbook {
   ): void;
   static move(oldPath: string, newPath: string): void;
   static remove(path: string, options?: RmOptions): void;
-  static mkdirAsync(dir: string, block?: Block): Promise<void>;
   static glob(
     pattern: string | readonly string[],
     options: GlobOptionsWithFileTypes

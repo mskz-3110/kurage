@@ -1,4 +1,6 @@
+import cryptoModule from 'node:crypto';
 import fsModule from 'node:fs';
+import osModule from 'node:os';
 import pathModule from 'node:path';
 import readlineModule from 'node:readline';
 import urlModule from 'node:url';
@@ -9,6 +11,21 @@ var Spellbook = class Spellbook {
     if (value != null) Spellbook.#root = value;
     return Spellbook.#root;
   }
+  static tmpdir() {
+    return osModule.tmpdir();
+  }
+  static randomBytes(size = 16) {
+    return cryptoModule.randomBytes(size);
+  }
+  static exists(path) {
+    return fsModule.existsSync(path);
+  }
+  static absolute(path) {
+    return pathModule.resolve(path);
+  }
+  static relative(toPath, fromPath = process.cwd()) {
+    return pathModule.relative(fromPath, toPath);
+  }
   static async chdirAsync(dir, block) {
     const cwd = process.cwd();
     try {
@@ -17,6 +34,10 @@ var Spellbook = class Spellbook {
     } finally {
       if (cwd !== process.cwd()) process.chdir(cwd);
     }
+  }
+  static async mkdirAsync(dir, block) {
+    fsModule.mkdirSync(dir, { recursive: true });
+    return await Spellbook.chdirAsync(dir, block);
   }
   static stat(path) {
     return fsModule.statSync(path);
@@ -33,10 +54,6 @@ var Spellbook = class Spellbook {
       force: true,
       ...options,
     });
-  }
-  static async mkdirAsync(dir, block) {
-    fsModule.mkdirSync(dir, { recursive: true });
-    return await Spellbook.chdirAsync(dir, block);
   }
   static glob(pattern, options) {
     return fsModule.globSync(pattern, options);

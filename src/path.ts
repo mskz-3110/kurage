@@ -1,4 +1,3 @@
-import fsModule from 'node:fs';
 import pathModule from 'node:path';
 
 export type Split = (path: string) => string[];
@@ -10,18 +9,6 @@ export const defaultSplit = (path: string) => path.split(/[\\/]+/).filter(Boolea
 export const defaultJoin = (paths: readonly string[]) => pathModule.join(...paths);
 
 export class Path {
-  static exists(path: string): boolean {
-    return fsModule.existsSync(path);
-  }
-
-  static absolute(path: string): string {
-    return pathModule.resolve(path);
-  }
-
-  static relative(toPath: string, fromPath: string = process.cwd()): string {
-    return pathModule.relative(fromPath, toPath);
-  }
-
   static split(path: string, split: Split = defaultSplit): string[] {
     return split(path);
   }

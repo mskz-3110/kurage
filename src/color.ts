@@ -1,6 +1,8 @@
 export class Color {
   static $: Color = new Color();
 
+  static get enabled(): boolean {return process.stdout.hasColors();}
+
   static {
     Color.$.set('reset', '\u001b[0m');
     Color.$.set('red', '\u001b[31m');
@@ -24,6 +26,10 @@ export class Color {
   }
 
   get(name: string): string {
+    if (!Color.enabled) {
+      return '';
+    }
+
     return this.#colors[name] ?? '';
   }
 

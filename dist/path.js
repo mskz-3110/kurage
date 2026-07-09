@@ -1,18 +1,8 @@
-import fsModule from 'node:fs';
 import pathModule from 'node:path';
 
 const defaultSplit = (path) => path.split(/[\\/]+/).filter(Boolean);
 const defaultJoin = (paths) => pathModule.join(...paths);
 var Path = class {
-  static exists(path) {
-    return fsModule.existsSync(path);
-  }
-  static absolute(path) {
-    return pathModule.resolve(path);
-  }
-  static relative(toPath, fromPath = process.cwd()) {
-    return pathModule.relative(fromPath, toPath);
-  }
   static split(path, split = defaultSplit) {
     return split(path);
   }
