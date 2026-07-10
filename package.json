@@ -39,8 +39,8 @@
     "docker:bash": "docker compose run --rm kurage bash",
     "build:js": "rolldown --config && biome format dist --write",
     "build:dts": "tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts",
-    "build:chmod": "chmod +x dist/cli/*.js scripts/*.js examples/*.js && git update-index --chmod=+x dist/cli/*.js scripts/*.js examples/*.js",
-    "build": "biome check --write src && npm run build:js && npm run build:dts && biome check --write ."
+    "build": "biome check --write src && npm run build:js && npm run build:dts && biome check --write .",
+    "chmod": "chmod +x dist/cli/*.js scripts/*.js examples/*.js && git update-index --chmod=+x dist/cli/*.js scripts/*.js examples/*.js"
   },
   "engines": {
     "node": ">=22"

@@ -16,7 +16,7 @@ if (scripts.length === 0) {
 
 let args = [];
 for (const name of kurage.runtime.names) {
-  if (!kurage.$ok(['which', name])) {
+  if (!(await kurage.$ok(['which', name]))) {
     continue;
   }
 
