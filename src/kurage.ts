@@ -56,7 +56,7 @@ export const kurage = {
     encoding: BufferEncoding = 'utf8'
   ): Promise<string> => {
     const command = Command.new(args);
-    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] }, {});
+    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'ignore'] }, {});
     const chunks: Buffer[] = [];
     command.process!.stdout!.on('data', (chunk) => {
       chunks.push(Buffer.from(chunk));
@@ -64,9 +64,9 @@ export const kurage = {
     (await exec).throwIfException();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
-  $which: async (commandName: string): Promise<boolean> => {
+  $ok: async (args: readonly string[]): Promise<boolean> => {
     return (
-      (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {}))
+      (await kurage.$command(args, { stdio: ['inherit', 'ignore', 'ignore'] }, {}))
         .exitCode === 0
     );
   },

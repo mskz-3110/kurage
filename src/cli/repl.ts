@@ -15,7 +15,7 @@ let args = {
   'node': ['node', '-i'],
 }[kurage.runtime.name];
 if (kurage.runtime.name === 'deno') {
-  if (await kurage.$which('script')) {
+  if (await kurage.$ok(['which', 'script'])) {
     args = ['script', '-qec', args.join(' '), '/dev/null'];
   } else {
     options.stdio = 'inherit';

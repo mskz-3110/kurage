@@ -13,13 +13,19 @@ var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
   static {
+    Color.$.set('timestamp', Color.$.get('cyan'));
+    Color.$.set('path', Color.$.get('yellow'));
+    Color.$.set('command', Color.$.get('gray'));
+    Color.$.set('duration', Color.$.get('gray'));
+    Color.$.set('success', Color.$.get('green'));
+    Color.$.set('failure', Color.$.get('red'));
     Logger.$.addHandler('command-start', {
       write: console.error,
       format: (_, command) => {
         return [
-          Color.$.paint('cyan', `[${command.stopwatch.startTime}]`),
-          Color.$.paint('yellow', process.cwd()),
-          `@ ${Color.$.paint('gray', command.toString())}`,
+          Color.$.paint('timestamp', `[${command.stopwatch.startTime}]`),
+          Color.$.paint('path', process.cwd()),
+          `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');
       },
     });
@@ -28,10 +34,10 @@ var Command = class Command {
       format: (_, command) => {
         const exitCode = command.exitCode;
         return [
-          Color.$.paint('cyan', `[${command.stopwatch.stopTime}]`),
-          Color.$.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-          `(${Color.$.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-          `@ ${Color.$.paint('gray', command.toString())}`,
+          Color.$.paint('timestamp', `[${command.stopwatch.stopTime}]`),
+          Color.$.paint('duration', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.$.paint(exitCode === 0 ? 'success' : 'failure', exitCode.toString())})`,
+          `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');
       },
     });

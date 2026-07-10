@@ -18,7 +18,7 @@ import type { InspectOptions } from 'node:util';
 import utilModule from 'node:util';
 import { Color } from './color.js';
 
-export type Block = () => Promise<void>;
+export type Block = (dir: string) => Promise<void>;
 
 export interface ClassSummary {
   propertyNames: string[];
@@ -39,8 +39,30 @@ export class Spellbook {
     return Spellbook.#root;
   }
 
-  static tmpdir(): string {
-    return osModule.tmpdir();
+  static async chdirAsync(dir: string, block?: Block): Promise<string> {
+    const oldDir = process.cwd();
+    let newDir = dir;
+    try {
+      process.chdir(dir);
+      newDir = process.cwd();
+      await block?.(newDir);
+    } finally {
+      if (oldDir !== newDir) {
+        process.chdir(oldDir);
+      }
+    }
+    return newDir;
+  }
+
+  static async mkdirAsync(dir: string, block?: Block): Promise<string> {
+    fsModule.mkdirSync(dir, {
+      recursive: true,
+    });
+    return await Spellbook.chdirAsync(dir, block);
+  }
+
+  static async tmpdirAsync(block?: Block): Promise<string> {
+    return await Spellbook.chdirAsync(osModule.tmpdir(), block);
   }
 
   static randomBytes(size: number = 16): Buffer<ArrayBuffer> {
@@ -57,25 +79,6 @@ export class Spellbook {
 
   static relative(toPath: string, fromPath: string = process.cwd()): string {
     return pathModule.relative(fromPath, toPath);
-  }
-
-  static async chdirAsync(dir: string, block?: Block): Promise<void> {
-    const cwd = process.cwd();
-    try {
-      process.chdir(dir);
-      await block?.();
-    } finally {
-      if (cwd !== process.cwd()) {
-        process.chdir(cwd);
-      }
-    }
-  }
-
-  static async mkdirAsync(dir: string, block?: Block): Promise<void> {
-    fsModule.mkdirSync(dir, {
-      recursive: true,
-    });
-    return await Spellbook.chdirAsync(dir, block);
   }
 
   static stat(path: string): Stats {

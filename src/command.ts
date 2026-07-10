@@ -29,13 +29,20 @@ export class Command {
   ];
 
   static {
+    Color.$.set('timestamp', Color.$.get('cyan'));
+    Color.$.set('path', Color.$.get('yellow'));
+    Color.$.set('command', Color.$.get('gray'));
+    Color.$.set('duration', Color.$.get('gray'));
+    Color.$.set('success', Color.$.get('green'));
+    Color.$.set('failure', Color.$.get('red'));
+
     Logger.$.addHandler<Command>('command-start', {
       write: console.error,
       format: (_: Timestamp, command: Command): string => {
         return [
-          Color.$.paint('cyan', `[${command.stopwatch.startTime}]`),
-          Color.$.paint('yellow', process.cwd()),
-          `@ ${Color.$.paint('gray', command.toString())}`,
+          Color.$.paint('timestamp', `[${command.stopwatch.startTime}]`),
+          Color.$.paint('path', process.cwd()),
+          `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');
       },
     });
@@ -45,10 +52,10 @@ export class Command {
       format: (_: Timestamp, command: Command): string => {
         const exitCode = command.exitCode;
         return [
-          Color.$.paint('cyan', `[${command.stopwatch.stopTime}]`),
-          Color.$.paint('gray', `${Duration.new(command.stopwatch.duration)}`),
-          `(${Color.$.paint(exitCode === 0 ? 'green' : 'red', exitCode.toString())})`,
-          `@ ${Color.$.paint('gray', command.toString())}`,
+          Color.$.paint('timestamp', `[${command.stopwatch.stopTime}]`),
+          Color.$.paint('duration', `${Duration.new(command.stopwatch.duration)}`),
+          `(${Color.$.paint(exitCode === 0 ? 'success' : 'failure', exitCode.toString())})`,
+          `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');
       },
     });

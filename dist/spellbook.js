@@ -15,8 +15,24 @@ var Spellbook = class Spellbook {
     if (value != null) Spellbook.#root = value;
     return Spellbook.#root;
   }
-  static tmpdir() {
-    return osModule.tmpdir();
+  static async chdirAsync(dir, block) {
+    const oldDir = process.cwd();
+    let newDir = dir;
+    try {
+      process.chdir(dir);
+      newDir = process.cwd();
+      await block?.(newDir);
+    } finally {
+      if (oldDir !== newDir) process.chdir(oldDir);
+    }
+    return newDir;
+  }
+  static async mkdirAsync(dir, block) {
+    fsModule.mkdirSync(dir, { recursive: true });
+    return await Spellbook.chdirAsync(dir, block);
+  }
+  static async tmpdirAsync(block) {
+    return await Spellbook.chdirAsync(osModule.tmpdir(), block);
   }
   static randomBytes(size = 16) {
     return cryptoModule.randomBytes(size);
@@ -29,19 +45,6 @@ var Spellbook = class Spellbook {
   }
   static relative(toPath, fromPath = process.cwd()) {
     return pathModule.relative(fromPath, toPath);
-  }
-  static async chdirAsync(dir, block) {
-    const cwd = process.cwd();
-    try {
-      process.chdir(dir);
-      await block?.();
-    } finally {
-      if (cwd !== process.cwd()) process.chdir(cwd);
-    }
-  }
-  static async mkdirAsync(dir, block) {
-    fsModule.mkdirSync(dir, { recursive: true });
-    return await Spellbook.chdirAsync(dir, block);
   }
   static stat(path) {
     return fsModule.statSync(path);

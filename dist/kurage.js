@@ -28,7 +28,7 @@ const kurage = {
   },
   $out: async (args, encoding = 'utf8') => {
     const command = Command.new(args);
-    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'inherit'] }, {});
+    const exec = command.execAsync({ stdio: ['inherit', 'pipe', 'ignore'] }, {});
     const chunks = [];
     command.process.stdout.on('data', (chunk) => {
       chunks.push(Buffer.from(chunk));
@@ -36,9 +36,9 @@ const kurage = {
     (await exec).throwIfException();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
-  $which: async (commandName) => {
+  $ok: async (args) => {
     return (
-      (await kurage.$command(['which', commandName], { stdio: 'ignore' }, {}))
+      (await kurage.$command(args, { stdio: ['inherit', 'ignore', 'ignore'] }, {}))
         .exitCode === 0
     );
   },
