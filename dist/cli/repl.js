@@ -2,10 +2,17 @@
 import kurage from '../kurage.js';
 
 const packageJson = kurage.parsePackageJson();
-const replCode = [
-  `const { ${packageJson.name} } = await import('${packageJson.name}');`,
-  `const $ = ${packageJson.name}.spellbook;`,
-].join('');
+let replCode = '';
+if (Object.hasOwn(process.versions, 'webcontainer'))
+  replCode = [
+    `${packageJson.name} = (await import('${packageJson.name}')).default;`,
+    `$ = ${packageJson.name}.spellbook;`,
+  ].join('');
+else
+  replCode = [
+    `const { ${packageJson.name} } = await import('${packageJson.name}');`,
+    `const $ = ${packageJson.name}.spellbook;`,
+  ].join('');
 const options = { stdio: ['pipe', 'inherit', 'inherit'] };
 console.error(kurage.color.$.paint('magenta', replCode));
 let args = {
