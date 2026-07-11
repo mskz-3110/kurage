@@ -108,11 +108,11 @@ export class Command {
     this.#args = args.slice(1);
   }
 
-  #kill(signal: NodeJS.Signals) {
+  #kill = (signal: NodeJS.Signals) => {
     if (this.#process != null && !this.#process.killed) {
       this.#process.kill(signal);
     }
-  }
+  };
 
   #appendExceptionMessage(): Command {
     if (this.#exception != null) {

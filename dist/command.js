@@ -74,9 +74,9 @@ var Command = class Command {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
-  #kill(signal) {
+  #kill = (signal) => {
     if (this.#process != null && !this.#process.killed) this.#process.kill(signal);
-  }
+  };
   #appendExceptionMessage() {
     if (this.#exception != null)
       this.#exception.error.message =
