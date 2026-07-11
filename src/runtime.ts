@@ -13,6 +13,10 @@ export class Runtime {
     return names;
   }
 
+  static supported(name: string): boolean {
+    return Object.hasOwn(process.versions, name);
+  }
+
   static {
     for (const name of names) {
       if (Object.hasOwn(process.versions, name)) {

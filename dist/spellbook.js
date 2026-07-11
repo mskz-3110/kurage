@@ -127,13 +127,13 @@ var Spellbook = class Spellbook {
     value,
     options = {
       depth: null,
-      colors: false,
+      colors: true,
       compact: false,
     }
   ) {
     if (value == null) return String(value);
     if (typeof value === 'function')
-      return `${Color.$.paint('cyan', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(Spellbook.analyzeClass(value, ignoreStaticNames), options)}`;
+      return `${Color.$.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(Spellbook.analyzeClass(value, ignoreStaticNames), options)}`;
     if (typeof value === 'object') {
       if ('toJSON' in value && typeof value.toJSON === 'function')
         return utilModule.inspect(value.toJSON(), options);
@@ -143,6 +143,9 @@ var Spellbook = class Spellbook {
       );
     }
     return utilModule.inspect(value, options);
+  }
+  static {
+    Color.$.set('inspect-class', Color.$.get('cyan'));
   }
 };
 

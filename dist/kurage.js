@@ -36,10 +36,18 @@ const kurage = {
     (await exec).throwIfException();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
-  $ok: async (args) => {
+  $ok: async (args, options = {}) => {
     return (
-      (await kurage.$command(args, { stdio: ['inherit', 'ignore', 'ignore'] }, {}))
-        .exitCode === 0
+      (
+        await kurage.$command(
+          args,
+          {
+            stdio: ['inherit', 'ignore', 'ignore'],
+            ...options,
+          },
+          {}
+        )
+      ).exitCode === 0
     );
   },
   backtrace: Backtrace,

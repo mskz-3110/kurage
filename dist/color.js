@@ -22,7 +22,6 @@ var Color = class Color {
     return Object.keys(this.#colors);
   }
   get(name) {
-    if (!Color.enabled) return '';
     return this.#colors[name] ?? '';
   }
   set(name, value) {
@@ -30,7 +29,7 @@ var Color = class Color {
     this.#colors[name] = value;
   }
   paint(name, message, enabled = true) {
-    if (!enabled || message === '') return message;
+    if (!enabled || !Color.enabled || message === '') return message;
     const value = this.get(name);
     if (value === '') return message;
     const reset = this.get('reset');

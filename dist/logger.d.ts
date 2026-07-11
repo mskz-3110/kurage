@@ -1,9 +1,9 @@
 import { Timestamp } from './timestamp.js';
 export type Write = (message: string) => void;
-export type Format<T = any> = (timestamp: Timestamp, arg: T) => string;
-interface Handler<T = any> {
+export type Format = (timestamp: Timestamp, arg: any) => string;
+interface Handler {
   write: Write;
-  format: Format<T>;
+  format: Format;
 }
 export declare class Logger {
   #private;
@@ -11,7 +11,9 @@ export declare class Logger {
   static format(timestamp: Timestamp, arg: any): string;
   static new(...args: ConstructorParameters<typeof Logger>): Logger;
   get names(): readonly string[];
-  addHandler<T>(name: string, handler: Handler<T>): void;
-  write<T>(name: string, arg: T, timestamp?: Timestamp): void;
+  getHandlers(name: string): Handler[];
+  setHandlers(name: string, handlers: Handler[]): void;
+  addHandler(name: string, handler: Handler): void;
+  write(name: string, arg: any, timestamp?: Timestamp): void;
 }
 export {};

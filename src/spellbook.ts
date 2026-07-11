@@ -18,7 +18,7 @@ import type { InspectOptions } from 'node:util';
 import utilModule from 'node:util';
 import { Color } from './color.js';
 
-export type Block = (dir: string) => Promise<void>;
+export type DirBlock = (dir: string) => Promise<void>;
 
 export interface ClassSummary {
   propertyNames: string[];
@@ -39,7 +39,7 @@ export class Spellbook {
     return Spellbook.#root;
   }
 
-  static async chdirAsync(dir: string, block?: Block): Promise<string> {
+  static async chdirAsync(dir: string, block?: DirBlock): Promise<string> {
     const oldDir = process.cwd();
     let newDir = dir;
     try {
@@ -54,14 +54,14 @@ export class Spellbook {
     return newDir;
   }
 
-  static async mkdirAsync(dir: string, block?: Block): Promise<string> {
+  static async mkdirAsync(dir: string, block?: DirBlock): Promise<string> {
     fsModule.mkdirSync(dir, {
       recursive: true,
     });
     return await Spellbook.chdirAsync(dir, block);
   }
 
-  static async tmpdirAsync(block?: Block): Promise<string> {
+  static async tmpdirAsync(block?: DirBlock): Promise<string> {
     return await Spellbook.chdirAsync(osModule.tmpdir(), block);
   }
 
@@ -204,14 +204,14 @@ export class Spellbook {
 
   static inspect(
     value: unknown,
-    options: InspectOptions = { depth: null, colors: false, compact: false }
+    options: InspectOptions = { depth: null, colors: true, compact: false }
   ): string {
     if (value == null) {
       return String(value);
     }
 
     if (typeof value === 'function') {
-      return `${Color.$.paint('cyan', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(
+      return `${Color.$.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(
         Spellbook.analyzeClass(value, ignoreStaticNames),
         options
       )}`;
@@ -229,5 +229,9 @@ export class Spellbook {
     }
 
     return utilModule.inspect(value, options);
+  }
+
+  static {
+    Color.$.set('inspect-class', Color.$.get('cyan'));
   }
 }

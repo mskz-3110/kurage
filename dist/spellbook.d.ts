@@ -9,7 +9,7 @@ import type {
 } from 'node:fs';
 import type { URL } from 'node:url';
 import type { InspectOptions } from 'node:util';
-export type Block = (dir: string) => Promise<void>;
+export type DirBlock = (dir: string) => Promise<void>;
 export interface ClassSummary {
   propertyNames: string[];
   accessorNames: string[];
@@ -18,9 +18,9 @@ export interface ClassSummary {
 export declare class Spellbook {
   #private;
   static root(value?: string): string;
-  static chdirAsync(dir: string, block?: Block): Promise<string>;
-  static mkdirAsync(dir: string, block?: Block): Promise<string>;
-  static tmpdirAsync(block?: Block): Promise<string>;
+  static chdirAsync(dir: string, block?: DirBlock): Promise<string>;
+  static mkdirAsync(dir: string, block?: DirBlock): Promise<string>;
+  static tmpdirAsync(block?: DirBlock): Promise<string>;
   static randomBytes(size?: number): Buffer<ArrayBuffer>;
   static exists(path: string): boolean;
   static absolute(path: string): string;

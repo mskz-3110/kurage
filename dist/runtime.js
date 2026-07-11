@@ -7,6 +7,9 @@ var Runtime = class Runtime {
   static get names() {
     return names;
   }
+  static supported(name) {
+    return Object.hasOwn(process.versions, name);
+  }
   static {
     for (const name of names)
       if (Object.hasOwn(process.versions, name)) {

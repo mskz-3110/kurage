@@ -36,7 +36,7 @@ export class Command {
     Color.$.set('success', Color.$.get('green'));
     Color.$.set('failure', Color.$.get('red'));
 
-    Logger.$.addHandler<Command>('command-start', {
+    Logger.$.addHandler('command-start', {
       write: console.error,
       format: (_: Timestamp, command: Command): string => {
         return [
@@ -47,7 +47,7 @@ export class Command {
       },
     });
 
-    Logger.$.addHandler<Command>('command-end', {
+    Logger.$.addHandler('command-end', {
       write: console.error,
       format: (_: Timestamp, command: Command): string => {
         const exitCode = command.exitCode;
@@ -194,7 +194,7 @@ export class Command {
 
   throwIfException(): Command {
     if (this.#exception != null) {
-      throw this.#exception;
+      throw this.#exception.error;
     }
 
     return this;

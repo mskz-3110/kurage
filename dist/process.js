@@ -3,11 +3,11 @@ import { Logger } from './logger.js';
 
 var Process = class Process {
   static #uncaughtException = (e) => {
-    Logger.$.write('error', [`UncaughtException: ${Exception.new(e)}`]);
+    Logger.$.write('error', Exception.new(e).toString());
     process.exit(1);
   };
   static #unhandledRejection = (reason) => {
-    Logger.$.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
+    Logger.$.write('error', Exception.new(reason).toString());
     process.exit(1);
   };
   static #listeners = {

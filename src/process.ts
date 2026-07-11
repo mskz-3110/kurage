@@ -8,12 +8,12 @@ type Listeners = {
 
 export class Process {
   static #uncaughtException = (e: unknown) => {
-    Logger.$.write('error', [`UncaughtException: ${Exception.new(e)}`]);
+    Logger.$.write('error', Exception.new(e).toString());
     process.exit(1);
   };
 
   static #unhandledRejection = (reason: unknown) => {
-    Logger.$.write('error', [`UnhandledRejection: ${Exception.new(reason)}`]);
+    Logger.$.write('error', Exception.new(reason).toString());
     process.exit(1);
   };
 

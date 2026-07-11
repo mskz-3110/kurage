@@ -4,11 +4,11 @@ import { Timestamp } from './timestamp.js';
 
 export type Write = (message: string) => void;
 
-export type Format<T = any> = (timestamp: Timestamp, arg: T) => string;
+export type Format = (timestamp: Timestamp, arg: any) => string;
 
-interface Handler<T = any> {
+interface Handler {
   write: Write;
-  format: Format<T>;
+  format: Format;
 }
 
 export class Logger {
@@ -19,31 +19,36 @@ export class Logger {
   }
 
   static {
+    Color.$.set('debug', Color.$.get('cyan'));
+    Color.$.set('info', Color.$.get('reset'));
+    Color.$.set('warn', Color.$.get('yellow'));
+    Color.$.set('error', Color.$.get('red'));
+
     Logger.$.addHandler('debug', {
       write: console.log,
       format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('cyan', Logger.format(timestamp, arg));
+        return Color.$.paint('debug', Logger.format(timestamp, arg));
       },
     });
 
     Logger.$.addHandler('info', {
       write: console.log,
       format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('reset', Logger.format(timestamp, arg));
+        return Color.$.paint('info', Logger.format(timestamp, arg));
       },
     });
 
     Logger.$.addHandler('warn', {
       write: console.error,
       format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('yellow', Logger.format(timestamp, arg));
+        return Color.$.paint('warn', Logger.format(timestamp, arg));
       },
     });
 
     Logger.$.addHandler('error', {
       write: console.error,
       format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('red', Logger.format(timestamp, arg));
+        return Color.$.paint('error', Logger.format(timestamp, arg));
       },
     });
   }
@@ -63,7 +68,15 @@ export class Logger {
     return Object.keys(this.#handlers);
   }
 
-  addHandler<T>(name: string, handler: Handler<T>) {
+  getHandlers(name: string): Handler[] {
+    return Object.hasOwn(this.#handlers, name) ? this.#handlers[name]! : [];
+  }
+
+  setHandlers(name: string, handlers: Handler[]) {
+    this.#handlers[name] = handlers;
+  }
+
+  addHandler(name: string, handler: Handler) {
     if (this.#invalidNames.includes(name) || name === '') {
       return;
     }
@@ -75,9 +88,11 @@ export class Logger {
     }
   }
 
-  write<T>(name: string, arg: T, timestamp: Timestamp = Timestamp.new()) {
+  write(name: string, arg: any, timestamp: Timestamp = Timestamp.new()) {
     if (!Object.hasOwn(this.#handlers, name)) {
-      console.error(`${String(arg)}\n${Backtrace.new()}`);
+      console.error(
+        `Undefined logger name: ${name} # ${String(arg)}\n${Backtrace.new()}`
+      );
       return;
     }
 

@@ -39,7 +39,7 @@ else if (['-h', '--help'].includes(mode))
 else if (kurage.spellbook.exists(process.argv[2])) import('./run.js');
 else {
   console.error(
-    kurage.color.$.paint('red', `Invalid args: ${kurage.process.args.join(' ')}`)
+    kurage.color.$.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
   );
   console.log(createHelpMessage(kurage.parsePackageJson()));
   process.exit(1);

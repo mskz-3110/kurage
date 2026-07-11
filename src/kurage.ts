@@ -64,10 +64,15 @@ export const kurage = {
     (await exec).throwIfException();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
-  $ok: async (args: readonly string[]): Promise<boolean> => {
+  $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {
     return (
-      (await kurage.$command(args, { stdio: ['inherit', 'ignore', 'ignore'] }, {}))
-        .exitCode === 0
+      (
+        await kurage.$command(
+          args,
+          { stdio: ['inherit', 'ignore', 'ignore'], ...options },
+          {}
+        )
+      ).exitCode === 0
     );
   },
   backtrace: Backtrace,

@@ -135,7 +135,7 @@ var Command = class Command {
     });
   }
   throwIfException() {
-    if (this.#exception != null) throw this.#exception;
+    if (this.#exception != null) throw this.#exception.error;
     return this;
   }
   exit() {

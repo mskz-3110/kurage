@@ -34,7 +34,7 @@ export declare const kurage: {
     hooks?: ExecHooks<T>
   ) => Promise<void>;
   $out: (args: readonly string[], encoding?: BufferEncoding) => Promise<string>;
-  $ok: (args: readonly string[]) => Promise<boolean>;
+  $ok: (args: readonly string[], options?: SpawnOptions) => Promise<boolean>;
   backtrace: typeof Backtrace;
   color: typeof Color;
   command: typeof Command;

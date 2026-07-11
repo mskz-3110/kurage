@@ -3,7 +3,7 @@ import kurage from '../kurage.js';
 
 const packageJson = kurage.parsePackageJson();
 let replCode = '';
-if (Object.hasOwn(process.versions, 'webcontainer')) {
+if (kurage.runtime.supported('webcontainer')) {
   replCode = [
     `${packageJson.name} = (await import('${packageJson.name}')).default;`,
     `$ = ${packageJson.name}.spellbook;`,

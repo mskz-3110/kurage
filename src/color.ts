@@ -28,10 +28,6 @@ export class Color {
   }
 
   get(name: string): string {
-    if (!Color.enabled) {
-      return '';
-    }
-
     return this.#colors[name] ?? '';
   }
 
@@ -44,7 +40,7 @@ export class Color {
   }
 
   paint(name: string, message: string, enabled: boolean = true): string {
-    if (!enabled || message === '') {
+    if (!enabled || !Color.enabled || message === '') {
       return message;
     }
 
