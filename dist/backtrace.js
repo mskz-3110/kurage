@@ -3,26 +3,23 @@ var Backtrace = class Backtrace {
   static #normalizeOffset(offset) {
     return 0 <= offset ? offset : 0;
   }
-  static new(offset = 0) {
-    return new Backtrace(Backtrace.#normalizeOffset(offset) + 1);
+  static new(offset = 0, maxLength = 0) {
+    return new Backtrace(Backtrace.#normalizeOffset(offset) + 1, maxLength);
   }
-  #frames = [];
-  get frames() {
-    return this.#frames;
-  }
-  constructor(offset = 0) {
+  frames = [];
+  constructor(offset = 0, maxLength = 0) {
     try {
       Error.prepareStackTrace = (_, stackTraces) => {
         return stackTraces.slice(Backtrace.#normalizeOffset(offset) + 1);
       };
-      for (const frame of /* @__PURE__ */ new Error().stack)
-        if (!frame.isNative()) this.#frames.push(frame);
+      this.frames = /* @__PURE__ */ new Error().stack;
+      if (0 < maxLength && maxLength < this.frames.length) this.frames.length = maxLength;
     } finally {
       Error.prepareStackTrace = Backtrace.#prepareStackTrace;
     }
   }
   toString(prefix = '  ') {
-    return this.#frames.map((frame) => `${prefix}${frame}`).join('\n');
+    return this.frames.map((frame) => `${prefix}${frame}`).join('\n');
   }
 };
 

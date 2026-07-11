@@ -116,14 +116,12 @@ var Command = class Command {
           else if (exitCode !== 0)
             this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
           this.#cleanupExec(hooks, context);
-          return resolve(this);
+          resolve(this);
         });
         this.#process.on('error', (e) => {
           this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();
-          this.#cleanupExec(hooks, context);
-          return resolve(this);
         });
       } catch (e) {
         this.#stopwatch.stop();
