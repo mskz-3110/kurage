@@ -83,7 +83,6 @@ var Command = class Command {
         this.#exception.error.message === ''
           ? this.toString()
           : `${this.#exception.error.message} @ ${this}`;
-    return this;
   }
   #setupExec(hooks) {
     this.#stopwatch.start();
@@ -109,12 +108,14 @@ var Command = class Command {
           stdio: 'inherit',
           ...options,
         });
-        this.#process.on('close', (exitCode, signalName) => {
+        this.#process.on('close', (_, signalName) => {
           this.#stopwatch.stop();
-          if (signalName != null)
-            this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
-          else if (exitCode !== 0)
-            this.#exception = Exception.new(`ExitCodeException: ${exitCode} @ ${this}`);
+          if (this.#exception == null) {
+            if (signalName != null) {
+              this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
+              this.#exception.error.stack = this.#exception.error.message;
+            }
+          }
           this.#cleanupExec(hooks, context);
           resolve(this);
         });
@@ -122,6 +123,7 @@ var Command = class Command {
           this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();
+          this.#exception.error.stack = this.#exception.error.message;
         });
       } catch (e) {
         this.#stopwatch.stop();
@@ -137,6 +139,7 @@ var Command = class Command {
     return this;
   }
   exit() {
+    if (this.#exception != null) Logger.$.write('error', this.#exception.toString());
     process.exit(this.exitCode);
   }
   toString() {
