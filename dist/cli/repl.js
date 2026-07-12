@@ -2,23 +2,13 @@
 import kurage from '../kurage.js';
 
 const packageJson = kurage.parsePackageJson();
-let replCode = '';
-if (
-  await kurage.$ok([
-    'node',
-    '-e',
-    `const { ${packageJson.name} } = await import('${packageJson.name}');process.exit(typeof kurage !== undefined ? 0 : 1);`,
-  ])
-)
-  replCode = [
-    `const { ${packageJson.name} } = await import('${packageJson.name}');`,
-    `const $ = ${packageJson.name}.spellbook;`,
-  ].join('');
-else
-  replCode = [
-    `${packageJson.name} = (await import('${packageJson.name}')).default;`,
-    `$ = ${packageJson.name}.spellbook;`,
-  ].join('');
+const replCode = `
+${packageJson.name} = (await import('${packageJson.name}')).default;
+$ = ${packageJson.name}.spellbook;
+`
+  .trim()
+  .split('\n')
+  .join('');
 const options = { stdio: ['pipe', 'inherit', 'inherit'] };
 console.error(kurage.color.$.paint('magenta', replCode));
 let commandArgs = {
