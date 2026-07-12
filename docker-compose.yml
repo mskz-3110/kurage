@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+        - VHS_VER=0.10.0
+        - TTYD_VER=1.7.7
         - WORKDIR=/kurage
     working_dir: /kurage
     volumes:
