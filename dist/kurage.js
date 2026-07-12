@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
-import { Command, defaultExecHooks } from './command.js';
+import { Command } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Logger } from './logger.js';
@@ -13,12 +13,12 @@ import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
 
-const execAsync = async (args, options = {}, hooks = defaultExecHooks) => {
+const execAsync = async (args, options = {}, hooks) => {
   return await Command.new(args).execAsync(options, hooks);
 };
 const kurage = {
   $: async (args, options = {}, hooks) => {
-    (await execAsync(args, options, hooks)).throwIfException();
+    (await execAsync(args, options, hooks)).exitIfFailure();
   },
   $command: async (args, options = {}, hooks) => {
     return await execAsync(args, options, hooks);
@@ -33,7 +33,7 @@ const kurage = {
     command.process.stdout.on('data', (chunk) => {
       chunks.push(Buffer.from(chunk));
     });
-    (await exec).throwIfException();
+    (await exec).exitIfFailure();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
   $ok: async (args, options = {}) => {

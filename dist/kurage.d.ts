@@ -18,20 +18,20 @@ export type PackageJson = {
   description: string;
 };
 export declare const kurage: {
-  $: <T = void>(
+  $: (
     args: readonly string[],
     options?: SpawnOptions,
-    hooks?: ExecHooks<T>
+    hooks?: ExecHooks
   ) => Promise<void>;
-  $command: <T = void>(
+  $command: (
     args: readonly string[],
     options?: SpawnOptions,
-    hooks?: ExecHooks<T>
+    hooks?: ExecHooks
   ) => Promise<Command>;
-  $exit: <T = void>(
+  $exit: (
     args: readonly string[],
     options?: SpawnOptions,
-    hooks?: ExecHooks<T>
+    hooks?: ExecHooks
   ) => Promise<void>;
   $out: (args: readonly string[], encoding?: BufferEncoding) => Promise<string>;
   $ok: (args: readonly string[], options?: SpawnOptions) => Promise<boolean>;

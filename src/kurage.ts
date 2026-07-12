@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
-import { Command, defaultExecHooks } from './command.js';
+import { Command } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Logger } from './logger.js';
@@ -21,33 +21,33 @@ export type PackageJson = {
   description: string;
 };
 
-const execAsync = async <T = void>(
+const execAsync = async (
   args: readonly string[],
   options: SpawnOptions = {},
-  hooks: ExecHooks<T> = defaultExecHooks as any
+  hooks?: ExecHooks
 ): Promise<Command> => {
-  return await Command.new(args).execAsync<T>(options, hooks);
+  return await Command.new(args).execAsync(options, hooks);
 };
 
 export const kurage = {
-  $: async <T = void>(
+  $: async (
     args: readonly string[],
     options: SpawnOptions = {},
-    hooks?: ExecHooks<T>
+    hooks?: ExecHooks
   ): Promise<void> => {
-    (await execAsync(args, options, hooks)).throwIfException();
+    (await execAsync(args, options, hooks)).exitIfFailure();
   },
-  $command: async <T = void>(
+  $command: async (
     args: readonly string[],
     options: SpawnOptions = {},
-    hooks?: ExecHooks<T>
+    hooks?: ExecHooks
   ): Promise<Command> => {
     return await execAsync(args, options, hooks);
   },
-  $exit: async <T = void>(
+  $exit: async (
     args: readonly string[],
     options: SpawnOptions = {},
-    hooks?: ExecHooks<T>
+    hooks?: ExecHooks
   ): Promise<void> => {
     (await execAsync(args, options, hooks)).exit();
   },
@@ -61,7 +61,7 @@ export const kurage = {
     command.process!.stdout!.on('data', (chunk) => {
       chunks.push(Buffer.from(chunk));
     });
-    (await exec).throwIfException();
+    (await exec).exitIfFailure();
     return Buffer.concat(chunks).toString(encoding).trimEnd();
   },
   $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {

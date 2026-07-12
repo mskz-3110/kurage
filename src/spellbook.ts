@@ -89,7 +89,7 @@ export class Spellbook {
     fsModule.cpSync(srcPath, newPath, options);
   }
 
-  static move(oldPath: string, newPath: string) {
+  static rename(oldPath: string, newPath: string) {
     fsModule.renameSync(oldPath, newPath);
   }
 

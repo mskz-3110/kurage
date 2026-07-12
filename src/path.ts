@@ -4,16 +4,18 @@ export type Split = (path: string) => string[];
 
 export type Join = (paths: readonly string[]) => string;
 
-export const defaultSplit = (path: string) => path.split(/[\\/]+/).filter(Boolean);
-
-export const defaultJoin = (paths: readonly string[]) => pathModule.join(...paths);
-
 export class Path {
-  static split(path: string, split: Split = defaultSplit): string[] {
+  static split(
+    path: string,
+    split: Split = (path: string) => path.split(/[\\/]+/).filter(Boolean)
+  ): string[] {
     return split(path);
   }
 
-  static join(paths: readonly string[], join: Join = defaultJoin): string {
+  static join(
+    paths: readonly string[],
+    join: Join = (paths: readonly string[]) => pathModule.join(...paths)
+  ): string {
     return join(paths);
   }
 

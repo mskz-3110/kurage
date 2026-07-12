@@ -1,12 +1,10 @@
 import pathModule from 'node:path';
 
-const defaultSplit = (path) => path.split(/[\\/]+/).filter(Boolean);
-const defaultJoin = (paths) => pathModule.join(...paths);
 var Path = class {
-  static split(path, split = defaultSplit) {
+  static split(path, split = (path) => path.split(/[\\/]+/).filter(Boolean)) {
     return split(path);
   }
-  static join(paths, join = defaultJoin) {
+  static join(paths, join = (paths) => pathModule.join(...paths)) {
     return join(paths);
   }
   static rebuild(path, split, join) {
@@ -21,4 +19,4 @@ var Path = class {
   }
 };
 
-export { defaultJoin, defaultSplit, Path };
+export { Path };

@@ -1,7 +1,5 @@
 export type Split = (path: string) => string[];
 export type Join = (paths: readonly string[]) => string;
-export declare const defaultSplit: (path: string) => string[];
-export declare const defaultJoin: (paths: readonly string[]) => string;
 export declare class Path {
   static split(path: string, split?: Split): string[];
   static join(paths: readonly string[], join?: Join): string;

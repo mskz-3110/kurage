@@ -52,7 +52,7 @@ var Spellbook = class Spellbook {
   static copy(srcPath, newPath, options) {
     fsModule.cpSync(srcPath, newPath, options);
   }
-  static move(oldPath, newPath) {
+  static rename(oldPath, newPath) {
     fsModule.renameSync(oldPath, newPath);
   }
   static remove(path, options = {}) {

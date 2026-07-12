@@ -7,15 +7,10 @@ import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
 import type { Timestamp } from './timestamp.js';
 
-export interface ExecHooks<T> {
-  onStart?: (command: Command) => T;
-  onEnd?: (command: Command, context: T) => void;
+export interface ExecHooks {
+  onStart?: (command: Command) => any;
+  onEnd?: (command: Command, context: any) => void;
 }
-
-export const defaultExecHooks: ExecHooks<void> = {
-  onStart: (command) => Logger.$.write('command-start', command),
-  onEnd: (command) => Logger.$.write('command-end', command),
-};
 
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
@@ -94,7 +89,7 @@ export class Command {
       return this.#process!.exitCode!;
     }
 
-    return this.#exception != null ? 1 : 0;
+    return 1;
   }
 
   #exception: Exception | undefined;
@@ -108,12 +103,6 @@ export class Command {
     this.#args = args.slice(1);
   }
 
-  #kill = (signal: NodeJS.Signals) => {
-    if (this.#process != null && !this.#process.killed) {
-      this.#process.kill(signal);
-    }
-  };
-
   #appendExceptionMessage() {
     if (this.#exception != null) {
       this.#exception.error.message =
@@ -123,27 +112,30 @@ export class Command {
     }
   }
 
-  #setupExec<T = void>(hooks: ExecHooks<T>): T {
+  #setupExec(hooks: ExecHooks): any {
     this.#stopwatch.start();
     for (const signal of Command.#signals) {
-      process.on(signal, this.#kill);
+      process.on(signal, this.kill);
     }
-    return hooks.onStart?.(this) as T;
+    return hooks.onStart?.(this);
   }
 
-  #cleanupExec<T = void>(hooks: ExecHooks<T>, context: T) {
+  #cleanupExec(hooks: ExecHooks, context: any) {
     this.#stopwatch.stop();
     for (const signal of Command.#signals) {
-      process.off(signal, this.#kill);
+      process.off(signal, this.kill);
     }
     hooks.onEnd?.(this, context);
   }
 
-  async execAsync<T = void>(
+  async execAsync(
     options: SpawnOptions = {},
-    hooks: ExecHooks<T> = defaultExecHooks as any
+    hooks: ExecHooks = {
+      onStart: (command) => Logger.$.write('command-start', command),
+      onEnd: (command) => Logger.$.write('command-end', command),
+    }
   ): Promise<Command> {
-    const context = this.#setupExec<T>(hooks);
+    const context = this.#setupExec(hooks);
     return new Promise((resolve) => {
       try {
         this.#process = undefined;
@@ -190,6 +182,12 @@ export class Command {
     });
   }
 
+  kill = (signal: NodeJS.Signals) => {
+    if (this.#process != null && !this.#process.killed) {
+      this.#process.kill(signal);
+    }
+  };
+
   throwIfException(): Command {
     if (this.#exception != null) {
       throw this.#exception.error;
@@ -203,6 +201,13 @@ export class Command {
       Logger.$.write('error', this.#exception.toString());
     }
     process.exit(this.exitCode);
+  }
+
+  exitIfFailure() {
+    this.throwIfException();
+    if (this.exitCode !== 0) {
+      this.exit();
+    }
   }
 
   toString(): string {

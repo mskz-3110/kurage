@@ -5,10 +5,6 @@ import { Exception } from './exception.js';
 import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
 
-const defaultExecHooks = {
-  onStart: (command) => Logger.$.write('command-start', command),
-  onEnd: (command) => Logger.$.write('command-end', command),
-};
 var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
@@ -64,7 +60,7 @@ var Command = class Command {
   get exitCode() {
     if (this.#process != null && this.#process.exitCode != null)
       return this.#process.exitCode;
-    return this.#exception != null ? 1 : 0;
+    return 1;
   }
   #exception;
   get exception() {
@@ -74,9 +70,6 @@ var Command = class Command {
     this.#command = args[0] ?? '';
     this.#args = args.slice(1);
   }
-  #kill = (signal) => {
-    if (this.#process != null && !this.#process.killed) this.#process.kill(signal);
-  };
   #appendExceptionMessage() {
     if (this.#exception != null)
       this.#exception.error.message =
@@ -86,15 +79,21 @@ var Command = class Command {
   }
   #setupExec(hooks) {
     this.#stopwatch.start();
-    for (const signal of Command.#signals) process.on(signal, this.#kill);
+    for (const signal of Command.#signals) process.on(signal, this.kill);
     return hooks.onStart?.(this);
   }
   #cleanupExec(hooks, context) {
     this.#stopwatch.stop();
-    for (const signal of Command.#signals) process.off(signal, this.#kill);
+    for (const signal of Command.#signals) process.off(signal, this.kill);
     hooks.onEnd?.(this, context);
   }
-  async execAsync(options = {}, hooks = defaultExecHooks) {
+  async execAsync(
+    options = {},
+    hooks = {
+      onStart: (command) => Logger.$.write('command-start', command),
+      onEnd: (command) => Logger.$.write('command-end', command),
+    }
+  ) {
     const context = this.#setupExec(hooks);
     return new Promise((resolve) => {
       try {
@@ -134,6 +133,9 @@ var Command = class Command {
       }
     });
   }
+  kill = (signal) => {
+    if (this.#process != null && !this.#process.killed) this.#process.kill(signal);
+  };
   throwIfException() {
     if (this.#exception != null) throw this.#exception.error;
     return this;
@@ -141,6 +143,10 @@ var Command = class Command {
   exit() {
     if (this.#exception != null) Logger.$.write('error', this.#exception.toString());
     process.exit(this.exitCode);
+  }
+  exitIfFailure() {
+    this.throwIfException();
+    if (this.exitCode !== 0) this.exit();
   }
   toString() {
     return [
@@ -152,4 +158,4 @@ var Command = class Command {
   }
 };
 
-export { Command, defaultExecHooks };
+export { Command };

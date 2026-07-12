@@ -31,7 +31,7 @@ export declare class Spellbook {
     newPath: string | URL,
     options?: CopySyncOptions
   ): void;
-  static move(oldPath: string, newPath: string): void;
+  static rename(oldPath: string, newPath: string): void;
   static remove(path: string, options?: RmOptions): void;
   static glob(
     pattern: string | readonly string[],

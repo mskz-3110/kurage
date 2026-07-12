@@ -1,11 +1,10 @@
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
-export interface ExecHooks<T> {
-  onStart?: (command: Command) => T;
-  onEnd?: (command: Command, context: T) => void;
+export interface ExecHooks {
+  onStart?: (command: Command) => any;
+  onEnd?: (command: Command, context: any) => void;
 }
-export declare const defaultExecHooks: ExecHooks<void>;
 export declare class Command {
   #private;
   static new(...args: ConstructorParameters<typeof Command>): Command;
@@ -16,8 +15,10 @@ export declare class Command {
   get exitCode(): number;
   get exception(): Exception | undefined;
   constructor(args: readonly string[]);
-  execAsync<T = void>(options?: SpawnOptions, hooks?: ExecHooks<T>): Promise<Command>;
+  execAsync(options?: SpawnOptions, hooks?: ExecHooks): Promise<Command>;
+  kill: (signal: NodeJS.Signals) => void;
   throwIfException(): Command;
   exit(): void;
+  exitIfFailure(): void;
   toString(): string;
 }
