@@ -8,6 +8,7 @@ export default defineConfig({
     'command': 'src/command.ts',
     'duration': 'src/duration.ts',
     'exception': 'src/exception.ts',
+    'line': 'src/line.ts',
     'logger': 'src/logger.ts',
     'path': 'src/path.ts',
     'process': 'src/process.ts',

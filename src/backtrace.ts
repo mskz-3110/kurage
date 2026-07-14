@@ -1,3 +1,5 @@
+import { Line } from './line.js';
+
 export type Frame = NodeJS.CallSite;
 
 export class Backtrace {
@@ -28,6 +30,6 @@ export class Backtrace {
   }
 
   toString(prefix: string = '  '): string {
-    return this.frames.map((frame) => `${prefix}${frame}`).join('\n');
+    return Line.join(this.frames.map((frame) => `${prefix}${frame}`));
   }
 }

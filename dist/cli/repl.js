@@ -2,12 +2,13 @@
 import kurage from '../kurage.js';
 
 const packageJson = kurage.parsePackageJson();
-const replCode = `
+const replCode = kurage.line
+  .split(
+    `
 ${packageJson.name} = (await import('${packageJson.name}')).default;
 $ = ${packageJson.name}.spellbook;
-`
-  .trim()
-  .split('\n')
+`.trim()
+  )
   .join('');
 const options = { stdio: ['pipe', 'inherit', 'inherit'] };
 console.error(kurage.color.$.paint('magenta', replCode));

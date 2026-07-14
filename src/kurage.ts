@@ -7,6 +7,7 @@ import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
+import { Line } from './line.js';
 import { Logger } from './logger.js';
 import { Path } from './path.js';
 import { Process } from './process.js';
@@ -80,6 +81,7 @@ export const kurage = {
   command: Command,
   duration: Duration,
   exception: Exception,
+  line: Line,
   log: (name: string, arg: unknown, timestamp?: Timestamp) => {
     return Logger.$.write(name, arg, timestamp);
   },

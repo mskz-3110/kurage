@@ -1,3 +1,5 @@
+import { Line } from './line.js';
+
 var Backtrace = class Backtrace {
   static #prepareStackTrace = Error.prepareStackTrace;
   static normalizeOffset(offset) {
@@ -19,7 +21,7 @@ var Backtrace = class Backtrace {
     }
   }
   toString(prefix = '  ') {
-    return this.frames.map((frame) => `${prefix}${frame}`).join('\n');
+    return Line.join(this.frames.map((frame) => `${prefix}${frame}`));
   }
 };
 
