@@ -7,7 +7,7 @@ export type Join = (paths: readonly string[]) => string;
 export class Path {
   static split(
     path: string,
-    split: Split = (path: string) => path.split(/[\\/]+/).filter(Boolean)
+    split: Split = (path: string) => path.split(pathModule.sep).filter(Boolean)
   ): string[] {
     return split(path);
   }

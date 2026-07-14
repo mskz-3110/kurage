@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-const cliModes = ['repl', 'exec', 'run', 'info'];
-const mode = (process.argv[2] ?? cliModes[0]).toLowerCase();
 const createHelpMessage = (packageJson) => {
   return `
 Usage: ${packageJson.name} [options] [commands...]
@@ -28,9 +26,13 @@ Examples:
   ${packageJson.name} info
 `.trim();
 };
-if (cliModes.includes(mode)) {
+let mode = (process.argv[2] ?? '').toLowerCase();
+if (mode === '') {
+  mode = 'repl';
+  process.argv.push(mode);
+  import(`./${mode}.js`);
+} else if (['repl', 'exec', 'run', 'info'].includes(mode)) {
   process.argv = process.argv.slice(1);
-  if (process.argv.length < 2) process.argv.push(mode);
   import(`./${mode}.js`);
 } else if (['-v', '--version'].includes(mode))
   console.log(kurage.parsePackageJson().version);
