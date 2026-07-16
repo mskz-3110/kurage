@@ -204,10 +204,10 @@ export class Command {
   }
 
   exitIfFailure() {
-    this.throwIfException();
     if (this.exitCode !== 0) {
       this.exit();
     }
+    this.throwIfException();
   }
 
   toString(): string {
