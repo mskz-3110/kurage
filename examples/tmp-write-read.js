@@ -16,6 +16,6 @@ await $.mkdirAsync(kurage.path.join([await $.tmpdirAsync(), 'kurage']), async ()
     $.write(path, 'あいうえお\nかきくけこ\n');
   }
 
-  $.assertEqual($.read(path).trim(), (await $.readlinesAsync(path)).join('\n'));
+  $.assertEqual($.read(path).trim(), (await $.readLinesAsync(path)).join('\n'));
   await kurage.$(['cat', path]);
 });
