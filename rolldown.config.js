@@ -4,6 +4,7 @@ export default defineConfig({
   input: {
     'kurage': 'src/kurage.ts',
     'backtrace': 'src/backtrace.ts',
+    'bytes': 'src/bytes.ts',
     'color': 'src/color.ts',
     'command': 'src/command.ts',
     'duration': 'src/duration.ts',

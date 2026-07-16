@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { Backtrace } from './backtrace.js';
+import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import { Command } from './command.js';
 import { Duration } from './duration.js';
@@ -53,6 +54,7 @@ const kurage = {
     );
   },
   backtrace: Backtrace,
+  bytes: Bytes,
   color: Color,
   command: Command,
   duration: Duration,

@@ -92,14 +92,11 @@ var Spellbook = class Spellbook {
     const tmpPath = Path.with(path, { name: `.${Spellbook.filename(path)}` });
     let fd;
     try {
-      if (typeof data === 'string') Spellbook.write(tmpPath, data);
-      else {
-        fd = fsModule.openSync(tmpPath, 'w');
-        fsModule.writeSync(fd, data);
-        fsModule.fsyncSync(fd);
-        fsModule.closeSync(fd);
-        fd = void 0;
-      }
+      fd = fsModule.openSync(tmpPath, 'w');
+      fsModule.writeSync(fd, data);
+      fsModule.fsyncSync(fd);
+      fsModule.closeSync(fd);
+      fd = void 0;
       fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
       Spellbook.rename(tmpPath, path);
     } finally {

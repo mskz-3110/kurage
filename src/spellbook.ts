@@ -146,22 +146,19 @@ export class Spellbook {
     fsModule.appendFileSync(path, data, options);
   }
 
-  static replace(path: string, data: string | Uint8Array) {
+  static replace(path: string, data: Uint8Array) {
     const tmpPath = Path.with(path, {
       name: `.${Spellbook.filename(path)}`,
     });
     let fd: number | undefined;
 
     try {
-      if (typeof data === 'string') {
-        Spellbook.write(tmpPath, data);
-      } else {
-        fd = fsModule.openSync(tmpPath, 'w');
-        fsModule.writeSync(fd, data);
-        fsModule.fsyncSync(fd);
-        fsModule.closeSync(fd);
-        fd = undefined;
-      }
+      fd = fsModule.openSync(tmpPath, 'w');
+      fsModule.writeSync(fd, data);
+      fsModule.fsyncSync(fd);
+      fsModule.closeSync(fd);
+      fd = undefined;
+
       fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
       Spellbook.rename(tmpPath, path);
     } finally {

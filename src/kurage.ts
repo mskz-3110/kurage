@@ -2,6 +2,7 @@ import type { SpawnOptions } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { Backtrace } from './backtrace.js';
+import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
@@ -78,6 +79,7 @@ export const kurage = {
     );
   },
   backtrace: Backtrace,
+  bytes: Bytes,
   color: Color,
   command: Command,
   duration: Duration,

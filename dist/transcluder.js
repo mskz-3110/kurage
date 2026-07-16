@@ -1,4 +1,5 @@
-import { Line, Scanner } from './line.js';
+import { Bytes } from './bytes.js';
+import { Scanner } from './line.js';
 import { Spellbook } from './spellbook.js';
 
 var Parser = class Parser {
@@ -113,7 +114,7 @@ var Transcluder = class Transcluder {
     if (lines.length === replacedLines.length) {
       if (!lines.some((line, index) => line !== replacedLines[index])) return false;
     }
-    Spellbook.replace(path, Line.join(replacedLines));
+    Spellbook.replace(path, Bytes.fromLines(replacedLines));
     return true;
   }
 };

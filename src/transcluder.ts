@@ -1,4 +1,5 @@
-import { Line, Scanner } from './line.js';
+import { Bytes } from './bytes.js';
+import { Scanner } from './line.js';
 import { Spellbook } from './spellbook.js';
 
 type Node = {
@@ -176,7 +177,7 @@ export class Transcluder {
       }
     }
 
-    Spellbook.replace(path, Line.join(replacedLines));
+    Spellbook.replace(path, Bytes.fromLines(replacedLines));
     return true;
   }
 }

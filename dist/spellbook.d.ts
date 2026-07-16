@@ -47,7 +47,7 @@ export declare class Spellbook {
     data: string | Uint8Array,
     options?: WriteFileOptions
   ): void;
-  static replace(path: string, data: string | Uint8Array): void;
+  static replace(path: string, data: Uint8Array): void;
   static read(path: string, encoding?: BufferEncoding): string;
   static readLinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
   static assertEqual(value1: unknown, value2: unknown): void;

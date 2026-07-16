@@ -1,5 +1,6 @@
 import type { SpawnOptions } from 'node:child_process';
 import { Backtrace } from './backtrace.js';
+import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
@@ -38,6 +39,7 @@ export declare const kurage: {
   $out: (args: readonly string[], encoding?: BufferEncoding) => Promise<string>;
   $ok: (args: readonly string[], options?: SpawnOptions) => Promise<boolean>;
   backtrace: typeof Backtrace;
+  bytes: typeof Bytes;
   color: typeof Color;
   command: typeof Command;
   duration: typeof Duration;
