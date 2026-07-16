@@ -203,11 +203,12 @@ export class Command {
     process.exit(this.exitCode);
   }
 
-  exitIfFailure() {
+  exitIfFailure(): Command {
     if (this.exitCode !== 0) {
       this.exit();
     }
     this.throwIfException();
+    return this;
   }
 
   toString(): string {

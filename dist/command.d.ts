@@ -19,6 +19,6 @@ export declare class Command {
   kill: (signal: NodeJS.Signals) => void;
   throwIfException(): Command;
   exit(): void;
-  exitIfFailure(): void;
+  exitIfFailure(): Command;
   toString(): string;
 }
