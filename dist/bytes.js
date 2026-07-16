@@ -11,8 +11,10 @@ var Bytes = class Bytes {
     const bytes = new Uint8Array(size);
     let offset = 0;
     lines.forEach((line, index) => {
-      const { written } = encoder.encodeInto(line, bytes.subarray(offset));
-      offset += written;
+      if (0 < line.length) {
+        const { written } = encoder.encodeInto(line, bytes.subarray(offset));
+        offset += written;
+      }
       if (index < eolCount) {
         bytes.set(Bytes.#eolBytes, offset);
         offset += Bytes.#eolBytes.length;
