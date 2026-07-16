@@ -48,10 +48,14 @@ var Spellbook = class Spellbook {
     return pathModule.relative(fromPath, toPath);
   }
   static stat(path) {
-    return fsModule.statSync(path);
+    return Spellbook.exists(path) ? fsModule.statSync(path) : void 0;
   }
-  static copy(srcPath, newPath, options) {
-    fsModule.cpSync(srcPath, newPath, options);
+  static needsUpdate(srcStats, dstStats) {
+    if (dstStats == null) return true;
+    return dstStats.mtime < srcStats.mtime;
+  }
+  static copy(srcPath, dstPath, options) {
+    fsModule.cpSync(srcPath, dstPath, options);
   }
   static rename(oldPath, newPath) {
     fsModule.renameSync(oldPath, newPath);

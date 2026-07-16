@@ -24,10 +24,11 @@ export declare class Spellbook {
   static exists(path: string): boolean;
   static absolute(path: string): string;
   static relative(toPath: string, fromPath?: string): string;
-  static stat(path: string): Stats;
+  static stat(path: string): Stats | undefined;
+  static needsUpdate(srcStats: Stats, dstStats: Stats | undefined): boolean;
   static copy(
     srcPath: string | URL,
-    newPath: string | URL,
+    dstPath: string | URL,
     options?: CopySyncOptions
   ): void;
   static rename(oldPath: string, newPath: string): void;

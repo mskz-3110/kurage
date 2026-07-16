@@ -81,12 +81,20 @@ export class Spellbook {
     return pathModule.relative(fromPath, toPath);
   }
 
-  static stat(path: string): Stats {
-    return fsModule.statSync(path);
+  static stat(path: string): Stats | undefined {
+    return Spellbook.exists(path) ? fsModule.statSync(path) : undefined;
   }
 
-  static copy(srcPath: string | URL, newPath: string | URL, options?: CopySyncOptions) {
-    fsModule.cpSync(srcPath, newPath, options);
+  static needsUpdate(srcStats: Stats, dstStats: Stats | undefined): boolean {
+    if (dstStats == null) {
+      return true;
+    }
+
+    return dstStats.mtime < srcStats.mtime;
+  }
+
+  static copy(srcPath: string | URL, dstPath: string | URL, options?: CopySyncOptions) {
+    fsModule.cpSync(srcPath, dstPath, options);
   }
 
   static rename(oldPath: string, newPath: string) {
@@ -159,7 +167,7 @@ export class Spellbook {
       fsModule.closeSync(fd);
       fd = undefined;
 
-      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
+      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath)!.mode);
       Spellbook.rename(tmpPath, path);
     } finally {
       if (fd != null) {
