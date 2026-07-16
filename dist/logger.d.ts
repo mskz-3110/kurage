@@ -1,10 +1,10 @@
 import { Timestamp } from './timestamp.js';
 export type Write = (message: string) => void;
 export type Format = (timestamp: Timestamp, arg: any) => string;
-interface Handler {
+export type Handler = {
   write: Write;
   format: Format;
-}
+};
 export declare class Logger {
   #private;
   static $: Logger;
@@ -16,4 +16,3 @@ export declare class Logger {
   addHandler(name: string, handler: Handler): void;
   write(name: string, arg: any, timestamp?: Timestamp): void;
 }
-export {};

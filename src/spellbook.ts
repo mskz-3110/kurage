@@ -3,7 +3,6 @@ import type {
   CopySyncOptions,
   Dirent,
   GlobOptionsWithFileTypes,
-  PathOrFileDescriptor,
   RmOptions,
   Stats,
   WriteFileOptions,
@@ -17,14 +16,15 @@ import urlModule from 'node:url';
 import type { InspectOptions } from 'node:util';
 import utilModule from 'node:util';
 import { Color } from './color.js';
+import { Path } from './path.js';
 
-export type DirBlock = (dir: string) => Promise<void>;
+export type DirBlock = () => Promise<void>;
 
-export interface ClassSummary {
+export type ClassSummary = {
   propertyNames: string[];
   accessorNames: string[];
   methodNames: string[];
-}
+};
 
 const ignoreStaticNames: string[] = ['length', 'name', 'prototype'];
 const ignoreInstanceNames: string[] = ['constructor'];
@@ -45,7 +45,7 @@ export class Spellbook {
     try {
       process.chdir(dir);
       newDir = process.cwd();
-      await block?.(newDir);
+      await block?.();
     } finally {
       if (oldDir !== newDir) {
         process.chdir(oldDir);
@@ -94,11 +94,13 @@ export class Spellbook {
   }
 
   static remove(path: string, options: RmOptions = {}) {
-    fsModule.rmSync(path, {
-      recursive: true,
-      force: true,
-      ...options,
-    });
+    if (Spellbook.exists(path)) {
+      fsModule.rmSync(path, {
+        recursive: true,
+        force: true,
+        ...options,
+      });
+    }
   }
 
   static glob(
@@ -129,29 +131,52 @@ export class Spellbook {
   }
 
   static write(
-    path: PathOrFileDescriptor,
-    data: string | NodeJS.ArrayBufferView,
+    path: string,
+    data: string | Uint8Array,
     options: WriteFileOptions = { encoding: 'utf8' }
   ) {
     fsModule.writeFileSync(path, data, options);
   }
 
   static append(
-    path: PathOrFileDescriptor,
+    path: string,
     data: string | Uint8Array,
     options: WriteFileOptions = { encoding: 'utf8' }
   ) {
     fsModule.appendFileSync(path, data, options);
   }
 
-  static read(
-    path: PathOrFileDescriptor,
-    encoding: BufferEncoding = 'utf8'
-  ): string | Buffer<ArrayBuffer> {
+  static replace(path: string, data: string | Uint8Array) {
+    const tmpPath = Path.with(path, {
+      name: `.${Spellbook.filename(path)}`,
+    });
+    let fd: number | undefined;
+
+    try {
+      if (typeof data === 'string') {
+        Spellbook.write(tmpPath, data);
+      } else {
+        fd = fsModule.openSync(tmpPath, 'w');
+        fsModule.writeSync(fd, data);
+        fsModule.fsyncSync(fd);
+        fsModule.closeSync(fd);
+        fd = undefined;
+      }
+      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
+      Spellbook.rename(tmpPath, path);
+    } finally {
+      if (fd != null) {
+        fsModule.closeSync(fd);
+      }
+      Spellbook.remove(tmpPath);
+    }
+  }
+
+  static read(path: string, encoding: BufferEncoding = 'utf8'): string {
     return fsModule.readFileSync(path, { encoding });
   }
 
-  static async readlinesAsync(
+  static async readLinesAsync(
     path: string,
     encoding: BufferEncoding = 'utf8'
   ): Promise<string[]> {

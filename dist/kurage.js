@@ -13,6 +13,7 @@ import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
+import { Transcluder } from './transcluder.js';
 
 const execAsync = async (args, options = {}, hooks) => {
   return await Command.new(args).execAsync(options, hooks);
@@ -67,6 +68,7 @@ const kurage = {
   spellbook: Spellbook,
   stopwatch: Stopwatch,
   timestamp: Timestamp,
+  transcluder: Transcluder,
   parsePackageJson: () =>
     JSON.parse(
       readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')

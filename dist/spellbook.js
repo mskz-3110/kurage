@@ -6,6 +6,7 @@ import readlineModule from 'node:readline';
 import urlModule from 'node:url';
 import utilModule from 'node:util';
 import { Color } from './color.js';
+import { Path } from './path.js';
 
 const ignoreStaticNames = ['length', 'name', 'prototype'];
 const ignoreInstanceNames = ['constructor'];
@@ -21,7 +22,7 @@ var Spellbook = class Spellbook {
     try {
       process.chdir(dir);
       newDir = process.cwd();
-      await block?.(newDir);
+      await block?.();
     } finally {
       if (oldDir !== newDir) process.chdir(oldDir);
     }
@@ -56,11 +57,12 @@ var Spellbook = class Spellbook {
     fsModule.renameSync(oldPath, newPath);
   }
   static remove(path, options = {}) {
-    fsModule.rmSync(path, {
-      recursive: true,
-      force: true,
-      ...options,
-    });
+    if (Spellbook.exists(path))
+      fsModule.rmSync(path, {
+        recursive: true,
+        force: true,
+        ...options,
+      });
   }
   static glob(pattern, options) {
     return fsModule.globSync(pattern, options);
@@ -86,10 +88,29 @@ var Spellbook = class Spellbook {
   static append(path, data, options = { encoding: 'utf8' }) {
     fsModule.appendFileSync(path, data, options);
   }
+  static replace(path, data) {
+    const tmpPath = Path.with(path, { name: `.${Spellbook.filename(path)}` });
+    let fd;
+    try {
+      if (typeof data === 'string') Spellbook.write(tmpPath, data);
+      else {
+        fd = fsModule.openSync(tmpPath, 'w');
+        fsModule.writeSync(fd, data);
+        fsModule.fsyncSync(fd);
+        fsModule.closeSync(fd);
+        fd = void 0;
+      }
+      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
+      Spellbook.rename(tmpPath, path);
+    } finally {
+      if (fd != null) fsModule.closeSync(fd);
+      Spellbook.remove(tmpPath);
+    }
+  }
   static read(path, encoding = 'utf8') {
     return fsModule.readFileSync(path, { encoding });
   }
-  static async readlinesAsync(path, encoding = 'utf8') {
+  static async readLinesAsync(path, encoding = 'utf8') {
     const lines = [];
     for await (const line of readlineModule.createInterface({
       input: fsModule.createReadStream(pathModule.resolve(path), { encoding }),

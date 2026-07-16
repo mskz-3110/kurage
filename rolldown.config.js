@@ -16,11 +16,13 @@ export default defineConfig({
     'spellbook': 'src/spellbook.ts',
     'stopwatch': 'src/stopwatch.ts',
     'timestamp': 'src/timestamp.ts',
+    'transcluder': 'src/transcluder.ts',
     'cli/kurage': 'src/cli/kurage.ts',
     'cli/exec': 'src/cli/exec.ts',
     'cli/info': 'src/cli/info.ts',
     'cli/repl': 'src/cli/repl.ts',
     'cli/run': 'src/cli/run.ts',
+    'cli/txcl': 'src/cli/txcl.ts',
   },
   platform: 'node',
   resolve: {

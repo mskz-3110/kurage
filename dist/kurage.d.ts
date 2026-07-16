@@ -13,6 +13,7 @@ import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
+import { Transcluder } from './transcluder.js';
 export type PackageJson = {
   name: string;
   version: string;
@@ -50,6 +51,7 @@ export declare const kurage: {
   spellbook: typeof Spellbook;
   stopwatch: typeof Stopwatch;
   timestamp: typeof Timestamp;
+  transcluder: typeof Transcluder;
   parsePackageJson: () => PackageJson;
 };
 export default kurage;

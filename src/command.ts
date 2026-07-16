@@ -7,10 +7,10 @@ import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
 import type { Timestamp } from './timestamp.js';
 
-export interface ExecHooks {
+export type ExecHooks = {
   onStart?: (command: Command) => any;
   onEnd?: (command: Command, context: any) => void;
-}
+};
 
 export class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;

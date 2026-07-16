@@ -2,19 +2,18 @@ import type {
   CopySyncOptions,
   Dirent,
   GlobOptionsWithFileTypes,
-  PathOrFileDescriptor,
   RmOptions,
   Stats,
   WriteFileOptions,
 } from 'node:fs';
 import type { URL } from 'node:url';
 import type { InspectOptions } from 'node:util';
-export type DirBlock = (dir: string) => Promise<void>;
-export interface ClassSummary {
+export type DirBlock = () => Promise<void>;
+export type ClassSummary = {
   propertyNames: string[];
   accessorNames: string[];
   methodNames: string[];
-}
+};
 export declare class Spellbook {
   #private;
   static root(value?: string): string;
@@ -42,21 +41,15 @@ export declare class Spellbook {
   static filename(path: string): string;
   static extname(path: string): string;
   static basename(path: string): string;
-  static write(
-    path: PathOrFileDescriptor,
-    data: string | NodeJS.ArrayBufferView,
-    options?: WriteFileOptions
-  ): void;
+  static write(path: string, data: string | Uint8Array, options?: WriteFileOptions): void;
   static append(
-    path: PathOrFileDescriptor,
+    path: string,
     data: string | Uint8Array,
     options?: WriteFileOptions
   ): void;
-  static read(
-    path: PathOrFileDescriptor,
-    encoding?: BufferEncoding
-  ): string | Buffer<ArrayBuffer>;
-  static readlinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
+  static replace(path: string, data: string | Uint8Array): void;
+  static read(path: string, encoding?: BufferEncoding): string;
+  static readLinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
   static assertEqual(value1: unknown, value2: unknown): void;
   static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary;
   static inspect(value: unknown, options?: InspectOptions): string;

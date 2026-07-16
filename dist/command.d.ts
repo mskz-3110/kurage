@@ -1,10 +1,10 @@
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
-export interface ExecHooks {
+export type ExecHooks = {
   onStart?: (command: Command) => any;
   onEnd?: (command: Command, context: any) => void;
-}
+};
 export declare class Command {
   #private;
   static new(...args: ConstructorParameters<typeof Command>): Command;

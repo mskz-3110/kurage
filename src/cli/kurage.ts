@@ -12,6 +12,7 @@ Commands:
   exec <command> [args...] execute a command
   run <file> [args...]     run a file
   info                     show info
+  txcl <files...>          process file transclusions
 
 Options:
   -v, --version            show version number
@@ -24,6 +25,7 @@ Examples:
   ${packageJson.name} run script.js
   ${packageJson.name} script.js
   ${packageJson.name} info
+  ${packageJson.name} txcl README.md
 `.trim();
 };
 
@@ -32,7 +34,7 @@ if (mode === '') {
   mode = 'repl';
   process.argv.push(mode);
   import(`./${mode}.js`);
-} else if (['repl', 'exec', 'run', 'info'].includes(mode)) {
+} else if (['repl', 'exec', 'run', 'info', 'txcl'].includes(mode)) {
   process.argv = process.argv.slice(1);
   import(`./${mode}.js`);
 } else if (['-v', '--version'].includes(mode)) {

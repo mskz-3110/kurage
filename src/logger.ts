@@ -6,10 +6,10 @@ export type Write = (message: string) => void;
 
 export type Format = (timestamp: Timestamp, arg: any) => string;
 
-interface Handler {
+export type Handler = {
   write: Write;
   format: Format;
-}
+};
 
 export class Logger {
   static $: Logger = new Logger();

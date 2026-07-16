@@ -1,9 +1,9 @@
 export type Unit = 'ms' | 's' | 'm' | 'h' | 'd';
 
-interface TimeScale {
+type TimeScale = {
   threshold: number;
   unit: Unit;
-}
+};
 
 export class Duration {
   static #timeScales: TimeScale[] = [

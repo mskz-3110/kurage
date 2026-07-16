@@ -15,6 +15,7 @@ import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Timestamp } from './timestamp.js';
+import { Transcluder } from './transcluder.js';
 
 export type PackageJson = {
   name: string;
@@ -92,6 +93,7 @@ export const kurage = {
   spellbook: Spellbook,
   stopwatch: Stopwatch,
   timestamp: Timestamp,
+  transcluder: Transcluder,
   parsePackageJson: (): PackageJson =>
     JSON.parse(
       readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')
