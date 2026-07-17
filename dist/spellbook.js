@@ -5,6 +5,7 @@ import pathModule from 'node:path';
 import readlineModule from 'node:readline';
 import urlModule from 'node:url';
 import utilModule from 'node:util';
+import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import { Path } from './path.js';
 
@@ -86,25 +87,25 @@ var Spellbook = class Spellbook {
   static basename(path) {
     return pathModule.parse(path).base;
   }
-  static write(path, data, options = { encoding: 'utf8' }) {
-    fsModule.writeFileSync(path, data, options);
-  }
-  static append(path, data, options = { encoding: 'utf8' }) {
-    fsModule.appendFileSync(path, data, options);
+  static write(path, data, isSync = false) {
+    let fd;
+    try {
+      fd = fsModule.openSync(path, 'a');
+      fsModule.writeSync(fd, typeof data === 'string' ? Bytes.fromLines([data]) : data);
+      if (isSync) fsModule.fsyncSync(fd);
+      fsModule.closeSync(fd);
+      fd = void 0;
+    } finally {
+      if (fd != null) fsModule.closeSync(fd);
+    }
   }
   static replace(path, data) {
     const tmpPath = Path.with(path, { name: `.${Spellbook.filename(path)}` });
-    let fd;
     try {
-      fd = fsModule.openSync(tmpPath, 'w');
-      fsModule.writeSync(fd, data);
-      fsModule.fsyncSync(fd);
-      fsModule.closeSync(fd);
-      fd = void 0;
+      Spellbook.write(tmpPath, data, true);
       fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
       Spellbook.rename(tmpPath, path);
     } finally {
-      if (fd != null) fsModule.closeSync(fd);
       Spellbook.remove(tmpPath);
     }
   }
@@ -120,8 +121,11 @@ var Spellbook = class Spellbook {
       lines.push(line);
     return lines;
   }
-  static assertEqual(value1, value2) {
-    if (value1 !== value2) throw new Error(JSON.stringify([value1, value2], null, 2));
+  static assertEqual(value1, value2, message = '') {
+    if (value1 !== value2)
+      throw new Error(
+        `${message !== '' ? `${message} ` : ''}${JSON.stringify([value1, value2], null, 2)}`
+      );
   }
   static analyzeClass(value, ignoreNames) {
     const target = typeof value === 'function' ? value : Object.getPrototypeOf(value);

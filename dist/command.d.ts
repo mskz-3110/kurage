@@ -1,4 +1,4 @@
-import type { ChildProcess, SpawnOptions } from 'node:child_process';
+import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
 export type ExecHooks = {
@@ -7,6 +7,11 @@ export type ExecHooks = {
 };
 export declare class Command {
   #private;
+  static mergeStdio(
+    options: SpawnOptions,
+    stdio: StdioOptions,
+    defaultStdio: StdioOptions
+  ): SpawnOptions;
   static new(...args: ConstructorParameters<typeof Command>): Command;
   get command(): string;
   get args(): readonly string[];

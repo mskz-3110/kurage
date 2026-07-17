@@ -1,31 +1,29 @@
-export class Bytes {
-  static #eolBytes = new TextEncoder().encode('\n');
+import { Line } from './line.js';
 
+export class Bytes {
   static fromText(text: string): Uint8Array {
     return new TextEncoder().encode(text);
   }
 
-  static fromLines(lines: string[]): Uint8Array {
+  static fromLines(lines: string[], eol: string = Line.eol): Uint8Array {
     const encoder = new TextEncoder();
-    const eolCount = 0 < lines.length ? lines.length - 1 : 0;
-    let size = eolCount * Bytes.#eolBytes.length;
+    const eolBytes = encoder.encode(eol);
+    let size = lines.length * eolBytes.length;
     for (const line of lines) {
       size += encoder.encode(line).length;
     }
 
     const bytes = new Uint8Array(size);
     let offset = 0;
-    lines.forEach((line, index) => {
+    for (const line of lines) {
       if (0 < line.length) {
         const { written } = encoder.encodeInto(line, bytes.subarray(offset));
         offset += written;
       }
 
-      if (index < eolCount) {
-        bytes.set(Bytes.#eolBytes, offset);
-        offset += Bytes.#eolBytes.length;
-      }
-    });
+      bytes.set(eolBytes, offset);
+      offset += eolBytes.length;
+    }
     return bytes;
   }
 

@@ -1,5 +1,6 @@
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
+import { Line } from './line.js';
 import { Timestamp } from './timestamp.js';
 
 export type Write = (message: string) => void;
@@ -91,7 +92,7 @@ export class Logger {
   write(name: string, arg: any, timestamp: Timestamp = Timestamp.new()) {
     if (!Object.hasOwn(this.#handlers, name)) {
       console.error(
-        `Undefined logger name: ${name} # ${String(arg)}\n${Backtrace.new()}`
+        `Undefined logger name: ${name} # ${String(arg)}${Line.eol}${Backtrace.new()}`
       );
       return;
     }

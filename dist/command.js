@@ -8,6 +8,27 @@ import { Stopwatch } from './stopwatch.js';
 var Command = class Command {
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
+  static mergeStdio(options, stdio, defaultStdio) {
+    const mergedOptions = { ...options };
+    if (!Object.hasOwn(mergedOptions, 'stdio')) {
+      mergedOptions.stdio = defaultStdio;
+      return mergedOptions;
+    }
+    if (!Array.isArray(mergedOptions.stdio))
+      mergedOptions.stdio = [
+        mergedOptions.stdio,
+        mergedOptions.stdio,
+        mergedOptions.stdio,
+      ];
+    if (Array.isArray(stdio)) {
+      const mergedStdio = [...mergedOptions.stdio];
+      stdio.forEach((value, index) => {
+        if (value != null) mergedStdio[index] = value;
+      });
+      mergedOptions.stdio = mergedStdio;
+    }
+    return mergedOptions;
+  }
   static {
     Color.$.set('timestamp', Color.$.get('cyan'));
     Color.$.set('path', Color.$.get('yellow'));
@@ -146,8 +167,7 @@ var Command = class Command {
   }
   exitIfFailure() {
     if (this.exitCode !== 0) this.exit();
-    this.throwIfException();
-    return this;
+    return this.throwIfException();
   }
   toString() {
     return [

@@ -1,4 +1,4 @@
-import type { ChildProcess, SpawnOptions } from 'node:child_process';
+import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
@@ -22,6 +22,36 @@ export class Command {
     'SIGQUIT',
     'SIGBREAK',
   ];
+
+  static mergeStdio(
+    options: SpawnOptions,
+    stdio: StdioOptions,
+    defaultStdio: StdioOptions
+  ): SpawnOptions {
+    const mergedOptions = { ...options };
+    if (!Object.hasOwn(mergedOptions, 'stdio')) {
+      mergedOptions.stdio = defaultStdio;
+      return mergedOptions;
+    }
+
+    if (!Array.isArray(mergedOptions.stdio)) {
+      mergedOptions.stdio = [
+        mergedOptions.stdio,
+        mergedOptions.stdio,
+        mergedOptions.stdio,
+      ];
+    }
+    if (Array.isArray(stdio)) {
+      const mergedStdio = [...mergedOptions.stdio];
+      stdio.forEach((value, index) => {
+        if (value != null) {
+          mergedStdio[index] = value;
+        }
+      });
+      mergedOptions.stdio = mergedStdio;
+    }
+    return mergedOptions;
+  }
 
   static {
     Color.$.set('timestamp', Color.$.get('cyan'));
@@ -207,8 +237,7 @@ export class Command {
     if (this.exitCode !== 0) {
       this.exit();
     }
-    this.throwIfException();
-    return this;
+    return this.throwIfException();
   }
 
   toString(): string {

@@ -1,5 +1,7 @@
+import { buffer } from 'node:stream/consumers';
 import { Bytes } from './bytes.js';
-import { Scanner } from './line.js';
+import { Command } from './command.js';
+import { Line, Scanner } from './line.js';
 import { Spellbook } from './spellbook.js';
 
 var Parser = class Parser {
@@ -100,12 +102,21 @@ var Transcluder = class Transcluder {
             ),
             ...element,
           });
+        else if (element.symbol === '$') {
+          const command = Command.new(element.content.split(' '));
+          const exec = command.execAsync({ stdio: ['ignore', 'pipe', 'ignore'] }, {});
+          const out = (await buffer(command.process.stdout)).toString(encoding).trimEnd();
+          (await exec).exitIfFailure();
+          replacer.addMarker({
+            lines: Line.split(out),
+            ...element,
+          });
+        }
     });
     return replacer.replaceLines(lines);
   }
   async transcludeFileAsync(path, encoding = 'utf8') {
     const lines = await Spellbook.readLinesAsync(path, encoding);
-    lines.push('');
     const replacedLines = await this.transcludeLinesAsync(
       Spellbook.dirname(path),
       lines,

@@ -4,7 +4,6 @@ import type {
   GlobOptionsWithFileTypes,
   RmOptions,
   Stats,
-  WriteFileOptions,
 } from 'node:fs';
 import type { URL } from 'node:url';
 import type { InspectOptions } from 'node:util';
@@ -42,16 +41,11 @@ export declare class Spellbook {
   static filename(path: string): string;
   static extname(path: string): string;
   static basename(path: string): string;
-  static write(path: string, data: string | Uint8Array, options?: WriteFileOptions): void;
-  static append(
-    path: string,
-    data: string | Uint8Array,
-    options?: WriteFileOptions
-  ): void;
-  static replace(path: string, data: Uint8Array): void;
+  static write(path: string, data: string | Uint8Array, isSync?: boolean): void;
+  static replace(path: string, data: string | Uint8Array): void;
   static read(path: string, encoding?: BufferEncoding): string;
   static readLinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
-  static assertEqual(value1: unknown, value2: unknown): void;
+  static assertEqual(value1: unknown, value2: unknown, message?: string): void;
   static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary;
   static inspect(value: unknown, options?: InspectOptions): string;
 }

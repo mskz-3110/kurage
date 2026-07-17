@@ -1,3 +1,3 @@
 <!-- :< command.md {```shell -->
-node examples/transclude.js
+node -v
 <!-- :}``` -->

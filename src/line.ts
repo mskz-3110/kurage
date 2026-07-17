@@ -29,15 +29,17 @@ export class Scanner {
 }
 
 export class Line {
+  static eol = '\n';
+
   static get scanner(): typeof Scanner {
     return Scanner;
   }
 
-  static join(lines: string[]): string {
-    return lines.join('\n');
+  static join(lines: string[], eol: string = Line.eol): string {
+    return lines.join(eol);
   }
 
-  static split(text: string): string[] {
-    return text.split('\n');
+  static split(text: string, eol: string = Line.eol): string[] {
+    return text.split(eol);
   }
 }

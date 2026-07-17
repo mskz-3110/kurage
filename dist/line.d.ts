@@ -11,7 +11,8 @@ export declare class Scanner {
   scan(index: number, line: string): Match | undefined;
 }
 export declare class Line {
+  static eol: string;
   static get scanner(): typeof Scanner;
-  static join(lines: string[]): string;
-  static split(text: string): string[];
+  static join(lines: string[], eol?: string): string;
+  static split(text: string, eol?: string): string[];
 }

@@ -18,15 +18,16 @@ var Scanner = class Scanner {
     }
   }
 };
-var Line = class {
+var Line = class Line {
+  static eol = '\n';
   static get scanner() {
     return Scanner;
   }
-  static join(lines) {
-    return lines.join('\n');
+  static join(lines, eol = Line.eol) {
+    return lines.join(eol);
   }
-  static split(text) {
-    return text.split('\n');
+  static split(text, eol = Line.eol) {
+    return text.split(eol);
   }
 };
 

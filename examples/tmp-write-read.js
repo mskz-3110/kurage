@@ -13,9 +13,11 @@ await $.mkdirAsync(kurage.path.join([await $.tmpdirAsync(), 'kurage']), async ()
   path = $.basename(path);
 
   if (!$.exists(path)) {
-    $.write(path, 'あいうえお\nかきくけこ\n');
+    $.write(path, `あいうえお${kurage.line.eol}かきくけこ`);
   }
 
-  $.assertEqual($.read(path).trim(), (await $.readLinesAsync(path)).join('\n'));
+  const lines = await $.readLinesAsync(path);
+  lines.push('');
+  $.assertEqual($.read(path), kurage.line.join(lines), 'Mismatch');
   await kurage.$(['cat', path]);
 });

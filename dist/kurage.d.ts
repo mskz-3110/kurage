@@ -36,7 +36,11 @@ export declare const kurage: {
     options?: SpawnOptions,
     hooks?: ExecHooks
   ) => Promise<void>;
-  $out: (args: readonly string[], encoding?: BufferEncoding) => Promise<string>;
+  $out: (
+    args: readonly string[],
+    options?: SpawnOptions,
+    encoding?: BufferEncoding
+  ) => Promise<string>;
   $ok: (args: readonly string[], options?: SpawnOptions) => Promise<boolean>;
   backtrace: typeof Backtrace;
   bytes: typeof Bytes;

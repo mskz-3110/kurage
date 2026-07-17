@@ -29,7 +29,7 @@ if (kurage.runtime.name === 'deno') {
 const command = kurage.command.new(commandArgs);
 const exec = command.execAsync(options);
 if (command.process != null && command.process.stdin != null) {
-  command.process.stdin.write(`${replCode}\n`);
+  command.process.stdin.write(`${replCode}${kurage.line.eol}`);
   process.stdin.pipe(command.process.stdin);
   process.stdin.setRawMode(true);
 }

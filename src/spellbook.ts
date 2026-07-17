@@ -5,7 +5,6 @@ import type {
   GlobOptionsWithFileTypes,
   RmOptions,
   Stats,
-  WriteFileOptions,
 } from 'node:fs';
 import fsModule from 'node:fs';
 import osModule from 'node:os';
@@ -15,6 +14,7 @@ import type { URL } from 'node:url';
 import urlModule from 'node:url';
 import type { InspectOptions } from 'node:util';
 import utilModule from 'node:util';
+import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import { Path } from './path.js';
 
@@ -138,41 +138,32 @@ export class Spellbook {
     return pathModule.parse(path).base;
   }
 
-  static write(
-    path: string,
-    data: string | Uint8Array,
-    options: WriteFileOptions = { encoding: 'utf8' }
-  ) {
-    fsModule.writeFileSync(path, data, options);
-  }
-
-  static append(
-    path: string,
-    data: string | Uint8Array,
-    options: WriteFileOptions = { encoding: 'utf8' }
-  ) {
-    fsModule.appendFileSync(path, data, options);
-  }
-
-  static replace(path: string, data: Uint8Array) {
-    const tmpPath = Path.with(path, {
-      name: `.${Spellbook.filename(path)}`,
-    });
+  static write(path: string, data: string | Uint8Array, isSync: boolean = false) {
     let fd: number | undefined;
-
     try {
-      fd = fsModule.openSync(tmpPath, 'w');
-      fsModule.writeSync(fd, data);
-      fsModule.fsyncSync(fd);
+      fd = fsModule.openSync(path, 'a');
+      fsModule.writeSync(fd, typeof data === 'string' ? Bytes.fromLines([data]) : data);
+      if (isSync) {
+        fsModule.fsyncSync(fd);
+      }
       fsModule.closeSync(fd);
       fd = undefined;
-
-      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath)!.mode);
-      Spellbook.rename(tmpPath, path);
     } finally {
       if (fd != null) {
         fsModule.closeSync(fd);
       }
+    }
+  }
+
+  static replace(path: string, data: string | Uint8Array) {
+    const tmpPath = Path.with(path, {
+      name: `.${Spellbook.filename(path)}`,
+    });
+    try {
+      Spellbook.write(tmpPath, data, true);
+      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath)!.mode);
+      Spellbook.rename(tmpPath, path);
+    } finally {
       Spellbook.remove(tmpPath);
     }
   }
@@ -195,9 +186,11 @@ export class Spellbook {
     return lines;
   }
 
-  static assertEqual(value1: unknown, value2: unknown) {
+  static assertEqual(value1: unknown, value2: unknown, message: string = '') {
     if (value1 !== value2) {
-      throw new Error(JSON.stringify([value1, value2], null, 2));
+      throw new Error(
+        `${message !== '' ? `${message} ` : ''}${JSON.stringify([value1, value2], null, 2)}`
+      );
     }
   }
 
