@@ -89,6 +89,10 @@ var Transcluder = class Transcluder {
   static new(...args) {
     return new Transcluder(...args);
   }
+  static equals(lines1, lines2) {
+    if (lines1.length !== lines2.length) return false;
+    return !lines1.some((line, index) => line !== lines2[index]);
+  }
   async transcludeLinesAsync(dir, lines, encoding = 'utf8') {
     const replacer = Replacer.new();
     await Spellbook.chdirAsync(dir, async () => {
@@ -126,9 +130,7 @@ var Transcluder = class Transcluder {
       lines,
       encoding
     );
-    if (lines.length === replacedLines.length) {
-      if (!lines.some((line, index) => line !== replacedLines[index])) return false;
-    }
+    if (Transcluder.equals(lines, replacedLines)) return false;
     Spellbook.replace(path, Bytes.fromLines(replacedLines));
     return true;
   }

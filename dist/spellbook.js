@@ -113,14 +113,19 @@ var Spellbook = class Spellbook {
   static read(path, encoding = 'utf8') {
     return fsModule.readFileSync(path, { encoding });
   }
-  static async readLinesAsync(path, encoding = 'utf8') {
+  static async readStreamLinesAsync(stream) {
     const lines = [];
     for await (const line of readlineModule.createInterface({
-      input: fsModule.createReadStream(pathModule.resolve(path), { encoding }),
+      input: stream,
       crlfDelay: Infinity,
     }))
       lines.push(line);
     return lines;
+  }
+  static async readLinesAsync(path, encoding = 'utf8') {
+    return Spellbook.readStreamLinesAsync(
+      fsModule.createReadStream(pathModule.resolve(path), { encoding })
+    );
   }
   static assertEqual(value1, value2, message = '') {
     if (value1 !== value2)

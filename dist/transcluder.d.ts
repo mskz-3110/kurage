@@ -31,6 +31,7 @@ export declare class Transcluder {
   static get parser(): typeof Parser;
   static get replacer(): typeof Replacer;
   static new(...args: ConstructorParameters<typeof Transcluder>): Transcluder;
+  static equals(lines1: string[], lines2: string[]): boolean;
   transcludeLinesAsync(
     dir: string,
     lines: string[],

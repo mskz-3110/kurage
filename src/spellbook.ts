@@ -10,6 +10,7 @@ import fsModule from 'node:fs';
 import osModule from 'node:os';
 import pathModule from 'node:path';
 import readlineModule from 'node:readline';
+import type { Readable } from 'node:stream';
 import type { URL } from 'node:url';
 import urlModule from 'node:url';
 import type { InspectOptions } from 'node:util';
@@ -173,18 +174,24 @@ export class Spellbook {
     return fsModule.readFileSync(path, { encoding });
   }
 
-  static async readLinesAsync(
-    path: string,
-    encoding: BufferEncoding = 'utf8'
-  ): Promise<string[]> {
+  static async readStreamLinesAsync(stream: Readable): Promise<string[]> {
     const lines = [];
     for await (const line of readlineModule.createInterface({
-      input: fsModule.createReadStream(pathModule.resolve(path), { encoding }),
+      input: stream,
       crlfDelay: Infinity,
     })) {
       lines.push(line);
     }
     return lines;
+  }
+
+  static async readLinesAsync(
+    path: string,
+    encoding: BufferEncoding = 'utf8'
+  ): Promise<string[]> {
+    return Spellbook.readStreamLinesAsync(
+      fsModule.createReadStream(pathModule.resolve(path), { encoding })
+    );
   }
 
   static assertEqual(value1: unknown, value2: unknown, message: string = '') {

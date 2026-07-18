@@ -5,7 +5,6 @@ console.log(
   JSON.stringify(
     {
       process: {
-        versions: process.versions,
         INIT_CWD: process.env.INIT_CWD,
         cwd: process.cwd(),
         argv: process.argv,

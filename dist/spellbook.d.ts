@@ -5,6 +5,7 @@ import type {
   RmOptions,
   Stats,
 } from 'node:fs';
+import type { Readable } from 'node:stream';
 import type { URL } from 'node:url';
 import type { InspectOptions } from 'node:util';
 export type DirBlock = () => Promise<void>;
@@ -44,6 +45,7 @@ export declare class Spellbook {
   static write(path: string, data: string | Uint8Array, isSync?: boolean): void;
   static replace(path: string, data: string | Uint8Array): void;
   static read(path: string, encoding?: BufferEncoding): string;
+  static readStreamLinesAsync(stream: Readable): Promise<string[]>;
   static readLinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
   static assertEqual(value1: unknown, value2: unknown, message?: string): void;
   static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary;

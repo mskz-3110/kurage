@@ -1,5 +1,5 @@
 Set Shell "bash"
-Set FontSize 32
+Set FontSize 30
 Set Width 1280
 Set Height 720
 Set WindowBar Colorful
