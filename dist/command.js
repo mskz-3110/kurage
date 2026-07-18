@@ -131,10 +131,7 @@ var Command = class Command {
       this.#errBuffer = Buffer.alloc(0);
       this.#exception = void 0;
       if (this.#command === '') return this;
-      const mergedOptions = {
-        stdio: 'inherit',
-        ...options,
-      };
+      const mergedOptions = Command.mergeStdio(options, [], 'inherit');
       this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
       const promises = [];
       promises.push(

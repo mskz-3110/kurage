@@ -2,7 +2,9 @@ export class Color {
   static $: Color = new Color();
 
   static get enabled(): boolean {
-    return process.stdout.hasColors();
+    return typeof process.stdout.hasColors === 'function'
+      ? process.stdout.hasColors()
+      : false;
   }
 
   static {

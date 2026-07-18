@@ -189,10 +189,7 @@ export class Command {
         return this;
       }
 
-      const mergedOptions: SpawnOptions = {
-        stdio: 'inherit',
-        ...options,
-      };
+      const mergedOptions = Command.mergeStdio(options, [], 'inherit');
       this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
 
       const promises: Promise<any>[] = [];

@@ -18,11 +18,17 @@ Sleep 3s
 Type "kurage.log('debug', 'message');"
 Enter
 Sleep 3s
-Ctrl+L
-
 Type ".exit"
 Enter
 Sleep 3s
+Ctrl+L
+
+Type "printf '\033[32m%s\033[0m\n' 'exec-json'"
+Enter
+Sleep 1s
+Type "npx -y kurage exec-json printf 'output\n' < <(printf 'input') | jq '{time,stdio}'"
+Enter
+Sleep 5s
 Ctrl+L
 
 Type "printf '\033[32m%s\033[0m\n' 'exec'"

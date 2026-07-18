@@ -10,8 +10,8 @@ ARG VHS_VER
 ARG TTYD_VER
 ARG WORKDIR
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl git unzip \
+RUN apt update \
+  && apt install -y --no-install-recommends ca-certificates curl git unzip \
   && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://bun.sh/install | bash
 RUN curl -fsSL https://deno.land/install.sh | sh
@@ -28,6 +28,8 @@ RUN apt update && apt install -y ffmpeg \
   && rm -f vhs.tar.gz \
   && curl -L https://github.com/tsl0922/ttyd/releases/download/${TTYD_VER}/ttyd.x86_64 -o /usr/local/bin/ttyd \
   && chmod a+x /usr/local/bin/ttyd
+
+RUN apt install -y jq
 
 WORKDIR ${WORKDIR}
 

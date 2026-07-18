@@ -8,20 +8,22 @@ Usage: ${packageJson.name} [options] [commands...]
 ${packageJson.description}
 
 Commands:
-  repl                     start REPL mode (default)
-  exec <command> [args...] execute a command
-  run <file> [args...]     run a file
-  info                     show info
-  txcl <files...>          process file transclusions
+  repl                          start REPL mode (default)
+  exec <command> [args...]      execute a command
+  exec-json <command> [args...] execute a command and output result as JSON
+  run <file> [args...]          run a file
+  info                          show system information
+  txcl <files...>               process file transclusions
 
 Options:
-  -v, --version            show version number
-  -h, --help               show help message
+  -v, --version                 show version number
+  -h, --help                    show help message
 
 Examples:
   ${packageJson.name}
   ${packageJson.name} repl
   ${packageJson.name} exec cat script.js
+  ${packageJson.name} exec-json cat script.js
   ${packageJson.name} run script.js
   ${packageJson.name} script.js
   ${packageJson.name} info
@@ -33,7 +35,7 @@ if (mode === '') {
   mode = 'repl';
   process.argv.push(mode);
   import(`./${mode}.js`);
-} else if (['repl', 'exec', 'run', 'info', 'txcl'].includes(mode)) {
+} else if (['repl', 'exec', 'exec-json', 'run', 'info', 'txcl'].includes(mode)) {
   process.argv = process.argv.slice(1);
   import(`./${mode}.js`);
 } else if (['-v', '--version'].includes(mode))

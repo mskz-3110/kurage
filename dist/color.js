@@ -1,7 +1,9 @@
 var Color = class Color {
   static $ = new Color();
   static get enabled() {
-    return process.stdout.hasColors();
+    return typeof process.stdout.hasColors === 'function'
+      ? process.stdout.hasColors()
+      : false;
   }
   static {
     Color.$.set('reset', '\x1B[0m');
