@@ -102,6 +102,7 @@ var Spellbook = class Spellbook {
   static replace(path, data) {
     const tmpPath = Path.with(path, { name: `.${Spellbook.filename(path)}` });
     try {
+      Spellbook.remove(tmpPath);
       Spellbook.write(tmpPath, data, true);
       fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
       Spellbook.rename(tmpPath, path);

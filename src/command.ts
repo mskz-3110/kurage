@@ -1,5 +1,6 @@
 import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
+import { buffer } from 'node:stream/consumers';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
@@ -25,7 +26,7 @@ export class Command {
 
   static mergeStdio(
     options: SpawnOptions,
-    stdio: StdioOptions,
+    overrideStdio: StdioOptions,
     defaultStdio: StdioOptions
   ): SpawnOptions {
     const mergedOptions = { ...options };
@@ -41,9 +42,9 @@ export class Command {
         mergedOptions.stdio,
       ];
     }
-    if (Array.isArray(stdio)) {
+    if (Array.isArray(overrideStdio)) {
       const mergedStdio = [...mergedOptions.stdio];
-      stdio.forEach((value, index) => {
+      overrideStdio.forEach((value, index) => {
         if (value != null) {
           mergedStdio[index] = value;
         }
@@ -114,6 +115,18 @@ export class Command {
     return this.#process;
   }
 
+  #outBuffer: Buffer = Buffer.alloc(0);
+
+  get outBuffer(): Buffer {
+    return this.#outBuffer;
+  }
+
+  #errBuffer: Buffer = Buffer.alloc(0);
+
+  get errBuffer(): Buffer {
+    return this.#errBuffer;
+  }
+
   get exitCode(): number {
     if (this.#process != null && this.#process.exitCode != null) {
       return this.#process!.exitCode!;
@@ -166,50 +179,76 @@ export class Command {
     }
   ): Promise<Command> {
     const context = this.#setupExec(hooks);
-    return new Promise((resolve) => {
-      try {
-        this.#process = undefined;
-        this.#exception = undefined;
+    try {
+      this.#process = undefined;
+      this.#outBuffer = Buffer.alloc(0);
+      this.#errBuffer = Buffer.alloc(0);
+      this.#exception = undefined;
 
-        if (this.#command === '') {
-          this.#cleanupExec(hooks, context);
-          return resolve(this);
+      if (this.#command === '') {
+        return this;
+      }
+
+      const mergedOptions: SpawnOptions = {
+        stdio: 'inherit',
+        ...options,
+      };
+      this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
+
+      const promises: Promise<any>[] = [];
+      promises.push(
+        new Promise<void>((resolve) => {
+          this.#process!.on('close', (_, signalName) => {
+            this.#stopwatch.stop();
+
+            if (this.#exception == null) {
+              if (signalName != null) {
+                this.#exception = Exception.new(
+                  `SignalException: ${signalName} @ ${this}`
+                );
+                this.#exception.error.stack = this.#exception.error.message;
+              }
+            }
+
+            resolve();
+          });
+
+          this.#process!.on('error', (e) => {
+            this.#stopwatch.stop();
+            this.#exception = Exception.new(e);
+            this.#appendExceptionMessage();
+            this.#exception.error.stack = this.#exception.error.message;
+          });
+        })
+      );
+
+      if (Array.isArray(mergedOptions.stdio)) {
+        if (this.#process.stdout != null && mergedOptions.stdio[1] === 'pipe') {
+          promises.push(
+            buffer(this.#process.stdout).then((buf) => {
+              this.#outBuffer = buf;
+            })
+          );
         }
 
-        this.#process = childProcessModule.spawn(this.command, this.args, {
-          stdio: 'inherit',
-          ...options,
-        });
-
-        this.#process.on('close', (_, signalName) => {
-          this.#stopwatch.stop();
-
-          if (this.#exception == null) {
-            if (signalName != null) {
-              this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
-              this.#exception.error.stack = this.#exception.error.message;
-            }
-          }
-
-          this.#cleanupExec(hooks, context);
-          resolve(this);
-        });
-
-        this.#process.on('error', (e) => {
-          this.#stopwatch.stop();
-          this.#exception = Exception.new(e);
-          this.#appendExceptionMessage();
-          this.#exception.error.stack = this.#exception.error.message;
-        });
-      } catch (e: unknown) {
-        this.#stopwatch.stop();
-        this.#exception = Exception.new(e);
-        this.#appendExceptionMessage();
-
-        this.#cleanupExec(hooks, context);
-        return resolve(this);
+        if (this.#process.stderr != null && mergedOptions.stdio[2] === 'pipe') {
+          promises.push(
+            buffer(this.#process.stderr).then((buf) => {
+              this.#errBuffer = buf;
+            })
+          );
+        }
       }
-    });
+
+      await Promise.all(promises);
+    } catch (e: unknown) {
+      this.#stopwatch.stop();
+      this.#exception = Exception.new(e);
+      this.#appendExceptionMessage();
+    } finally {
+      this.#cleanupExec(hooks, context);
+    }
+    return this;
   }
 
   kill = (signal: NodeJS.Signals) => {

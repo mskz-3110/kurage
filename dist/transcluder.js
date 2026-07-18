@@ -1,4 +1,3 @@
-import { buffer } from 'node:stream/consumers';
 import { Bytes } from './bytes.js';
 import { Command } from './command.js';
 import { Line, Scanner } from './line.js';
@@ -103,12 +102,17 @@ var Transcluder = class Transcluder {
             ...element,
           });
         else if (element.symbol === '$') {
-          const command = Command.new(element.content.split(' '));
-          const exec = command.execAsync({ stdio: ['ignore', 'pipe', 'ignore'] }, {});
-          const out = (await buffer(command.process.stdout)).toString(encoding).trimEnd();
-          (await exec).exitIfFailure();
+          const out = (
+            await Command.new(element.content.split(' ')).execAsync(
+              { stdio: ['ignore', 'pipe', 'ignore'] },
+              {}
+            )
+          )
+            .exitIfFailure()
+            .outBuffer.toString(encoding)
+            .trimEnd();
           replacer.addMarker({
-            lines: Line.split(out),
+            lines: out !== '' ? Line.split(out) : [],
             ...element,
           });
         }

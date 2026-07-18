@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { buffer } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
 import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
@@ -31,19 +30,25 @@ const kurage = {
     (await execAsync(args, options, hooks)).exit();
   },
   $out: async (args, options = {}, encoding = 'utf8') => {
-    const command = Command.new(args);
-    const exec = command.execAsync(
-      Command.mergeStdio(options, [void 0, 'pipe', void 0], ['ignore', 'pipe', 'ignore']),
-      {}
-    );
-    const out = (await buffer(command.process.stdout)).toString(encoding).trimEnd();
-    (await exec).exitIfFailure();
-    return out;
+    return (
+      await execAsync(
+        args,
+        Command.mergeStdio(
+          options,
+          [void 0, 'pipe', void 0],
+          ['ignore', 'pipe', 'ignore']
+        ),
+        {}
+      )
+    )
+      .exitIfFailure()
+      .outBuffer.toString(encoding)
+      .trimEnd();
   },
   $ok: async (args, options = {}) => {
     return (
       (
-        await kurage.$command(
+        await execAsync(
           args,
           {
             stdio: ['ignore', 'ignore', 'ignore'],

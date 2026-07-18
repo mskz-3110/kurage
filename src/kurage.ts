@@ -1,6 +1,5 @@
 import type { SpawnOptions } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { buffer } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
 import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
@@ -60,28 +59,25 @@ export const kurage = {
     options: SpawnOptions = {},
     encoding: BufferEncoding = 'utf8'
   ): Promise<string> => {
-    const command = Command.new(args);
-    const exec = command.execAsync(
-      Command.mergeStdio(
-        options,
-        [undefined, 'pipe', undefined],
-        ['ignore', 'pipe', 'ignore']
-      ),
-      {}
-    );
-    const out = (await buffer(command.process!.stdout!)).toString(encoding).trimEnd();
-    (await exec).exitIfFailure();
-    return out;
+    return (
+      await execAsync(
+        args,
+        Command.mergeStdio(
+          options,
+          [undefined, 'pipe', undefined],
+          ['ignore', 'pipe', 'ignore']
+        ),
+        {}
+      )
+    )
+      .exitIfFailure()
+      .outBuffer.toString(encoding)
+      .trimEnd();
   },
   $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {
     return (
-      (
-        await kurage.$command(
-          args,
-          { stdio: ['ignore', 'ignore', 'ignore'], ...options },
-          {}
-        )
-      ).exitCode === 0
+      (await execAsync(args, { stdio: ['ignore', 'ignore', 'ignore'], ...options }, {}))
+        .exitCode === 0
     );
   },
   backtrace: Backtrace,

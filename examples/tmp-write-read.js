@@ -12,6 +12,7 @@ await $.mkdirAsync(kurage.path.join([await $.tmpdirAsync(), 'kurage']), async ()
   }, null, 2));
   path = $.basename(path);
 
+  await kurage.$(['ls', '-1']);
   if (!$.exists(path)) {
     $.write(path, `あいうえお${kurage.line.eol}かきくけこ`);
   }

@@ -160,6 +160,7 @@ export class Spellbook {
       name: `.${Spellbook.filename(path)}`,
     });
     try {
+      Spellbook.remove(tmpPath);
       Spellbook.write(tmpPath, data, true);
       fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath)!.mode);
       Spellbook.rename(tmpPath, path);

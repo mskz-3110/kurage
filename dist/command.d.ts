@@ -9,7 +9,7 @@ export declare class Command {
   #private;
   static mergeStdio(
     options: SpawnOptions,
-    stdio: StdioOptions,
+    overrideStdio: StdioOptions,
     defaultStdio: StdioOptions
   ): SpawnOptions;
   static new(...args: ConstructorParameters<typeof Command>): Command;
@@ -17,6 +17,8 @@ export declare class Command {
   get args(): readonly string[];
   get stopwatch(): Stopwatch;
   get process(): ChildProcess | undefined;
+  get outBuffer(): Buffer;
+  get errBuffer(): Buffer;
   get exitCode(): number;
   get exception(): Exception | undefined;
   constructor(args: readonly string[]);
