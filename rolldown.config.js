@@ -21,7 +21,7 @@ export default defineConfig({
     'cli/kurage': 'src/cli/kurage.ts',
     'cli/exec': 'src/cli/exec.ts',
     'cli/exec-json': 'src/cli/exec-json.ts',
-    'cli/info': 'src/cli/info.ts',
+    'cli/info-json': 'src/cli/info-json.ts',
     'cli/repl': 'src/cli/repl.ts',
     'cli/run': 'src/cli/run.ts',
     'cli/txcl': 'src/cli/txcl.ts',

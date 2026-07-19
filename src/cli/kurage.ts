@@ -12,7 +12,7 @@ Commands:
   exec <command> [args...]      execute a command
   exec-json <command> [args...] execute a command and output result as JSON
   run <file> [args...]          run a file
-  info                          show system information
+  info-json                     show system information and output result as JSON
   txcl <files...>               process file transclusions
 
 Options:
@@ -26,7 +26,7 @@ Examples:
   ${packageJson.name} exec-json cat script.js
   ${packageJson.name} run script.js
   ${packageJson.name} script.js
-  ${packageJson.name} info
+  ${packageJson.name} info-json
   ${packageJson.name} txcl README.md
 `.trim();
 };
@@ -36,7 +36,7 @@ if (mode === '') {
   mode = 'repl';
   process.argv.push(mode);
   import(`./${mode}.js`);
-} else if (['repl', 'exec', 'exec-json', 'run', 'info', 'txcl'].includes(mode)) {
+} else if (['repl', 'exec', 'exec-json', 'run', 'info-json', 'txcl'].includes(mode)) {
   process.argv = process.argv.slice(1);
   import(`./${mode}.js`);
 } else if (['-v', '--version'].includes(mode)) {
