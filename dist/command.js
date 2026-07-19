@@ -153,6 +153,7 @@ var Command = class Command {
             this.#exception = Exception.new(e);
             this.#appendExceptionMessage();
             this.#exception.error.stack = this.#exception.error.message;
+            resolve();
           });
         })
       );
