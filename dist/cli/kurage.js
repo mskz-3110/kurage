@@ -38,15 +38,14 @@ if (mode === '') {
 } else if (['repl', 'exec', 'exec-json', 'run', 'info-json', 'txcl'].includes(mode)) {
   process.argv = process.argv.slice(1);
   import(`./${mode}.js`);
-} else if (['-v', '--version'].includes(mode))
-  console.log(kurage.parsePackageJson().version);
+} else if (['-v', '--version'].includes(mode)) console.log(kurage.packageJson.version);
 else if (['-h', '--help'].includes(mode))
-  console.log(createHelpMessage(kurage.parsePackageJson()));
+  console.log(createHelpMessage(kurage.packageJson));
 else if (kurage.spellbook.exists(process.argv[2])) import('./run.js');
 else {
   console.error(
     kurage.color.$.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
   );
-  console.log(createHelpMessage(kurage.parsePackageJson()));
+  console.log(createHelpMessage(kurage.packageJson));
   process.exit(1);
 }

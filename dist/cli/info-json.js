@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-const packageJson = kurage.parsePackageJson();
 console.log(
   JSON.stringify(
     {
@@ -12,7 +11,7 @@ console.log(
         argv: process.argv,
       },
       kurage: {
-        version: packageJson.version,
+        version: kurage.packageJson.version,
         runtime: kurage.runtime.name,
       },
     },

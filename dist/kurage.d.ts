@@ -58,6 +58,6 @@ export declare const kurage: {
   stopwatch: typeof Stopwatch;
   timestamp: typeof Timestamp;
   transcluder: typeof Transcluder;
-  parsePackageJson: () => PackageJson;
+  readonly packageJson: PackageJson;
 };
 export default kurage;

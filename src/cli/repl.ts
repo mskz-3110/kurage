@@ -1,12 +1,12 @@
 import type { SpawnOptions } from 'node:child_process';
 import kurage from '../kurage.js';
 
-const packageJson = kurage.parsePackageJson();
+const packageName = kurage.packageJson.name;
 const replCode = kurage.line
   .split(
     `
-${packageJson.name} = (await import('${packageJson.name}')).default;
-$ = ${packageJson.name}.spellbook;
+${packageName} = (await import('${packageName}')).default;
+$ = ${packageName}.spellbook;
 `.trim()
   )
   .join('');

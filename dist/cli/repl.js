@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-const packageJson = kurage.parsePackageJson();
+const packageJson = kurage.packageJson;
 const replCode = kurage.line
   .split(
     `

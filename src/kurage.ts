@@ -1,6 +1,5 @@
 import type { SpawnOptions } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import packageJson from '../package.json' with { type: 'json' };
 import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
 import { Color } from './color.js';
@@ -98,10 +97,9 @@ export const kurage = {
   stopwatch: Stopwatch,
   timestamp: Timestamp,
   transcluder: Transcluder,
-  parsePackageJson: (): PackageJson =>
-    JSON.parse(
-      readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')
-    ) as PackageJson,
+  get packageJson(): PackageJson {
+    return packageJson;
+  },
 };
 
 export default kurage;
