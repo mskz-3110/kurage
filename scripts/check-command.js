@@ -10,7 +10,7 @@ if (command.exitCode === 0) {
 }
 
 await $.chdirAsync($.dirname($.urlToPath(import.meta.url)), async () => {
-  const command = kurage.command.new(['./sleep.js', '3000']);
+  const command = kurage.command.new([process.argv[0], 'sleep.js', '3000']);
   const exec = command.execAsync();
   await setTimeout(1000);
   command.kill('SIGINT');
