@@ -1,36 +1,42 @@
 import type { SpawnOptions } from 'node:child_process';
 import kurage from '../kurage.js';
 
-const packageName = kurage.packageJson.name;
-const replCode = kurage.line
-  .split(
-    `
-${packageName} = (await import('${packageName}')).default;
-$ = ${packageName}.spellbook;
-`.trim()
-  )
-  .join('');
-const options: SpawnOptions = { stdio: ['pipe', 'inherit', 'inherit'] };
-console.error(kurage.color.$.paint('magenta', replCode));
+export async function replAsync() {
+  const packageName = kurage.packageJson.name;
+  const replCode = kurage.line
+    .split(
+      `
+  ${packageName} = (await import('${packageName}')).default;
+  $ = ${packageName}.spellbook;
+  `.trim()
+    )
+    .join('');
+  const options: SpawnOptions = { stdio: ['pipe', 'inherit', 'inherit'] };
+  console.error(kurage.color.$.paint('magenta', replCode));
 
-let commandArgs = {
-  'bun': ['bun', 'repl'],
-  'deno': ['deno', 'repl', '-A'],
-  'node': ['node', '-i'],
-}[kurage.runtime.name];
-if (kurage.runtime.name === 'deno') {
-  if (await kurage.$ok(['which', 'script'])) {
-    commandArgs = ['script', '-qec', commandArgs.join(' '), '/dev/null'];
-  } else {
-    options.stdio = 'inherit';
+  let commandArgs = {
+    'bun': ['bun', 'repl'],
+    'deno': ['deno', 'repl', '-A'],
+    'node': ['node', '-i'],
+  }[kurage.runtime.name];
+  if (kurage.runtime.name === 'deno') {
+    if (await kurage.$ok(['which', 'script'])) {
+      commandArgs = ['script', '-qec', commandArgs.join(' '), '/dev/null'];
+    } else {
+      options.stdio = 'inherit';
+    }
   }
+
+  const command = kurage.command.new(commandArgs);
+  const exec = command.execAsync(options);
+  if (command.process != null && command.process.stdin != null) {
+    command.process.stdin.write(`${replCode}${kurage.line.eol}`);
+    process.stdin.pipe(command.process.stdin);
+    process.stdin.setRawMode(true);
+  }
+  (await exec).exit();
 }
 
-const command = kurage.command.new(commandArgs);
-const exec = command.execAsync(options);
-if (command.process != null && command.process.stdin != null) {
-  command.process.stdin.write(`${replCode}${kurage.line.eol}`);
-  process.stdin.pipe(command.process.stdin);
-  process.stdin.setRawMode(true);
+if (import.meta.main) {
+  await replAsync();
 }
-(await exec).exit();

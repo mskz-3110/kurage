@@ -1,31 +1,36 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
 
-const packageJson = kurage.packageJson;
-const replCode = kurage.line
-  .split(
-    `
-${packageJson.name} = (await import('${packageJson.name}')).default;
-$ = ${packageJson.name}.spellbook;
-`.trim()
-  )
-  .join('');
-const options = { stdio: ['pipe', 'inherit', 'inherit'] };
-console.error(kurage.color.$.paint('magenta', replCode));
-let commandArgs = {
-  'bun': ['bun', 'repl'],
-  'deno': ['deno', 'repl', '-A'],
-  'node': ['node', '-i'],
-}[kurage.runtime.name];
-if (kurage.runtime.name === 'deno')
-  if (await kurage.$ok(['which', 'script']))
-    commandArgs = ['script', '-qec', commandArgs.join(' '), '/dev/null'];
-  else options.stdio = 'inherit';
-const command = kurage.command.new(commandArgs);
-const exec = command.execAsync(options);
-if (command.process != null && command.process.stdin != null) {
-  command.process.stdin.write(`${replCode}${kurage.line.eol}`);
-  process.stdin.pipe(command.process.stdin);
-  process.stdin.setRawMode(true);
+async function replAsync() {
+  const packageName = kurage.packageJson.name;
+  const replCode = kurage.line
+    .split(
+      `
+  ${packageName} = (await import('${packageName}')).default;
+  $ = ${packageName}.spellbook;
+  `.trim()
+    )
+    .join('');
+  const options = { stdio: ['pipe', 'inherit', 'inherit'] };
+  console.error(kurage.color.$.paint('magenta', replCode));
+  let commandArgs = {
+    'bun': ['bun', 'repl'],
+    'deno': ['deno', 'repl', '-A'],
+    'node': ['node', '-i'],
+  }[kurage.runtime.name];
+  if (kurage.runtime.name === 'deno')
+    if (await kurage.$ok(['which', 'script']))
+      commandArgs = ['script', '-qec', commandArgs.join(' '), '/dev/null'];
+    else options.stdio = 'inherit';
+  const command = kurage.command.new(commandArgs);
+  const exec = command.execAsync(options);
+  if (command.process != null && command.process.stdin != null) {
+    command.process.stdin.write(`${replCode}${kurage.line.eol}`);
+    process.stdin.pipe(command.process.stdin);
+    process.stdin.setRawMode(true);
+  }
+  (await exec).exit();
 }
-(await exec).exit();
+if (import.meta.main) await replAsync();
+
+export { replAsync };

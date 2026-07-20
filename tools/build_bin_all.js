@@ -11,6 +11,6 @@ const targets = [
 ];
 await $.chdirAsync(kurage.path.join([$.dirname($.urlToPath(import.meta.url)), '..']), async () => {
   for (const target of targets) {
-    await kurage.$(['bun', 'build', `src/cli/${packageName}.ts`, ...$.glob('src/**/*.ts'), '--compile', '--compile-autoload-package-json', '--outfile', `bin/${packageName}-${target}`]);
+    await kurage.$(['bun', 'build', `src/cli/${packageName}.ts`, '--compile', '--compile-autoload-package-json', '--outfile', `bin/${packageName}-${target}`]);
   }
 });

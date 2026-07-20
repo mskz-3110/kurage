@@ -1,5 +1,11 @@
 import type { PackageJson } from '../kurage.js';
 import kurage from '../kurage.js';
+import { execAsync } from './exec.js';
+import { execJsonAsync } from './exec-json.js';
+import { infoJsonAsync } from './info-json.js';
+import { replAsync } from './repl.js';
+import { runAsync } from './run.js';
+import { txclAsync } from './txcl.js';
 
 const createHelpMessage = (packageJson: PackageJson): string => {
   return `
@@ -31,20 +37,28 @@ Examples:
 `.trim();
 };
 
+const modes: Record<string, () => Promise<void>> = {
+  'exec-json': execJsonAsync,
+  'exec': execAsync,
+  'info-json': infoJsonAsync,
+  'repl': replAsync,
+  'run': runAsync,
+  'txcl': txclAsync,
+};
 let mode = (process.argv[2] ?? '').toLowerCase();
 if (mode === '') {
   mode = 'repl';
   process.argv.push(mode);
-  import(`./${mode}.js`);
-} else if (['repl', 'exec', 'exec-json', 'run', 'info-json', 'txcl'].includes(mode)) {
+  await modes[mode]!();
+} else if (Object.keys(modes).includes(mode)) {
   process.argv = process.argv.slice(1);
-  import(`./${mode}.js`);
+  await modes[mode]!();
 } else if (['-v', '--version'].includes(mode)) {
   console.log(kurage.packageJson.version);
 } else if (['-h', '--help'].includes(mode)) {
   console.log(createHelpMessage(kurage.packageJson));
 } else if (kurage.spellbook.exists(process.argv[2]!)) {
-  import(`./run.js`);
+  await modes.run!();
 } else {
   console.error(
     kurage.color.$.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
