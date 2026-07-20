@@ -1,6 +1,4 @@
-import { Readable } from 'node:stream';
 import { buffer } from 'node:stream/consumers';
-import { pipeline } from 'node:stream/promises';
 import kurage from '../kurage.js';
 
 let result = {};
@@ -10,13 +8,9 @@ if (0 < args.length) {
   const command = kurage.command.new(args);
   const exec = command.execAsync({ stdio: ['pipe', 'pipe', 'pipe'] }, {});
   if (!process.stdin.isTTY && command.process?.stdin != null) {
-    try {
-      stdinBytes = await buffer(process.stdin);
-      await pipeline(Readable.from(stdinBytes), command.process.stdin);
-    } catch (_: unknown) {
-    } finally {
-      command.process.stdin.end();
-    }
+    stdinBytes = await buffer(process.stdin);
+    command.process.stdin.write(stdinBytes);
+    command.process.stdin.end();
   }
   await exec;
   result = {

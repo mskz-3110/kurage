@@ -1,5 +1,4 @@
 import childProcessModule from 'node:child_process';
-import { buffer } from 'node:stream/consumers';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
@@ -153,23 +152,43 @@ var Command = class Command {
             this.#exception = Exception.new(e);
             this.#appendExceptionMessage();
             this.#exception.error.stack = this.#exception.error.message;
+            this.#process.stdout?.destroy();
+            this.#process.stderr?.destroy();
             resolve();
           });
         })
       );
       if (Array.isArray(mergedOptions.stdio)) {
-        if (this.#process.stdout != null && mergedOptions.stdio[1] === 'pipe')
+        if (this.#process.stdout != null && mergedOptions.stdio[1] === 'pipe') {
+          const stdout = this.#process.stdout;
           promises.push(
-            buffer(this.#process.stdout).then((buf) => {
-              this.#outBuffer = buf;
+            new Promise((resolve) => {
+              const chunks = [];
+              stdout.on('data', (chunk) => {
+                chunks.push(chunk);
+              });
+              stdout.on('close', () => {
+                this.#outBuffer = Buffer.concat(chunks);
+                resolve();
+              });
             })
           );
-        if (this.#process.stderr != null && mergedOptions.stdio[2] === 'pipe')
+        }
+        if (this.#process.stderr != null && mergedOptions.stdio[2] === 'pipe') {
+          const stderr = this.#process.stderr;
           promises.push(
-            buffer(this.#process.stderr).then((buf) => {
-              this.#errBuffer = buf;
+            new Promise((resolve) => {
+              const chunks = [];
+              stderr.on('data', (chunk) => {
+                chunks.push(chunk);
+              });
+              stderr.on('close', () => {
+                this.#errBuffer = Buffer.concat(chunks);
+                resolve();
+              });
             })
           );
+        }
       }
       await Promise.all(promises);
     } catch (e) {
