@@ -2,7 +2,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
 import { Color } from './color.js';
-import { Command } from './command.js';
+import { Command, Stream } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Line } from './line.js';
@@ -29,20 +29,19 @@ const kurage = {
     (await execAsync(args, options, hooks)).exit();
   },
   $out: async (args, options = {}, encoding = 'utf8') => {
-    return (
+    const stdout = Stream.new();
+    (
       await execAsync(
         args,
         Command.mergeStdio(
           options,
-          [void 0, 'pipe', void 0],
-          ['ignore', 'pipe', 'ignore']
+          [void 0, stdout, void 0],
+          ['ignore', stdout, 'ignore']
         ),
         {}
       )
-    )
-      .exitIfFailure()
-      .outBuffer.toString(encoding)
-      .trimEnd();
+    ).exitIfFailure();
+    return stdout.buffer.toString(encoding).trimEnd();
   },
   $ok: async (args, options = {}) => {
     return (

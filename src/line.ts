@@ -40,6 +40,6 @@ export class Line {
   }
 
   static split(text: string, eol: string = Line.eol): string[] {
-    return text.split(eol);
+    return text === '' ? [] : text.split(eol);
   }
 }

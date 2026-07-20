@@ -1,5 +1,5 @@
 import { Bytes } from './bytes.js';
-import { Command } from './command.js';
+import { Command, Stream } from './command.js';
 import { Line, Scanner } from './line.js';
 import { Spellbook } from './spellbook.js';
 
@@ -164,17 +164,15 @@ export class Transcluder {
             ...element,
           });
         } else if (element.symbol === '$') {
-          const out = (
+          const stdout = Stream.new();
+          (
             await Command.new(element.content.split(' ')).execAsync(
-              { stdio: ['ignore', 'pipe', 'ignore'] },
+              { stdio: ['ignore', stdout, 'ignore'] },
               {}
             )
-          )
-            .exitIfFailure()
-            .outBuffer.toString(encoding)
-            .trimEnd();
+          ).exitIfFailure();
           replacer.addMarker({
-            lines: out !== '' ? Line.split(out) : [],
+            lines: Line.split(stdout.buffer.toString(encoding).trimEnd()),
             ...element,
           });
         }

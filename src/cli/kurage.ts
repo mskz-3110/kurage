@@ -49,16 +49,22 @@ let mode = (process.argv[2] ?? '').toLowerCase();
 if (mode === '') {
   mode = 'repl';
   process.argv.push(mode);
-  await modes[mode]!();
+  (async () => {
+    await modes[mode]!();
+  })();
 } else if (Object.keys(modes).includes(mode)) {
   process.argv = process.argv.slice(1);
-  await modes[mode]!();
+  (async () => {
+    await modes[mode]!();
+  })();
 } else if (['-v', '--version'].includes(mode)) {
   console.log(kurage.packageJson.version);
 } else if (['-h', '--help'].includes(mode)) {
   console.log(createHelpMessage(kurage.packageJson));
 } else if (kurage.spellbook.exists(process.argv[2]!)) {
-  await modes.run!();
+  (async () => {
+    await modes.run!();
+  })();
 } else {
   console.error(
     kurage.color.$.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)

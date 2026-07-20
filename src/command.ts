@@ -1,5 +1,6 @@
 import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
+import { PassThrough } from 'node:stream';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
@@ -12,7 +13,34 @@ export type ExecHooks = {
   onEnd?: (command: Command, context: any) => void;
 };
 
+export class Stream extends PassThrough {
+  static new(...args: ConstructorParameters<typeof PassThrough>): Stream {
+    return new Stream(...args);
+  }
+
+  #buffer: Buffer = Buffer.alloc(0);
+
+  get buffer(): Buffer {
+    return this.#buffer;
+  }
+
+  constructor(...args: ConstructorParameters<typeof PassThrough>) {
+    super(...args);
+    const chunks: Buffer[] = [];
+    this.on('data', (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
+    this.on('close', () => {
+      this.#buffer = Buffer.concat(chunks);
+    });
+  }
+}
+
 export class Command {
+  static get stream(): typeof Stream {
+    return Stream;
+  }
+
   static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
 
   static #signals: NodeJS.Signals[] = [
@@ -114,18 +142,6 @@ export class Command {
     return this.#process;
   }
 
-  #outBuffer: Buffer = Buffer.alloc(0);
-
-  get outBuffer(): Buffer {
-    return this.#outBuffer;
-  }
-
-  #errBuffer: Buffer = Buffer.alloc(0);
-
-  get errBuffer(): Buffer {
-    return this.#errBuffer;
-  }
-
   get exitCode(): number {
     if (this.#process != null && this.#process.exitCode != null) {
       return this.#process!.exitCode!;
@@ -180,82 +196,56 @@ export class Command {
     const context = this.#setupExec(hooks);
     try {
       this.#process = undefined;
-      this.#outBuffer = Buffer.alloc(0);
-      this.#errBuffer = Buffer.alloc(0);
       this.#exception = undefined;
 
       if (this.#command === '') {
         return this;
       }
 
+      let stdout: Stream | undefined;
+      let stderr: Stream | undefined;
       const mergedOptions = Command.mergeStdio(options, [], 'inherit');
-      this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
-
-      const promises: Promise<void>[] = [];
-      promises.push(
-        new Promise<void>((resolve) => {
-          this.#process!.on('close', (_, signalName) => {
-            this.#stopwatch.stop();
-
-            if (this.#exception == null) {
-              if (signalName != null) {
-                this.#exception = Exception.new(
-                  `SignalException: ${signalName} @ ${this}`
-                );
-                this.#exception.error.stack = this.#exception.error.message;
-              }
-            }
-
-            resolve();
-          });
-
-          this.#process!.on('error', (e) => {
-            this.#stopwatch.stop();
-            this.#exception = Exception.new(e);
-            this.#appendExceptionMessage();
-            this.#exception.error.stack = this.#exception.error.message;
-            this.#process!.stdout?.destroy();
-            this.#process!.stderr?.destroy();
-            resolve();
-          });
-        })
-      );
-
       if (Array.isArray(mergedOptions.stdio)) {
-        if (this.#process.stdout != null && mergedOptions.stdio[1] === 'pipe') {
-          const stdout = this.#process.stdout;
-          promises.push(
-            new Promise<void>((resolve) => {
-              const chunks: Buffer[] = [];
-              stdout.on('data', (chunk: Buffer) => {
-                chunks.push(chunk);
-              });
-              stdout.on('close', () => {
-                this.#outBuffer = Buffer.concat(chunks);
-                resolve();
-              });
-            })
-          );
+        if (mergedOptions.stdio[1] instanceof Stream) {
+          stdout = mergedOptions.stdio[1];
+          mergedOptions.stdio[1] = 'pipe';
         }
-
-        if (this.#process.stderr != null && mergedOptions.stdio[2] === 'pipe') {
-          const stderr = this.#process.stderr;
-          promises.push(
-            new Promise<void>((resolve) => {
-              const chunks: Buffer[] = [];
-              stderr.on('data', (chunk: Buffer) => {
-                chunks.push(chunk);
-              });
-              stderr.on('close', () => {
-                this.#errBuffer = Buffer.concat(chunks);
-                resolve();
-              });
-            })
-          );
+        if (mergedOptions.stdio[2] instanceof Stream) {
+          stderr = mergedOptions.stdio[2];
+          mergedOptions.stdio[2] = 'pipe';
         }
       }
+      this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
 
-      await Promise.all(promises);
+      if (this.#process.stdout != null && stdout != null) {
+        this.#process.stdout.pipe(stdout);
+      }
+      if (this.#process.stderr != null && stderr != null) {
+        this.#process.stderr.pipe(stderr);
+      }
+
+      await new Promise<void>((resolve) => {
+        this.#process!.on('close', (_, signalName) => {
+          this.#stopwatch.stop();
+          if (this.#exception == null) {
+            if (signalName != null) {
+              this.#exception = Exception.new(`SignalException: ${signalName} @ ${this}`);
+              this.#exception.error.stack = this.#exception.error.message;
+            }
+          }
+          resolve();
+        });
+
+        this.#process!.on('error', (e) => {
+          this.#stopwatch.stop();
+          this.#exception = Exception.new(e);
+          this.#appendExceptionMessage();
+          this.#exception.error.stack = this.#exception.error.message;
+          this.#process!.stdout?.destroy();
+          this.#process!.stderr?.destroy();
+          resolve();
+        });
+      });
     } catch (e: unknown) {
       this.#stopwatch.stop();
       this.#exception = Exception.new(e);

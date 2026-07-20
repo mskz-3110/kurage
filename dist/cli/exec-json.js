@@ -7,8 +7,10 @@ async function execJsonAsync() {
   const args = kurage.process.args;
   if (0 < args.length) {
     let stdinBytes = Buffer.alloc(0);
+    const stdout = kurage.command.stream.new();
+    const stderr = kurage.command.stream.new();
     const command = kurage.command.new(args);
-    const exec = command.execAsync({ stdio: ['pipe', 'pipe', 'pipe'] }, {});
+    const exec = command.execAsync({ stdio: ['pipe', stdout, stderr] }, {});
     if (!process.stdin.isTTY && command.process?.stdin != null) {
       stdinBytes = await buffer(process.stdin);
       command.process.stdin.write(stdinBytes);
@@ -28,8 +30,8 @@ async function execJsonAsync() {
       exception: command.exception ? command.exception.toString() : '',
       stdio: {
         stdin: stdinBytes.toString(),
-        stdout: command.outBuffer.toString().trimEnd(),
-        stderr: command.errBuffer.toString().trimEnd(),
+        stdout: stdout.buffer.toString().trimEnd(),
+        stderr: stderr.buffer.toString().trimEnd(),
       },
     };
   }

@@ -27,7 +27,7 @@ var Line = class Line {
     return lines.join(eol);
   }
   static split(text, eol = Line.eol) {
-    return text.split(eol);
+    return text === '' ? [] : text.split(eol);
   }
 };
 

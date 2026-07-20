@@ -4,7 +4,7 @@ import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
-import { Command } from './command.js';
+import { Command, Stream } from './command.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Line } from './line.js';
@@ -58,20 +58,19 @@ export const kurage = {
     options: SpawnOptions = {},
     encoding: BufferEncoding = 'utf8'
   ): Promise<string> => {
-    return (
+    const stdout = Stream.new();
+    (
       await execAsync(
         args,
         Command.mergeStdio(
           options,
-          [undefined, 'pipe', undefined],
-          ['ignore', 'pipe', 'ignore']
+          [undefined, stdout, undefined],
+          ['ignore', stdout, 'ignore']
         ),
         {}
       )
-    )
-      .exitIfFailure()
-      .outBuffer.toString(encoding)
-      .trimEnd();
+    ).exitIfFailure();
+    return stdout.buffer.toString(encoding).trimEnd();
   },
   $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {
     return (
