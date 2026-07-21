@@ -106,7 +106,10 @@ export class Command {
         const exitCode = command.exitCode;
         return [
           Color.$.paint('timestamp', `[${command.stopwatch.stopTime}]`),
-          Color.$.paint('duration', `${Duration.new(command.stopwatch.duration)}`),
+          Color.$.paint(
+            'duration',
+            `${Duration.new(command.stopwatch.duration)}(${command.stopwatch.duration}ms)`
+          ),
           `(${Color.$.paint(exitCode === 0 ? 'success' : 'failure', exitCode.toString())})`,
           `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');

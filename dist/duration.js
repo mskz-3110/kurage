@@ -22,6 +22,23 @@ var Duration = class Duration {
     },
   ];
   static #formatter = new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 3 });
+  static #parseRegex = /^(\d+(?:\.\d+)?)\s*([a-z]*)$/i;
+  static parse(string) {
+    let ms = 0;
+    const match = string.match(Duration.#parseRegex);
+    if (match != null) {
+      const amount = parseFloat(match[1]);
+      const unit = match[2].toLowerCase();
+      if (unit === '' || unit === 'ms') ms = Math.round(amount);
+      else
+        for (const timeScale of Duration.#timeScales)
+          if (timeScale.unit === unit) {
+            ms = Math.round(amount * timeScale.threshold);
+            break;
+          }
+    }
+    return Duration.new(ms);
+  }
   static new(...args) {
     return new Duration(...args);
   }

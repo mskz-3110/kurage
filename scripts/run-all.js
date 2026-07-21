@@ -6,12 +6,9 @@ let scripts = kurage.process.args;
 if (scripts.length === 0) {
   const __FILE__ = $.urlToPath(import.meta.url);
   const basename = $.basename(__FILE__);
-  scripts = $.glob(
-    kurage.path.join([$.dirname(__FILE__), '**', '*.js']),
-    {
-      exclude: (path) => path === basename
-    }
-  );
+  scripts = $.glob(kurage.path.join([$.dirname(__FILE__), '**', '*.js']), {
+    exclude: (path) => path === basename,
+  });
 }
 
 let args = [];
