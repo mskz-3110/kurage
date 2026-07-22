@@ -6,7 +6,7 @@ import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Logger } from './logger.js';
 import { Stopwatch } from './stopwatch.js';
-import type { Timestamp } from './timestamp.js';
+import type { Time } from './time.js';
 
 export type ExecHooks = {
   onStart?: (command: Command) => any;
@@ -82,7 +82,7 @@ export class Command {
   }
 
   static {
-    Color.$.set('timestamp', Color.$.get('cyan'));
+    Color.$.set('time', Color.$.get('cyan'));
     Color.$.set('path', Color.$.get('yellow'));
     Color.$.set('command', Color.$.get('gray'));
     Color.$.set('duration', Color.$.get('gray'));
@@ -91,9 +91,9 @@ export class Command {
 
     Logger.$.addHandler('command-start', {
       write: console.error,
-      format: (_: Timestamp, command: Command): string => {
+      format: (_: Time, command: Command): string => {
         return [
-          Color.$.paint('timestamp', `[${command.stopwatch.startTime}]`),
+          Color.$.paint('time', `[${command.stopwatch.startTime}]`),
           Color.$.paint('path', process.cwd()),
           `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');
@@ -102,10 +102,10 @@ export class Command {
 
     Logger.$.addHandler('command-end', {
       write: console.error,
-      format: (_: Timestamp, command: Command): string => {
+      format: (_: Time, command: Command): string => {
         const exitCode = command.exitCode;
         return [
-          Color.$.paint('timestamp', `[${command.stopwatch.stopTime}]`),
+          Color.$.paint('time', `[${command.stopwatch.stopTime}]`),
           Color.$.paint(
             'duration',
             `${Duration.new(command.stopwatch.duration)}(${command.stopwatch.duration}ms)`

@@ -1,12 +1,12 @@
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Line } from './line.js';
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 
 var Logger = class Logger {
-  static $ = new Logger();
-  static format(timestamp, arg) {
-    return `[${timestamp}] ${String(arg)}`;
+  static $ = Logger.new();
+  static format(time, arg) {
+    return `[${time}] ${String(arg)}`;
   }
   static {
     Color.$.set('debug', Color.$.get('cyan'));
@@ -15,26 +15,26 @@ var Logger = class Logger {
     Color.$.set('error', Color.$.get('red'));
     Logger.$.addHandler('debug', {
       write: console.log,
-      format: (timestamp, arg) => {
-        return Color.$.paint('debug', Logger.format(timestamp, arg));
+      format: (time, arg) => {
+        return Color.$.paint('debug', Logger.format(time, arg));
       },
     });
     Logger.$.addHandler('info', {
       write: console.log,
-      format: (timestamp, arg) => {
-        return Color.$.paint('info', Logger.format(timestamp, arg));
+      format: (time, arg) => {
+        return Color.$.paint('info', Logger.format(time, arg));
       },
     });
     Logger.$.addHandler('warn', {
       write: console.error,
-      format: (timestamp, arg) => {
-        return Color.$.paint('warn', Logger.format(timestamp, arg));
+      format: (time, arg) => {
+        return Color.$.paint('warn', Logger.format(time, arg));
       },
     });
     Logger.$.addHandler('error', {
       write: console.error,
-      format: (timestamp, arg) => {
-        return Color.$.paint('error', Logger.format(timestamp, arg));
+      format: (time, arg) => {
+        return Color.$.paint('error', Logger.format(time, arg));
       },
     });
   }
@@ -60,15 +60,14 @@ var Logger = class Logger {
     if (Object.hasOwn(this.#handlers, name)) this.#handlers[name].push(handler);
     else this.#handlers[name] = [handler];
   }
-  write(name, arg, timestamp = Timestamp.new()) {
+  write(name, arg, time = Time.new()) {
     if (!Object.hasOwn(this.#handlers, name)) {
       console.error(
         `Undefined logger name: ${name} # ${String(arg)}${Line.eol}${Backtrace.new()}`
       );
       return;
     }
-    for (const handler of this.#handlers[name])
-      handler.write(handler.format(timestamp, arg));
+    for (const handler of this.#handlers[name]) handler.write(handler.format(time, arg));
   }
 };
 

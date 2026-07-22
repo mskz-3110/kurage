@@ -13,7 +13,7 @@ import { Process } from './process.js';
 import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 import { Transcluder } from './transcluder.js';
 export type PackageJson = {
   name: string;
@@ -49,14 +49,14 @@ export declare const kurage: {
   duration: typeof Duration;
   exception: typeof Exception;
   line: typeof Line;
-  log: (name: string, arg: unknown, timestamp?: Timestamp) => void;
+  log: (name: string, arg: unknown, time?: Time) => void;
   logger: typeof Logger;
   path: typeof Path;
   process: typeof Process;
   runtime: typeof Runtime;
   spellbook: typeof Spellbook;
   stopwatch: typeof Stopwatch;
-  timestamp: typeof Timestamp;
+  time: typeof Time;
   transcluder: typeof Transcluder;
   readonly packageJson: PackageJson;
 };

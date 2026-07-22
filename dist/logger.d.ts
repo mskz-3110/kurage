@@ -1,6 +1,6 @@
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 export type Write = (message: string) => void;
-export type Format = (timestamp: Timestamp, arg: any) => string;
+export type Format = (time: Time, arg: any) => string;
 export type Handler = {
   write: Write;
   format: Format;
@@ -8,11 +8,11 @@ export type Handler = {
 export declare class Logger {
   #private;
   static $: Logger;
-  static format(timestamp: Timestamp, arg: any): string;
+  static format(time: Time, arg: any): string;
   static new(...args: ConstructorParameters<typeof Logger>): Logger;
   get names(): readonly string[];
   getHandlers(name: string): Handler[];
   setHandlers(name: string, handlers: Handler[]): void;
   addHandler(name: string, handler: Handler): void;
-  write(name: string, arg: any, timestamp?: Timestamp): void;
+  write(name: string, arg: any, time?: Time): void;
 }

@@ -1,5 +1,5 @@
 export class Color {
-  static $: Color = new Color();
+  static $: Color = Color.new();
 
   static get enabled(): boolean {
     return typeof process.stdout.hasColors === 'function'
@@ -16,6 +16,10 @@ export class Color {
     Color.$.set('magenta', '\u001b[35m');
     Color.$.set('cyan', '\u001b[36m');
     Color.$.set('gray', '\u001b[90m');
+  }
+
+  static new(...args: ConstructorParameters<typeof Color>): Color {
+    return new Color(...args);
   }
 
   #invalidNames: string[] = [

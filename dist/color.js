@@ -1,5 +1,5 @@
 var Color = class Color {
-  static $ = new Color();
+  static $ = Color.new();
   static get enabled() {
     return typeof process.stdout.hasColors === 'function'
       ? process.stdout.hasColors()
@@ -14,6 +14,9 @@ var Color = class Color {
     Color.$.set('magenta', '\x1B[35m');
     Color.$.set('cyan', '\x1B[36m');
     Color.$.set('gray', '\x1B[90m');
+  }
+  static new(...args) {
+    return new Color(...args);
   }
   #invalidNames = [
     ...Object.getOwnPropertyNames(Color),

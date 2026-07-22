@@ -1,11 +1,11 @@
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Line } from './line.js';
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 
 export type Write = (message: string) => void;
 
-export type Format = (timestamp: Timestamp, arg: any) => string;
+export type Format = (time: Time, arg: any) => string;
 
 export type Handler = {
   write: Write;
@@ -13,10 +13,10 @@ export type Handler = {
 };
 
 export class Logger {
-  static $: Logger = new Logger();
+  static $: Logger = Logger.new();
 
-  static format(timestamp: Timestamp, arg: any): string {
-    return `[${timestamp}] ${String(arg)}`;
+  static format(time: Time, arg: any): string {
+    return `[${time}] ${String(arg)}`;
   }
 
   static {
@@ -27,29 +27,29 @@ export class Logger {
 
     Logger.$.addHandler('debug', {
       write: console.log,
-      format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('debug', Logger.format(timestamp, arg));
+      format: (time: Time, arg: any) => {
+        return Color.$.paint('debug', Logger.format(time, arg));
       },
     });
 
     Logger.$.addHandler('info', {
       write: console.log,
-      format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('info', Logger.format(timestamp, arg));
+      format: (time: Time, arg: any) => {
+        return Color.$.paint('info', Logger.format(time, arg));
       },
     });
 
     Logger.$.addHandler('warn', {
       write: console.error,
-      format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('warn', Logger.format(timestamp, arg));
+      format: (time: Time, arg: any) => {
+        return Color.$.paint('warn', Logger.format(time, arg));
       },
     });
 
     Logger.$.addHandler('error', {
       write: console.error,
-      format: (timestamp: Timestamp, arg: any) => {
-        return Color.$.paint('error', Logger.format(timestamp, arg));
+      format: (time: Time, arg: any) => {
+        return Color.$.paint('error', Logger.format(time, arg));
       },
     });
   }
@@ -89,7 +89,7 @@ export class Logger {
     }
   }
 
-  write(name: string, arg: any, timestamp: Timestamp = Timestamp.new()) {
+  write(name: string, arg: any, time: Time = Time.new()) {
     if (!Object.hasOwn(this.#handlers, name)) {
       console.error(
         `Undefined logger name: ${name} # ${String(arg)}${Line.eol}${Backtrace.new()}`
@@ -98,7 +98,7 @@ export class Logger {
     }
 
     for (const handler of this.#handlers[name]!) {
-      handler.write(handler.format(timestamp, arg));
+      handler.write(handler.format(time, arg));
     }
   }
 }

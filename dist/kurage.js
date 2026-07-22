@@ -12,7 +12,7 @@ import { Process } from './process.js';
 import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 import { Transcluder } from './transcluder.js';
 
 const execAsync = async (args, options = {}, hooks) => {
@@ -64,8 +64,8 @@ const kurage = {
   duration: Duration,
   exception: Exception,
   line: Line,
-  log: (name, arg, timestamp) => {
-    return Logger.$.write(name, arg, timestamp);
+  log: (name, arg, time) => {
+    return Logger.$.write(name, arg, time);
   },
   logger: Logger,
   path: Path,
@@ -73,7 +73,7 @@ const kurage = {
   runtime: Runtime,
   spellbook: Spellbook,
   stopwatch: Stopwatch,
-  timestamp: Timestamp,
+  time: Time,
   transcluder: Transcluder,
   get packageJson() {
     return packageJson;

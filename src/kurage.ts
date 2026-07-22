@@ -14,7 +14,7 @@ import { Process } from './process.js';
 import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 import { Transcluder } from './transcluder.js';
 
 export type PackageJson = {
@@ -85,8 +85,8 @@ export const kurage = {
   duration: Duration,
   exception: Exception,
   line: Line,
-  log: (name: string, arg: unknown, timestamp?: Timestamp) => {
-    return Logger.$.write(name, arg, timestamp);
+  log: (name: string, arg: unknown, time?: Time) => {
+    return Logger.$.write(name, arg, time);
   },
   logger: Logger,
   path: Path,
@@ -94,7 +94,7 @@ export const kurage = {
   runtime: Runtime,
   spellbook: Spellbook,
   stopwatch: Stopwatch,
-  timestamp: Timestamp,
+  time: Time,
   transcluder: Transcluder,
   get packageJson(): PackageJson {
     return packageJson;

@@ -1,36 +1,36 @@
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 
 export class Stopwatch {
   static new(...args: ConstructorParameters<typeof Stopwatch>): Stopwatch {
     return new Stopwatch(...args);
   }
 
-  #startTime: Timestamp | undefined;
+  #startTime: Time | undefined;
 
-  get startTime(): Timestamp | undefined {
+  get startTime(): Time | undefined {
     return this.#startTime;
   }
 
-  #stopTime: Timestamp | undefined;
+  #stopTime: Time | undefined;
 
-  get stopTime(): Timestamp | undefined {
+  get stopTime(): Time | undefined {
     return this.#stopTime;
   }
 
   get duration(): number {
-    const stopTime = this.#stopTime ?? new Timestamp();
+    const stopTime = this.#stopTime ?? Time.new();
     const startTime = this.#startTime ?? stopTime;
-    return stopTime.date.getTime() - startTime.date.getTime();
+    return stopTime.since(startTime);
   }
 
   start() {
-    this.#startTime = new Timestamp();
+    this.#startTime = Time.new();
     this.#stopTime = undefined;
   }
 
   stop() {
     if (this.#stopTime == null) {
-      this.#stopTime = new Timestamp();
+      this.#stopTime = Time.new();
     }
   }
 }

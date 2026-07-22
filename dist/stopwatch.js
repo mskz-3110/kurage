@@ -1,4 +1,4 @@
-import { Timestamp } from './timestamp.js';
+import { Time } from './time.js';
 
 var Stopwatch = class Stopwatch {
   static new(...args) {
@@ -13,16 +13,16 @@ var Stopwatch = class Stopwatch {
     return this.#stopTime;
   }
   get duration() {
-    const stopTime = this.#stopTime ?? new Timestamp();
+    const stopTime = this.#stopTime ?? Time.new();
     const startTime = this.#startTime ?? stopTime;
-    return stopTime.date.getTime() - startTime.date.getTime();
+    return stopTime.since(startTime);
   }
   start() {
-    this.#startTime = new Timestamp();
+    this.#startTime = Time.new();
     this.#stopTime = void 0;
   }
   stop() {
-    if (this.#stopTime == null) this.#stopTime = new Timestamp();
+    if (this.#stopTime == null) this.#stopTime = Time.new();
   }
 };
 

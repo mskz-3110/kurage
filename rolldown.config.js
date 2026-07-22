@@ -16,7 +16,7 @@ export default defineConfig({
     'runtime': 'src/runtime.ts',
     'spellbook': 'src/spellbook.ts',
     'stopwatch': 'src/stopwatch.ts',
-    'timestamp': 'src/timestamp.ts',
+    'time': 'src/time.ts',
     'transcluder': 'src/transcluder.ts',
     'cli/kurage': 'src/cli/kurage.ts',
     'cli/exec': 'src/cli/exec.ts',

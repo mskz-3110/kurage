@@ -53,7 +53,7 @@ var Command = class Command {
     return mergedOptions;
   }
   static {
-    Color.$.set('timestamp', Color.$.get('cyan'));
+    Color.$.set('time', Color.$.get('cyan'));
     Color.$.set('path', Color.$.get('yellow'));
     Color.$.set('command', Color.$.get('gray'));
     Color.$.set('duration', Color.$.get('gray'));
@@ -63,7 +63,7 @@ var Command = class Command {
       write: console.error,
       format: (_, command) => {
         return [
-          Color.$.paint('timestamp', `[${command.stopwatch.startTime}]`),
+          Color.$.paint('time', `[${command.stopwatch.startTime}]`),
           Color.$.paint('path', process.cwd()),
           `@ ${Color.$.paint('command', command.toString())}`,
         ].join(' ');
@@ -74,7 +74,7 @@ var Command = class Command {
       format: (_, command) => {
         const exitCode = command.exitCode;
         return [
-          Color.$.paint('timestamp', `[${command.stopwatch.stopTime}]`),
+          Color.$.paint('time', `[${command.stopwatch.stopTime}]`),
           Color.$.paint(
             'duration',
             `${Duration.new(command.stopwatch.duration)}(${command.stopwatch.duration}ms)`
