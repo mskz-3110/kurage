@@ -36,7 +36,7 @@ Examples:
   ${packageJson.name} txcl README.md
 `.trim();
 };
-const modes = {
+const cliActions = {
   'exec-json': execJsonAsync,
   'exec': execAsync,
   'info-json': infoJsonAsync,
@@ -49,19 +49,19 @@ if (mode === '') {
   mode = 'repl';
   process.argv.push(mode);
   (async () => {
-    await modes[mode]();
+    await cliActions[mode]();
   })();
-} else if (Object.keys(modes).includes(mode)) {
+} else if (Object.keys(cliActions).includes(mode)) {
   process.argv = process.argv.slice(1);
   (async () => {
-    await modes[mode]();
+    await cliActions[mode]();
   })();
 } else if (['-v', '--version'].includes(mode)) console.log(kurage.packageJson.version);
 else if (['-h', '--help'].includes(mode))
   console.log(createHelpMessage(kurage.packageJson));
 else if (kurage.spellbook.exists(process.argv[2]))
   (async () => {
-    await modes.run();
+    await cliActions.run();
   })();
 else {
   console.error(
