@@ -38,10 +38,9 @@
     "docker:build": "docker compose up -d --build",
     "docker:bash": "docker compose run --rm kurage bash",
     "docker:vhs": "docker compose run -e PS1='$ ' --rm kurage bash -c 'node tools/readme/generate_assets.js'",
-    "build:js": "rolldown --config && biome format dist --write",
-    "build:dts": "tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts",
+    "build:src": "biome check --write src && rolldown --config && biome format dist --write && tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts && biome check --write .",
     "build:bin": "bun build src/cli/kurage.ts --compile --compile-autoload-package-json --outfile bin/kurage",
-    "build": "biome check --write src && npm run build:js && npm run build:dts && biome check --write .",
+    "build:all": "npm run build:src && npm run build:bin",
     "chmod": "chmod +x dist/cli/*.js scripts/*.js examples/*.js tools/**/*.js && git update-index --chmod=+x dist/cli/*.js scripts/*.js examples/*.js tools/**/*.js"
   },
   "engines": {

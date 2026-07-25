@@ -15,7 +15,9 @@ kurage.process.cleanup();
   console.error(kurage.color.$.paint('magenta', replCode));
   const runtimeName = kurage.process.args[0] ?? kurage.runtime.name;
   let commandArgs = [];
-  if (runtimeName === 'node') commandArgs = ['node', '-i', '-e', replCode];
+  if (runtimeName === 'node')
+    if (kurage.runtime.supported('webcontainer')) commandArgs = ['node', '-i'];
+    else commandArgs = ['node', '-i', '-e', replCode];
   else if (runtimeName === 'deno')
     commandArgs = ['deno', 'repl', '-A', '--eval', replCode];
   else if (runtimeName === 'bun') commandArgs = ['bun', 'repl'];
