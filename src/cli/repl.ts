@@ -6,30 +6,28 @@ export async function replAsync() {
   const replCode = kurage.line
     .split(
       `
-  ${packageName} = (await import('${packageName}')).default;
-  $ = ${packageName}.spellbook;
+  globalThis.${packageName} = (await import('${packageName}')).default;
+  globalThis.$ = globalThis.${packageName}.spellbook;
   `.trim()
     )
     .join('');
-  const options: SpawnOptions = { stdio: ['pipe', 'inherit', 'inherit'] };
+  const options: SpawnOptions = {
+    stdio: [kurage.runtime.name !== 'deno' ? 'pipe' : 'inherit', 'inherit', 'inherit'],
+  };
   console.error(kurage.color.$.paint('magenta', replCode));
 
-  let commandArgs = {
+  const commandArgs = {
     'bun': ['bun', 'repl'],
     'deno': ['deno', 'repl', '-A'],
     'node': ['node', '-i'],
   }[kurage.runtime.name];
-  if (kurage.runtime.name === 'deno') {
-    if (await kurage.$ok(['which', 'script'])) {
-      commandArgs = ['script', '-qec', commandArgs.join(' '), '/dev/null'];
-    } else {
-      options.stdio = 'inherit';
-    }
-  }
-
   const command = kurage.command.new(commandArgs);
   const exec = command.execAsync(options);
-  if (command.process != null && command.process.stdin != null) {
+  if (
+    command.process != null &&
+    command.process.stdin != null &&
+    kurage.runtime.name !== 'deno'
+  ) {
     command.process.stdin.write(`${replCode}${kurage.line.eol}`);
     process.stdin.pipe(command.process.stdin);
     process.stdin.setRawMode(true);
