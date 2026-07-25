@@ -1,9 +1,9 @@
 Set Shell "bash"
-Set FontSize 30
+Set FontSize 24
 Set Width 1280
 Set Height 720
 Set WindowBar Colorful
-Set Theme "nord"
+Set Theme "Dark+"
 
 Hide
 

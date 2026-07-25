@@ -13,6 +13,8 @@ services:
       - kurage_node_modules:/kurage/node_modules
       - kurage_bun_cache:/root/.bun
       - kurage_deno_cache:/root/.cache/deno
+    environment:
+      - TZ=Asia/Tokyo
 
 volumes:
   kurage_node_modules:

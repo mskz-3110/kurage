@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const { kurage } = await import('kurage');
 const $ = kurage.spellbook;
 const { setTimeout } = await import('node:timers/promises');
@@ -10,9 +9,8 @@ if (command.exitCode === 0) {
 }
 
 await $.chdirAsync($.dirname($.urlToPath(import.meta.url)), async () => {
-  let args = [kurage.runtime.name];
-  if (kurage.runtime.name === 'deno') {
-    args.push('run');
+  const args = [kurage.runtime.name];
+  if (args[0] === 'deno') {
     args.push('-A');
   }
   const command = kurage.command.new([...args, 'sleep.js', '3000']);

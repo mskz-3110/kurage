@@ -44,14 +44,12 @@ const cliActions = {
   'run': runAsync,
   'txcl': txclAsync,
 };
-let mode = (process.argv[2] ?? '').toLowerCase();
-if (mode === '') {
-  mode = 'repl';
-  process.argv.push(mode);
+const mode = (process.argv[2] ?? '').toLowerCase();
+if (mode === '')
   (async () => {
-    await cliActions[mode]();
+    await cliActions.repl();
   })();
-} else if (Object.keys(cliActions).includes(mode)) {
+else if (Object.keys(cliActions).includes(mode)) {
   process.argv = process.argv.slice(1);
   (async () => {
     await cliActions[mode]();

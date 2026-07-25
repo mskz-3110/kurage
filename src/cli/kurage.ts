@@ -45,12 +45,10 @@ const cliActions: Record<string, () => Promise<void>> = {
   'run': runAsync,
   'txcl': txclAsync,
 };
-let mode = (process.argv[2] ?? '').toLowerCase();
+const mode = (process.argv[2] ?? '').toLowerCase();
 if (mode === '') {
-  mode = 'repl';
-  process.argv.push(mode);
   (async () => {
-    await cliActions[mode]!();
+    await cliActions.repl!();
   })();
 } else if (Object.keys(cliActions).includes(mode)) {
   process.argv = process.argv.slice(1);
