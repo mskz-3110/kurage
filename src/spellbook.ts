@@ -203,29 +203,36 @@ export class Spellbook {
   }
 
   static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary {
-    const target = typeof value === 'function' ? value : Object.getPrototypeOf(value);
-    const propertyNames: string[] = Object.keys(target);
+    const propertyNames: string[] = [];
     const accessorNames: string[] = [];
     const methodNames: string[] = [];
-    for (const propertyName of Object.getOwnPropertyNames(target)) {
-      if (propertyNames.includes(propertyName) || ignoreNames.includes(propertyName)) {
-        continue;
-      }
-
-      const descriptor = Object.getOwnPropertyDescriptor(target, propertyName);
-      if (
-        typeof descriptor!.get === 'function' ||
-        typeof descriptor!.set === 'function'
-      ) {
-        accessorNames.push(propertyName);
-        continue;
-      }
-
-      if (typeof Reflect.get(target, propertyName) === 'function') {
-        methodNames.push(propertyName);
-      }
+    let descriptors = Object.entries(Object.getOwnPropertyDescriptors(value));
+    if (descriptors.length === 0) {
+      descriptors = Object.entries(
+        Object.getOwnPropertyDescriptors(Object.getPrototypeOf(value))
+      );
     }
+    for (const [name, descriptor] of descriptors) {
+      if (ignoreNames.includes(name)) {
+        continue;
+      }
 
+      if (typeof descriptor.get === 'function' || typeof descriptor.set === 'function') {
+        accessorNames.push(name);
+        continue;
+      }
+
+      if (typeof descriptor.value === 'function') {
+        if ((descriptor.value.toString() as string).startsWith('class ')) {
+          propertyNames.push(name);
+        } else {
+          methodNames.push(name);
+        }
+        continue;
+      }
+
+      propertyNames.push(name);
+    }
     return {
       propertyNames,
       accessorNames,

@@ -1,7 +1,7 @@
 {
   "name": "kurage",
   "version": "0.1.0",
-  "description": "A flexible runtime for REPL, exec, and run.",
+  "description": "Flexible JavaScript runtime.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -11,11 +11,14 @@ var Runtime = class Runtime {
     return Object.hasOwn(process.versions, name);
   }
   static {
-    for (const name of names)
-      if (Object.hasOwn(process.versions, name)) {
-        Runtime.#name = name;
-        break;
-      }
+    const runtimeName = (process.env.KURAGE_RUNTIME_NAME ?? '').toLowerCase();
+    if (names.includes(runtimeName)) Runtime.#name = runtimeName;
+    else
+      for (const name of names)
+        if (Object.hasOwn(process.versions, name)) {
+          Runtime.#name = name;
+          break;
+        }
   }
 };
 

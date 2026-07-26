@@ -5,6 +5,7 @@ import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command } from './command.js';
 import { Duration } from './duration.js';
+import { Eval } from './eval.js';
 import { Exception } from './exception.js';
 import { Line } from './line.js';
 import { Logger } from './logger.js';
@@ -47,6 +48,7 @@ export declare const kurage: {
   color: typeof Color;
   command: typeof Command;
   duration: typeof Duration;
+  eval: typeof Eval;
   exception: typeof Exception;
   line: typeof Line;
   log: (name: string, arg: unknown, time?: Time) => void;

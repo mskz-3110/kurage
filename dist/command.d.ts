@@ -21,7 +21,6 @@ export declare class Command {
     defaultStdio: StdioOptions
   ): SpawnOptions;
   static new(...args: ConstructorParameters<typeof Command>): Command;
-  get command(): string;
   get args(): readonly string[];
   get stopwatch(): Stopwatch;
   get process(): ChildProcess | undefined;

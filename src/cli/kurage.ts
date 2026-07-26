@@ -1,5 +1,6 @@
 import type { PackageJson } from '../kurage.js';
 import kurage from '../kurage.js';
+import { evalAsync } from './eval.js';
 import { execAsync } from './exec.js';
 import { execJsonAsync } from './exec-json.js';
 import { infoJsonAsync } from './info-json.js';
@@ -15,6 +16,7 @@ ${packageJson.description}
 
 Commands:
   repl                          start REPL mode (default)
+  eval <code>                   evaluate JavaScript code
   exec <command> [args...]      execute a command
   exec-json <command> [args...] execute a command and output result as JSON
   run <file> [args...]          run a file
@@ -28,6 +30,7 @@ Options:
 Examples:
   ${packageJson.name}
   ${packageJson.name} repl
+  ${packageJson.name} eval "console.log($.inspect(kurage));"
   ${packageJson.name} exec cat script.js
   ${packageJson.name} exec-json cat script.js
   ${packageJson.name} run script.js
@@ -38,6 +41,7 @@ Examples:
 };
 
 const cliActions: Record<string, () => Promise<void>> = {
+  'eval': evalAsync,
   'exec-json': execJsonAsync,
   'exec': execAsync,
   'info-json': infoJsonAsync,

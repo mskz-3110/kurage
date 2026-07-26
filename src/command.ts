@@ -121,12 +121,6 @@ export class Command {
     return new Command(...args);
   }
 
-  #command: string = '';
-
-  get command(): string {
-    return this.#command;
-  }
-
   #args: string[] = [];
 
   get args(): readonly string[] {
@@ -160,8 +154,7 @@ export class Command {
   }
 
   constructor(args: readonly string[]) {
-    this.#command = args[0] ?? '';
-    this.#args = args.slice(1);
+    this.#args = [...args];
   }
 
   #appendExceptionMessage() {
@@ -201,7 +194,7 @@ export class Command {
       this.#process = undefined;
       this.#exception = undefined;
 
-      if (this.#command === '') {
+      if (this.#args.length === 0) {
         return this;
       }
 
@@ -218,7 +211,11 @@ export class Command {
           mergedOptions.stdio[2] = 'pipe';
         }
       }
-      this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
+      this.#process = childProcessModule.spawn(
+        this.#args[0]!,
+        this.#args.slice(1),
+        mergedOptions
+      );
 
       if (this.#process.stdout != null && stdout != null) {
         this.#process.stdout.pipe(stdout);
@@ -288,11 +285,10 @@ export class Command {
   }
 
   toString(): string {
-    return [
-      this.#command,
-      ...this.#args.map((arg) =>
+    return this.#args
+      .map((arg) =>
         Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg)
-      ),
-    ].join(' ');
+      )
+      .join(' ');
   }
 }

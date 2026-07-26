@@ -2,19 +2,10 @@
 import kurage from '../kurage.js';
 
 async function replAsync() {
-  const packageName = kurage.packageJson.name;
-  const replCode = kurage.line
-    .split(
-      `
-globalThis.${packageName} = (await import('${packageName}')).default;
-globalThis.$ = globalThis.${packageName}.spellbook;
-kurage.process.cleanup();
-  `.trim()
-    )
-    .join('');
+  const replCode = kurage.eval.replCode;
   console.error(kurage.color.$.paint('magenta', replCode));
-  const runtimeName = kurage.process.args[0] ?? kurage.runtime.name;
   let commandArgs = [];
+  const runtimeName = kurage.runtime.name;
   if (runtimeName === 'node')
     if (kurage.runtime.supported('webcontainer')) commandArgs = ['node', '-i'];
     else commandArgs = ['node', '-i', '-e', replCode];

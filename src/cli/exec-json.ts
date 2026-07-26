@@ -17,7 +17,6 @@ export async function execJsonAsync() {
   console.log(
     JSON.stringify(
       {
-        command: command.command,
         args: command.args,
         cwd: process.cwd(),
         time: {

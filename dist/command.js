@@ -88,10 +88,6 @@ var Command = class Command {
   static new(...args) {
     return new Command(...args);
   }
-  #command = '';
-  get command() {
-    return this.#command;
-  }
   #args = [];
   get args() {
     return this.#args;
@@ -114,8 +110,7 @@ var Command = class Command {
     return this.#exception;
   }
   constructor(args) {
-    this.#command = args[0] ?? '';
-    this.#args = args.slice(1);
+    this.#args = [...args];
   }
   #appendExceptionMessage() {
     if (this.#exception != null)
@@ -145,7 +140,7 @@ var Command = class Command {
     try {
       this.#process = void 0;
       this.#exception = void 0;
-      if (this.#command === '') return this;
+      if (this.#args.length === 0) return this;
       let stdout;
       let stderr;
       const mergedOptions = Command.mergeStdio(options, [], 'inherit');
@@ -159,7 +154,11 @@ var Command = class Command {
           mergedOptions.stdio[2] = 'pipe';
         }
       }
-      this.#process = childProcessModule.spawn(this.command, this.args, mergedOptions);
+      this.#process = childProcessModule.spawn(
+        this.#args[0],
+        this.#args.slice(1),
+        mergedOptions
+      );
       if (this.#process.stdout != null && stdout != null)
         this.#process.stdout.pipe(stdout);
       if (this.#process.stderr != null && stderr != null)
@@ -210,12 +209,11 @@ var Command = class Command {
     return this.throwIfException();
   }
   toString() {
-    return [
-      this.#command,
-      ...this.#args.map((arg) =>
+    return this.#args
+      .map((arg) =>
         Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg)
-      ),
-    ].join(' ');
+      )
+      .join(' ');
   }
 };
 

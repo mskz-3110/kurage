@@ -18,10 +18,15 @@ export class Runtime {
   }
 
   static {
-    for (const name of names) {
-      if (Object.hasOwn(process.versions, name)) {
-        Runtime.#name = name;
-        break;
+    const runtimeName = (process.env.KURAGE_RUNTIME_NAME ?? '').toLowerCase();
+    if ((names as unknown as string[]).includes(runtimeName)) {
+      Runtime.#name = runtimeName as Name;
+    } else {
+      for (const name of names) {
+        if (Object.hasOwn(process.versions, name)) {
+          Runtime.#name = name;
+          break;
+        }
       }
     }
   }
