@@ -133,10 +133,10 @@ var Spellbook = class Spellbook {
         `${message !== '' ? `${message} ` : ''}${JSON.stringify([value1, value2], null, 2)}`
       );
   }
-  static analyzeClass(value, ignoreNames) {
-    const propertyNames = [];
-    const accessorNames = [];
-    const methodNames = [];
+  static parseMemberNames(value, ignoreNames) {
+    const properties = [];
+    const accessors = [];
+    const methods = [];
     let descriptors = Object.entries(Object.getOwnPropertyDescriptors(value));
     if (descriptors.length === 0)
       descriptors = Object.entries(
@@ -145,20 +145,20 @@ var Spellbook = class Spellbook {
     for (const [name, descriptor] of descriptors) {
       if (ignoreNames.includes(name)) continue;
       if (typeof descriptor.get === 'function' || typeof descriptor.set === 'function') {
-        accessorNames.push(name);
+        accessors.push(name);
         continue;
       }
       if (typeof descriptor.value === 'function') {
-        if (descriptor.value.toString().startsWith('class ')) propertyNames.push(name);
-        else methodNames.push(name);
+        if (descriptor.value.toString().startsWith('class ')) properties.push(name);
+        else methods.push(name);
         continue;
       }
-      propertyNames.push(name);
+      properties.push(name);
     }
     return {
-      propertyNames,
-      accessorNames,
-      methodNames,
+      properties,
+      accessors,
+      methods,
     };
   }
   static inspect(
@@ -171,12 +171,12 @@ var Spellbook = class Spellbook {
   ) {
     if (value == null) return String(value);
     if (typeof value === 'function')
-      return `${Color.$.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(Spellbook.analyzeClass(value, ignoreStaticNames), options)}`;
+      return `${Color.$.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(Spellbook.parseMemberNames(value, ignoreStaticNames), options)}`;
     if (typeof value === 'object') {
       if ('toJSON' in value && typeof value.toJSON === 'function')
         return utilModule.inspect(value.toJSON(), options);
       return utilModule.inspect(
-        Spellbook.analyzeClass(value, ignoreInstanceNames),
+        Spellbook.parseMemberNames(value, ignoreInstanceNames),
         options
       );
     }

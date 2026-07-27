@@ -21,10 +21,10 @@ import { Path } from './path.js';
 
 export type DirBlock = () => Promise<void>;
 
-export type ClassSummary = {
-  propertyNames: string[];
-  accessorNames: string[];
-  methodNames: string[];
+export type MemberNames = {
+  properties: string[];
+  accessors: string[];
+  methods: string[];
 };
 
 const ignoreStaticNames: string[] = ['length', 'name', 'prototype'];
@@ -202,10 +202,10 @@ export class Spellbook {
     }
   }
 
-  static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary {
-    const propertyNames: string[] = [];
-    const accessorNames: string[] = [];
-    const methodNames: string[] = [];
+  static parseMemberNames(value: unknown, ignoreNames: readonly string[]): MemberNames {
+    const properties: string[] = [];
+    const accessors: string[] = [];
+    const methods: string[] = [];
     let descriptors = Object.entries(Object.getOwnPropertyDescriptors(value));
     if (descriptors.length === 0) {
       descriptors = Object.entries(
@@ -218,25 +218,25 @@ export class Spellbook {
       }
 
       if (typeof descriptor.get === 'function' || typeof descriptor.set === 'function') {
-        accessorNames.push(name);
+        accessors.push(name);
         continue;
       }
 
       if (typeof descriptor.value === 'function') {
         if ((descriptor.value.toString() as string).startsWith('class ')) {
-          propertyNames.push(name);
+          properties.push(name);
         } else {
-          methodNames.push(name);
+          methods.push(name);
         }
         continue;
       }
 
-      propertyNames.push(name);
+      properties.push(name);
     }
     return {
-      propertyNames,
-      accessorNames,
-      methodNames,
+      properties,
+      accessors,
+      methods,
     };
   }
 
@@ -250,7 +250,7 @@ export class Spellbook {
 
     if (typeof value === 'function') {
       return `${Color.$.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(
-        Spellbook.analyzeClass(value, ignoreStaticNames),
+        Spellbook.parseMemberNames(value, ignoreStaticNames),
         options
       )}`;
     }
@@ -261,7 +261,7 @@ export class Spellbook {
       }
 
       return utilModule.inspect(
-        Spellbook.analyzeClass(value, ignoreInstanceNames),
+        Spellbook.parseMemberNames(value, ignoreInstanceNames),
         options
       );
     }

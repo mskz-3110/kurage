@@ -9,10 +9,10 @@ import type { Readable } from 'node:stream';
 import type { URL } from 'node:url';
 import type { InspectOptions } from 'node:util';
 export type DirBlock = () => Promise<void>;
-export type ClassSummary = {
-  propertyNames: string[];
-  accessorNames: string[];
-  methodNames: string[];
+export type MemberNames = {
+  properties: string[];
+  accessors: string[];
+  methods: string[];
 };
 export declare class Spellbook {
   #private;
@@ -48,6 +48,6 @@ export declare class Spellbook {
   static readStreamLinesAsync(stream: Readable): Promise<string[]>;
   static readLinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
   static assertEqual(value1: unknown, value2: unknown, message?: string): void;
-  static analyzeClass(value: unknown, ignoreNames: readonly string[]): ClassSummary;
+  static parseMemberNames(value: unknown, ignoreNames: readonly string[]): MemberNames;
   static inspect(value: unknown, options?: InspectOptions): string;
 }

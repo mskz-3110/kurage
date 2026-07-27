@@ -30,7 +30,7 @@ Options:
 Examples:
   ${packageJson.name}
   ${packageJson.name} repl
-  ${packageJson.name} eval "console.log($.inspect(kurage));"
+  ${packageJson.name} eval "console.log(${packageJson.name}.spellbook.inspect(${packageJson.name}));"
   ${packageJson.name} exec cat script.js
   ${packageJson.name} exec-json cat script.js
   ${packageJson.name} run script.js
