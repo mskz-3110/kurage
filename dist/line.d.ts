@@ -9,6 +9,7 @@ export declare class Scanner {
   static new(...args: ConstructorParameters<typeof Scanner>): Scanner;
   constructor(matchers: Matchers);
   scan(index: number, line: string): Match | undefined;
+  set(name: string, matcher: RegExp): Scanner;
 }
 export declare class Line {
   static eol: string;

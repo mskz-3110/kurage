@@ -41,7 +41,9 @@
     "build:src": "biome check --write src && rolldown --config && biome format dist --write && tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts && biome check --write .",
     "build:bin": "bun build src/cli/kurage.ts --compile --compile-autoload-package-json --outfile bin/kurage",
     "build:all": "npm run build:src && npm run build:bin",
-    "chmod": "chmod +x dist/cli/*.js scripts/*.js examples/*.js tools/**/*.js && git update-index --chmod=+x dist/cli/*.js scripts/*.js examples/*.js tools/**/*.js"
+    "chmod": "chmod +x dist/cli/*.js scripts/*.js examples/*.js tools/**/*.js && git update-index --chmod=+x dist/cli/*.js scripts/*.js examples/*.js tools/**/*.js",
+    "test": "vitest run --coverage",
+    "ci": "npm run build:src && npm run test"
   },
   "engines": {
     "node": ">=22"
@@ -49,7 +51,9 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.1",
     "@types/node": "^26.0.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "rolldown": "^1.1.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }
