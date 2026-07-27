@@ -10,7 +10,14 @@ export class Time {
     fractionalSecondDigits: 3,
   };
 
-  static formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat('ja-JP', Time.#options);
+  static #formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
+    'ja-JP',
+    Time.#options
+  );
+
+  static get formatter(): Intl.DateTimeFormat {
+    return Time.#formatter;
+  }
 
   static #driftThreshold: number = 100;
 
@@ -59,7 +66,7 @@ export class Time {
     return this.date.getTime() - baseTime.date.getTime();
   }
 
-  toString(): string {
-    return Time.formatter.format(this.#date);
+  toString(formatter: Intl.DateTimeFormat = Time.formatter): string {
+    return formatter.format(this.#date);
   }
 }

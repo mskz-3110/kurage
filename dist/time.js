@@ -9,7 +9,10 @@ var Time = class Time {
     hour12: false,
     fractionalSecondDigits: 3,
   };
-  static formatter = new Intl.DateTimeFormat('ja-JP', Time.#options);
+  static #formatter = new Intl.DateTimeFormat('ja-JP', Time.#options);
+  static get formatter() {
+    return Time.#formatter;
+  }
   static #driftThreshold = 100;
   static get driftThreshold() {
     return Time.#driftThreshold;
@@ -44,8 +47,8 @@ var Time = class Time {
   since(baseTime) {
     return this.date.getTime() - baseTime.date.getTime();
   }
-  toString() {
-    return Time.formatter.format(this.#date);
+  toString(formatter = Time.formatter) {
+    return formatter.format(this.#date);
   }
 };
 

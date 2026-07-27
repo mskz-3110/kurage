@@ -1,6 +1,6 @@
 export declare class Time {
   #private;
-  static formatter: Intl.DateTimeFormat;
+  static get formatter(): Intl.DateTimeFormat;
   static get driftThreshold(): number;
   static set driftThreshold(value: number);
   static now(): number;
@@ -8,5 +8,5 @@ export declare class Time {
   get date(): Date;
   constructor();
   since(baseTime: Time): number;
-  toString(): string;
+  toString(formatter?: Intl.DateTimeFormat): string;
 }
