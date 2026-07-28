@@ -21,23 +21,24 @@ export class Duration {
   static #parseRegex: RegExp = /^(\d+(?:\.\d+)?)\s*([a-z]*)$/i;
 
   static parse(string: string): Duration {
-    let ms = 0;
     const match = string.match(Duration.#parseRegex);
-    if (match != null) {
-      const amount = parseFloat(match[1]!);
-      const unit = match[2]!.toLowerCase();
-      if (unit === '' || unit === 'ms') {
-        ms = Math.round(amount);
-      } else {
-        for (const timeScale of Duration.#timeScales) {
-          if (timeScale.unit === unit) {
-            ms = Math.round(amount * timeScale.threshold);
-            break;
-          }
-        }
+    if (match == null) {
+      throw new Error(`Invalid string: ${string}`);
+    }
+
+    const amount = parseFloat(match[1]!);
+    const unit = match[2]!.toLowerCase();
+    if (unit === '' || unit === 'ms') {
+      return Duration.new(Math.round(amount));
+    }
+
+    for (const timeScale of Duration.#timeScales) {
+      if (timeScale.unit === unit) {
+        return Duration.new(Math.round(amount * timeScale.threshold));
       }
     }
-    return Duration.new(ms);
+
+    throw new Error(`Invalid unit: ${unit}`);
   }
 
   static new(...args: ConstructorParameters<typeof Duration>): Duration {
