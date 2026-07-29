@@ -36,8 +36,7 @@ describe('Time', () => {
   });
 
   it('new', () => {
-    const time = Time.new();
-    expect(time.date instanceof Date).toBe(true);
+    expect(Time.new().date instanceof Date).toBe(true);
   });
 
   it('since', () => {
