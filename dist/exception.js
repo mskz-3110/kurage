@@ -4,9 +4,13 @@ var Exception = class Exception {
   }
   error;
   constructor(error) {
-    if (error instanceof Exception) this.error = error.error;
-    else if (error instanceof Error) this.error = error;
-    else this.error = new Error(String(error));
+    if (error instanceof Exception) {
+      this.error = new Error(error.error.message);
+      this.error.stack = error.error.stack ?? '';
+    } else if (error instanceof Error) {
+      this.error = new Error(error.message);
+      this.error.stack = error.stack ?? '';
+    } else this.error = new Error(String(error));
   }
   toString() {
     return this.error.stack ?? this.error.message;

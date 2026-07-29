@@ -7,9 +7,11 @@ export class Exception {
 
   constructor(error: unknown) {
     if (error instanceof Exception) {
-      this.error = error.error;
+      this.error = new Error(error.error.message);
+      this.error.stack = error.error.stack ?? '';
     } else if (error instanceof Error) {
-      this.error = error;
+      this.error = new Error(error.message);
+      this.error.stack = error.stack ?? '';
     } else {
       this.error = new Error(String(error));
     }
