@@ -3,7 +3,7 @@ import kurage from '../kurage.js';
 
 async function replAsync() {
   const replCode = kurage.runtime.replCode;
-  console.error(kurage.color.paint('magenta', replCode));
+  kurage.logger.err(kurage.color.paint('magenta', replCode));
   let commandArgs = ['node', '-i', '-e', replCode];
   if (kurage.runtime.name === 'bun') commandArgs = ['bun', 'repl'];
   await kurage.$exit(commandArgs);

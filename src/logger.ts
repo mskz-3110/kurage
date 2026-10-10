@@ -15,6 +15,10 @@ export type Handler = {
 export class Logger {
   static #handlers: Record<string, Handler[]> = {};
 
+  static #outStreams: NodeJS.WritableStream[] = [process.stdout];
+
+  static #errStreams: NodeJS.WritableStream[] = [process.stderr];
+
   static #invalidNames: string[] = [
     ...Object.getOwnPropertyNames(Logger),
     ...Object.getOwnPropertyNames(Logger.prototype),
@@ -27,32 +31,52 @@ export class Logger {
     Color.set('error', Color.get('red'));
 
     Logger.addHandler('debug', {
-      write: console.log,
+      write: Logger.out,
       format: (time: Time, arg: any) => {
         return Color.paint('debug', Logger.format(time, arg));
       },
     });
 
     Logger.addHandler('info', {
-      write: console.log,
+      write: Logger.out,
       format: (time: Time, arg: any) => {
         return Color.paint('info', Logger.format(time, arg));
       },
     });
 
     Logger.addHandler('warn', {
-      write: console.error,
+      write: Logger.err,
       format: (time: Time, arg: any) => {
         return Color.paint('warn', Logger.format(time, arg));
       },
     });
 
     Logger.addHandler('error', {
-      write: console.error,
+      write: Logger.err,
       format: (time: Time, arg: any) => {
         return Color.paint('error', Logger.format(time, arg));
       },
     });
+  }
+
+  static out(message: string) {
+    for (const stream of Logger.#outStreams) {
+      stream.write(`${message}${Line.eol}`);
+    }
+  }
+
+  static err(message: string) {
+    for (const stream of Logger.#errStreams) {
+      stream.write(`${message}${Line.eol}`);
+    }
+  }
+
+  static addOutStream(stream: NodeJS.WritableStream) {
+    Logger.#outStreams.push(stream);
+  }
+
+  static addErrStream(stream: NodeJS.WritableStream) {
+    Logger.#errStreams.push(stream);
   }
 
   static format(time: Time, arg: any): string {
@@ -85,7 +109,7 @@ export class Logger {
 
   static write(name: string, arg: any, time: Time = Time.new()) {
     if (!Object.hasOwn(Logger.#handlers, name)) {
-      console.error(
+      Logger.err(
         `Undefined logger name: ${name} # ${String(arg)}${Line.eol}${Backtrace.new()}`
       );
       return;

@@ -1,7 +1,7 @@
 import kurage from '../kurage.js';
 
 export async function infoJsonAsync() {
-  console.log(
+  kurage.logger.out(
     JSON.stringify(
       {
         process: {

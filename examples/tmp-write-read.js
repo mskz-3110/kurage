@@ -4,7 +4,7 @@ const $ = kurage.spellbook;
 
 await $.mkdirAsync(kurage.path.join([await $.tmpdirAsync(), 'kurage']), async () => {
   let path = $.absolute('test.txt');
-  console.log(
+  kurage.logger.out(
     JSON.stringify(
       {
         dirname: $.dirname(path),

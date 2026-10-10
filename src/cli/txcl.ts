@@ -8,19 +8,19 @@ export async function txclAsync() {
     const lines = process.stdin.isTTY ? [] : await $.readStreamLinesAsync(process.stdin);
     const replacedLines = await transcluder.transcludeLinesAsync(process.cwd(), lines);
     if (kurage.transcluder.equals(lines, replacedLines)) {
-      console.error(kurage.color.paint('gray', `Skipped`));
+      kurage.logger.err(kurage.color.paint('gray', `Skipped`));
     } else {
-      console.error(kurage.color.paint('cyan', `Updated`));
+      kurage.logger.err(kurage.color.paint('cyan', `Updated`));
     }
-    console.log(kurage.line.join(replacedLines));
+    kurage.logger.out(kurage.line.join(replacedLines));
     process.exit(0);
   }
 
   for (const path of kurage.process.args) {
     if (await transcluder.transcludeFileAsync(path)) {
-      console.error(kurage.color.paint('cyan', `Updated: ${path}`));
+      kurage.logger.err(kurage.color.paint('cyan', `Updated: ${path}`));
     } else {
-      console.error(kurage.color.paint('gray', `Skipped: ${path}`));
+      kurage.logger.err(kurage.color.paint('gray', `Skipped: ${path}`));
     }
   }
 }

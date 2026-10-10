@@ -30,7 +30,7 @@ Options:
 Examples:
   ${packageJson.name}
   ${packageJson.name} repl
-  ${packageJson.name} eval "console.log(${packageJson.name}.spellbook.inspect(${packageJson.name}));"
+  ${packageJson.name} eval "kurage.logger.out(${packageJson.name}.spellbook.inspect(${packageJson.name}));"
   ${packageJson.name} exec cat script.js
   ${packageJson.name} exec-json cat script.js
   ${packageJson.name} run script.js
@@ -58,17 +58,18 @@ else if (Object.keys(cliActions).includes(mode)) {
   (async () => {
     await cliActions[mode]();
   })();
-} else if (['-v', '--version'].includes(mode)) console.log(kurage.packageJson.version);
+} else if (['-v', '--version'].includes(mode))
+  kurage.logger.out(kurage.packageJson.version);
 else if (['-h', '--help'].includes(mode))
-  console.log(createHelpMessage(kurage.packageJson));
+  kurage.logger.out(createHelpMessage(kurage.packageJson));
 else if (kurage.spellbook.exists(process.argv[2]))
   (async () => {
     await cliActions.run();
   })();
 else {
-  console.error(
+  kurage.logger.err(
     kurage.color.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
   );
-  console.log(createHelpMessage(kurage.packageJson));
+  kurage.logger.out(createHelpMessage(kurage.packageJson));
   process.exit(1);
 }

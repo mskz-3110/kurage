@@ -15,7 +15,7 @@ for (const name of kurage.runtime.names) {
     continue;
   }
 
-  console.error(kurage.color.paint('magenta', `<${name}>`));
+  kurage.logger.err(kurage.color.paint('magenta', `<${name}>`));
   for (const script of files) {
     await kurage.$([name, script]);
   }

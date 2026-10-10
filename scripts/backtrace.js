@@ -2,12 +2,12 @@ const { kurage } = await import('kurage');
 const { inspect } = await import('node:util');
 
 const offset = parseInt(kurage.process.args[0] ?? '0', 10) || 0;
-console.log(inspect({ offset }));
+kurage.logger.out(inspect({ offset }));
 
-console.log(kurage.backtrace.new(offset).toString());
-console.log('');
+kurage.logger.out(kurage.backtrace.new(offset).toString());
+kurage.logger.out('');
 
 const checkAsync = async () => {
-  console.log(new kurage.backtrace(offset).toString());
+  kurage.logger.out(new kurage.backtrace(offset).toString());
 };
 await checkAsync();

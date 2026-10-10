@@ -5,6 +5,8 @@ import { Time } from './time.js';
 
 var Logger = class Logger {
   static #handlers = {};
+  static #outStreams = [process.stdout];
+  static #errStreams = [process.stderr];
   static #invalidNames = [
     ...Object.getOwnPropertyNames(Logger),
     ...Object.getOwnPropertyNames(Logger.prototype),
@@ -15,29 +17,41 @@ var Logger = class Logger {
     Color.set('warn', Color.get('yellow'));
     Color.set('error', Color.get('red'));
     Logger.addHandler('debug', {
-      write: console.log,
+      write: Logger.out,
       format: (time, arg) => {
         return Color.paint('debug', Logger.format(time, arg));
       },
     });
     Logger.addHandler('info', {
-      write: console.log,
+      write: Logger.out,
       format: (time, arg) => {
         return Color.paint('info', Logger.format(time, arg));
       },
     });
     Logger.addHandler('warn', {
-      write: console.error,
+      write: Logger.err,
       format: (time, arg) => {
         return Color.paint('warn', Logger.format(time, arg));
       },
     });
     Logger.addHandler('error', {
-      write: console.error,
+      write: Logger.err,
       format: (time, arg) => {
         return Color.paint('error', Logger.format(time, arg));
       },
     });
+  }
+  static out(message) {
+    for (const stream of Logger.#outStreams) stream.write(`${message}${Line.eol}`);
+  }
+  static err(message) {
+    for (const stream of Logger.#errStreams) stream.write(`${message}${Line.eol}`);
+  }
+  static addOutStream(stream) {
+    Logger.#outStreams.push(stream);
+  }
+  static addErrStream(stream) {
+    Logger.#errStreams.push(stream);
   }
   static format(time, arg) {
     return `[${time}] ${String(arg)}`;
@@ -58,7 +72,7 @@ var Logger = class Logger {
   }
   static write(name, arg, time = Time.new()) {
     if (!Object.hasOwn(Logger.#handlers, name)) {
-      console.error(
+      Logger.err(
         `Undefined logger name: ${name} # ${String(arg)}${Line.eol}${Backtrace.new()}`
       );
       return;

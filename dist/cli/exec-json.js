@@ -14,7 +14,7 @@ async function execJsonAsync() {
     command.process.stdin.end();
   }
   await exec;
-  console.log(
+  kurage.logger.out(
     JSON.stringify(
       {
         string: command.toString(),

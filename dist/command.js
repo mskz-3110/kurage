@@ -59,7 +59,7 @@ var Command = class Command {
     Color.set('success', Color.get('green'));
     Color.set('failure', Color.get('red'));
     Logger.addHandler('command-start', {
-      write: console.error,
+      write: Logger.err,
       format: (_, command) => {
         return [
           Color.paint('time', `[${command.stopwatch.startTime}]`),
@@ -69,7 +69,7 @@ var Command = class Command {
       },
     });
     Logger.addHandler('command-end', {
-      write: console.error,
+      write: Logger.err,
       format: (_, command) => {
         const exitCode = command.exitCode;
         return [
