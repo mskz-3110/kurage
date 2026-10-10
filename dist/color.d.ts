@@ -1,10 +1,8 @@
 export declare class Color {
   #private;
-  static $: Color;
   static get enabled(): boolean;
-  static new(...args: ConstructorParameters<typeof Color>): Color;
-  get names(): readonly string[];
-  get(name: string): string;
-  set(name: string, value: string): void;
-  paint(name: string, message: string, enabled?: boolean): string;
+  static get names(): readonly string[];
+  static get(name: string): string;
+  static set(name: string, value: string): void;
+  static paint(name: string, message: string, enabled?: boolean): string;
 }

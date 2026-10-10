@@ -8,9 +8,9 @@ export async function txclAsync() {
     const lines = process.stdin.isTTY ? [] : await $.readStreamLinesAsync(process.stdin);
     const replacedLines = await transcluder.transcludeLinesAsync(process.cwd(), lines);
     if (kurage.transcluder.equals(lines, replacedLines)) {
-      console.error(kurage.color.$.paint('gray', `Skipped`));
+      console.error(kurage.color.paint('gray', `Skipped`));
     } else {
-      console.error(kurage.color.$.paint('cyan', `Updated`));
+      console.error(kurage.color.paint('cyan', `Updated`));
     }
     console.log(kurage.line.join(replacedLines));
     process.exit(0);
@@ -18,9 +18,9 @@ export async function txclAsync() {
 
   for (const path of kurage.process.args) {
     if (await transcluder.transcludeFileAsync(path)) {
-      console.error(kurage.color.$.paint('cyan', `Updated: ${path}`));
+      console.error(kurage.color.paint('cyan', `Updated: ${path}`));
     } else {
-      console.error(kurage.color.$.paint('gray', `Skipped: ${path}`));
+      console.error(kurage.color.paint('gray', `Skipped: ${path}`));
     }
   }
 }

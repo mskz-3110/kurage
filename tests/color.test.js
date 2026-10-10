@@ -6,31 +6,30 @@ describe('Color', () => {
   });
 
   it('names', () => {
-    expect(Color.$.names.length).toBeGreaterThan(0);
+    expect(Color.names.length).toBeGreaterThan(0);
   });
 
   it('get', () => {
-    expect(Color.$.get('red')).toBe('\u001b[31m');
-    expect(Color.$.get('unknown')).toBe('');
+    expect(Color.get('red')).toBe('\u001b[31m');
+    expect(Color.get('unknown')).toBe('');
   });
 
   it('set', () => {
-    const color = Color.new();
-    color.set('custom', 'value');
-    expect(color.get('custom')).toBe('value');
+    Color.set('custom', 'value');
+    expect(Color.get('custom')).toBe('value');
 
-    color.set('', '');
-    expect(color.get('')).toBe('');
+    Color.set('', '');
+    expect(Color.get('')).toBe('');
   });
 
   it('paint', () => {
     const hasColors = process.stdout.hasColors;
     process.stdout.hasColors = () => true;
 
-    expect(Color.$.paint('red', 'text')).toBe('\u001b[31mtext\u001b[0m');
-    expect(Color.$.paint('reset', 'text')).toBe('\u001b[0mtext');
-    expect(Color.$.paint('red', '')).toBe('');
-    expect(Color.$.paint('unknown', 'text')).toBe('text');
+    expect(Color.paint('red', 'text')).toBe('\u001b[31mtext\u001b[0m');
+    expect(Color.paint('reset', 'text')).toBe('\u001b[0mtext');
+    expect(Color.paint('red', '')).toBe('');
+    expect(Color.paint('unknown', 'text')).toBe('text');
 
     process.stdout.hasColors = hasColors;
   });

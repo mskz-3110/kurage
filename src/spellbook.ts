@@ -249,7 +249,7 @@ export class Spellbook {
     }
 
     if (typeof value === 'function') {
-      return `${Color.$.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(
+      return `${Color.paint('inspect-class', `[class ${value.name}]`, options.colors)} ${utilModule.inspect(
         Spellbook.parseMemberNames(value, ignoreStaticNames),
         options
       )}`;
@@ -270,6 +270,6 @@ export class Spellbook {
   }
 
   static {
-    Color.$.set('inspect-class', Color.$.get('cyan'));
+    Color.set('inspect-class', Color.get('cyan'));
   }
 }

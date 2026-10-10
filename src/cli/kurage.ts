@@ -69,7 +69,7 @@ if (mode === '') {
   })();
 } else {
   console.error(
-    kurage.color.$.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
+    kurage.color.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
   );
   console.log(createHelpMessage(kurage.packageJson));
   process.exit(1);

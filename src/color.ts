@@ -1,5 +1,19 @@
 export class Color {
-  static $: Color = Color.new();
+  static #colors: Record<string, string> = {
+    reset: '\u001b[0m',
+    red: '\u001b[31m',
+    green: '\u001b[32m',
+    yellow: '\u001b[33m',
+    blue: '\u001b[34m',
+    magenta: '\u001b[35m',
+    cyan: '\u001b[36m',
+    gray: '\u001b[90m',
+  };
+
+  static #invalidNames: string[] = [
+    ...Object.getOwnPropertyNames(Color),
+    ...Object.getOwnPropertyNames(Color.prototype),
+  ];
 
   static get enabled(): boolean {
     return typeof process.stdout.hasColors === 'function'
@@ -7,55 +21,33 @@ export class Color {
       : false;
   }
 
-  static {
-    Color.$.set('reset', '\u001b[0m');
-    Color.$.set('red', '\u001b[31m');
-    Color.$.set('green', '\u001b[32m');
-    Color.$.set('yellow', '\u001b[33m');
-    Color.$.set('blue', '\u001b[34m');
-    Color.$.set('magenta', '\u001b[35m');
-    Color.$.set('cyan', '\u001b[36m');
-    Color.$.set('gray', '\u001b[90m');
+  static get names(): readonly string[] {
+    return Object.keys(Color.#colors);
   }
 
-  static new(...args: ConstructorParameters<typeof Color>): Color {
-    return new Color(...args);
+  static get(name: string): string {
+    return Color.#colors[name] ?? '';
   }
 
-  #invalidNames: string[] = [
-    ...Object.getOwnPropertyNames(Color),
-    ...Object.getOwnPropertyNames(Color.prototype),
-  ];
-
-  #colors: Record<string, string> = {};
-
-  get names(): readonly string[] {
-    return Object.keys(this.#colors);
-  }
-
-  get(name: string): string {
-    return this.#colors[name] ?? '';
-  }
-
-  set(name: string, value: string) {
-    if (this.#invalidNames.includes(name) || name === '') {
+  static set(name: string, value: string) {
+    if (Color.#invalidNames.includes(name) || name === '') {
       return;
     }
 
-    this.#colors[name] = value;
+    Color.#colors[name] = value;
   }
 
-  paint(name: string, message: string, enabled: boolean = true): string {
+  static paint(name: string, message: string, enabled: boolean = true): string {
     if (!enabled || !Color.enabled || message === '') {
       return message;
     }
 
-    const value = this.get(name);
+    const value = Color.get(name);
     if (value === '') {
       return message;
     }
 
-    const reset = this.get('reset');
+    const reset = Color.get('reset');
     return value === reset ? `${value}${message}` : `${value}${message}${reset}`;
   }
 }

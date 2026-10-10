@@ -67,7 +67,7 @@ else if (kurage.spellbook.exists(process.argv[2]))
   })();
 else {
   console.error(
-    kurage.color.$.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
+    kurage.color.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
   );
   console.log(createHelpMessage(kurage.packageJson));
   process.exit(1);

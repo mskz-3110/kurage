@@ -9,32 +9,32 @@ var Logger = class Logger {
     return `[${time}] ${String(arg)}`;
   }
   static {
-    Color.$.set('debug', Color.$.get('cyan'));
-    Color.$.set('info', Color.$.get('reset'));
-    Color.$.set('warn', Color.$.get('yellow'));
-    Color.$.set('error', Color.$.get('red'));
+    Color.set('debug', Color.get('cyan'));
+    Color.set('info', Color.get('reset'));
+    Color.set('warn', Color.get('yellow'));
+    Color.set('error', Color.get('red'));
     Logger.$.addHandler('debug', {
       write: console.log,
       format: (time, arg) => {
-        return Color.$.paint('debug', Logger.format(time, arg));
+        return Color.paint('debug', Logger.format(time, arg));
       },
     });
     Logger.$.addHandler('info', {
       write: console.log,
       format: (time, arg) => {
-        return Color.$.paint('info', Logger.format(time, arg));
+        return Color.paint('info', Logger.format(time, arg));
       },
     });
     Logger.$.addHandler('warn', {
       write: console.error,
       format: (time, arg) => {
-        return Color.$.paint('warn', Logger.format(time, arg));
+        return Color.paint('warn', Logger.format(time, arg));
       },
     });
     Logger.$.addHandler('error', {
       write: console.error,
       format: (time, arg) => {
-        return Color.$.paint('error', Logger.format(time, arg));
+        return Color.paint('error', Logger.format(time, arg));
       },
     });
   }

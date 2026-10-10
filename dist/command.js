@@ -53,19 +53,19 @@ var Command = class Command {
     return mergedOptions;
   }
   static {
-    Color.$.set('time', Color.$.get('cyan'));
-    Color.$.set('path', Color.$.get('yellow'));
-    Color.$.set('command', Color.$.get('gray'));
-    Color.$.set('duration', Color.$.get('gray'));
-    Color.$.set('success', Color.$.get('green'));
-    Color.$.set('failure', Color.$.get('red'));
+    Color.set('time', Color.get('cyan'));
+    Color.set('path', Color.get('yellow'));
+    Color.set('command', Color.get('gray'));
+    Color.set('duration', Color.get('gray'));
+    Color.set('success', Color.get('green'));
+    Color.set('failure', Color.get('red'));
     Logger.$.addHandler('command-start', {
       write: console.error,
       format: (_, command) => {
         return [
-          Color.$.paint('time', `[${command.stopwatch.startTime}]`),
-          Color.$.paint('path', process.cwd()),
-          `@ ${Color.$.paint('command', command.toString())}`,
+          Color.paint('time', `[${command.stopwatch.startTime}]`),
+          Color.paint('path', process.cwd()),
+          `@ ${Color.paint('command', command.toString())}`,
         ].join(' ');
       },
     });
@@ -74,13 +74,13 @@ var Command = class Command {
       format: (_, command) => {
         const exitCode = command.exitCode;
         return [
-          Color.$.paint('time', `[${command.stopwatch.stopTime}]`),
-          Color.$.paint(
+          Color.paint('time', `[${command.stopwatch.stopTime}]`),
+          Color.paint(
             'duration',
             `${Duration.new(command.stopwatch.duration)}(${command.stopwatch.duration}ms)`
           ),
-          `(${Color.$.paint(exitCode === 0 ? 'success' : 'failure', exitCode.toString())})`,
-          `@ ${Color.$.paint('command', command.toString())}`,
+          `(${Color.paint(exitCode === 0 ? 'success' : 'failure', exitCode.toString())})`,
+          `@ ${Color.paint('command', command.toString())}`,
         ].join(' ');
       },
     });
