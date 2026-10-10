@@ -73,7 +73,7 @@ export class Spellbook {
   }
 
   static exists(path: string): boolean {
-    return fsModule.existsSync(path);
+    return path === '' ? true : fsModule.existsSync(path);
   }
 
   static absolute(path: string): string {

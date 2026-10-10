@@ -19,6 +19,7 @@ export default defineConfig({
     'time': 'src/time.ts',
     'transcluder': 'src/transcluder.ts',
     'cli/kurage': 'src/cli/kurage.ts',
+    'cli/create': 'src/cli/create.ts',
     'cli/eval': 'src/cli/eval.ts',
     'cli/exec': 'src/cli/exec.ts',
     'cli/exec-json': 'src/cli/exec-json.ts',

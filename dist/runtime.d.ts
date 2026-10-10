@@ -7,5 +7,6 @@ export declare class Runtime {
   static supported(name: string): boolean;
   static get evalCode(): string;
   static get replCode(): string;
+  static get scriptCode(): string;
 }
 export {};

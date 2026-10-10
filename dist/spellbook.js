@@ -41,7 +41,7 @@ var Spellbook = class Spellbook {
     return cryptoModule.randomUUID();
   }
   static exists(path) {
-    return fsModule.existsSync(path);
+    return path === '' ? true : fsModule.existsSync(path);
   }
   static absolute(path) {
     return pathModule.resolve(path);

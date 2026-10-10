@@ -1,5 +1,6 @@
 import type { PackageJson } from '../kurage.js';
 import kurage from '../kurage.js';
+import { createAsync } from './create.js';
 import { evalAsync } from './eval.js';
 import { execAsync } from './exec.js';
 import { execJsonAsync } from './exec-json.js';
@@ -37,6 +38,7 @@ Examples:
   ${packageJson.name} script.js
   ${packageJson.name} info-json
   ${packageJson.name} txcl README.md
+  ${packageJson.name} create script.js
 `.trim();
 };
 
@@ -48,6 +50,7 @@ const cliActions: Record<string, () => Promise<void>> = {
   'repl': replAsync,
   'run': runAsync,
   'txcl': txclAsync,
+  'create': createAsync,
 };
 const mode = (process.argv[2] ?? '').toLowerCase();
 if (mode === '') {

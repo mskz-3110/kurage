@@ -30,6 +30,14 @@ kurage.process.cleanup();
   static get replCode() {
     return Runtime.#replCode;
   }
+  static #scriptCode = `
+#!/usr/bin/env node
+const { kurage } = await import('kurage');
+const $ = kurage.spellbook;
+`.trim();
+  static get scriptCode() {
+    return Runtime.#scriptCode;
+  }
   static {
     const runtimeName = (process.env.KURAGE_RUNTIME_NAME ?? '').toLowerCase();
     if (names.includes(runtimeName)) Runtime.#name = runtimeName;
