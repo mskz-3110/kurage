@@ -12,6 +12,7 @@ import { Path } from './path.js';
 const ignoreStaticNames = ['length', 'name', 'prototype'];
 const ignoreInstanceNames = ['constructor'];
 var Spellbook = class Spellbook {
+  static #modeAllPermissions = 511;
   static #root = process.env.INIT_CWD ?? process.cwd();
   static root(value) {
     if (value != null) Spellbook.#root = value;
@@ -87,12 +88,14 @@ var Spellbook = class Spellbook {
   static basename(path) {
     return pathModule.parse(path).base;
   }
-  static write(path, data, isSync = false) {
+  static write(path, data, isAppend = false) {
     let fd;
     try {
-      fd = fsModule.openSync(path, 'a');
+      const dir = Spellbook.dirname(path);
+      if (!Spellbook.exists(dir)) fsModule.mkdirSync(dir, { recursive: true });
+      fd = fsModule.openSync(path, isAppend ? 'a' : 'w');
       fsModule.writeSync(fd, typeof data === 'string' ? Bytes.fromLines([data]) : data);
-      if (isSync) fsModule.fsyncSync(fd);
+      fsModule.fsyncSync(fd);
       fsModule.closeSync(fd);
       fd = void 0;
     } finally {
@@ -103,8 +106,12 @@ var Spellbook = class Spellbook {
     const tmpPath = Path.with(path, { name: `.${Spellbook.filename(path)}` });
     try {
       Spellbook.remove(tmpPath);
-      Spellbook.write(tmpPath, data, true);
-      fsModule.chmodSync(tmpPath, Spellbook.stat(tmpPath).mode);
+      Spellbook.write(tmpPath, data);
+      if (Spellbook.exists(path))
+        fsModule.chmodSync(
+          tmpPath,
+          Spellbook.stat(path).mode & Spellbook.#modeAllPermissions
+        );
       Spellbook.rename(tmpPath, path);
     } finally {
       Spellbook.remove(tmpPath);

@@ -25,7 +25,7 @@ var Parser = class Parser {
       }
       if (match.text.indexOf('{') < 0) return;
       const symbol = match.text.slice(0, 1);
-      const [content, format] = match.text.slice(1).split(/(?<!\\)\{/);
+      const [content, format] = match.text.slice(1).split(/(?<!\\)\{(?!.*(?<!\\)\{)/);
       const node = {
         symbol: symbol === '{' ? '' : symbol,
         content: content.trim(),

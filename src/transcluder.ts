@@ -55,7 +55,7 @@ export class Parser {
       }
 
       const symbol = match.text.slice(0, 1);
-      const [content, format] = match.text.slice(1).split(/(?<!\\)\{/);
+      const [content, format] = match.text.slice(1).split(/(?<!\\)\{(?!.*(?<!\\)\{)/);
       const node: Node = {
         symbol: symbol === '{' ? '' : symbol,
         content: content!.trim(),

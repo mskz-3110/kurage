@@ -42,7 +42,7 @@ export declare class Spellbook {
   static filename(path: string): string;
   static extname(path: string): string;
   static basename(path: string): string;
-  static write(path: string, data: string | Uint8Array, isSync?: boolean): void;
+  static write(path: string, data: string | Uint8Array, isAppend?: boolean): void;
   static replace(path: string, data: string | Uint8Array): void;
   static read(path: string, encoding?: BufferEncoding): string;
   static readStreamLinesAsync(stream: Readable): Promise<string[]>;
