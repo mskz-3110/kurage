@@ -1,4 +1,4 @@
-const names = ['bun', 'deno', 'node'];
+const names = ['bun', 'node'];
 var Runtime = class Runtime {
   static #name = 'node';
   static get name() {

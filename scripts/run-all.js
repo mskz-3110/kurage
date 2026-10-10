@@ -10,15 +10,13 @@ if (scripts.length === 0) {
   });
 }
 
-let args = [];
 for (const name of kurage.runtime.names) {
   if (!(await kurage.$ok(['which', name]))) {
     continue;
   }
 
-  args = name === 'deno' ? [name, '-A'] : [name];
-  console.error(kurage.color.$.paint('magenta', `<${name}>`));
+  console.error(kurage.color.paint('magenta', `<${name}>`));
   for (const script of scripts) {
-    await kurage.$([...args, script]);
+    await kurage.$([name, script]);
   }
 }

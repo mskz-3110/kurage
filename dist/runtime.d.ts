@@ -1,4 +1,4 @@
-declare const names: readonly ['bun', 'deno', 'node'];
+declare const names: readonly ['bun', 'node'];
 export type Name = (typeof names)[number];
 export declare class Runtime {
   #private;

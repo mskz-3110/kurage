@@ -6,7 +6,6 @@ async function evalAsync() {
   let commandArgs = [];
   const runtimeName = kurage.runtime.name;
   if (runtimeName === 'node') commandArgs = ['node', '-e', evalCode];
-  else if (runtimeName === 'deno') commandArgs = ['deno', 'eval', evalCode];
   else if (runtimeName === 'bun') commandArgs = ['bun', '-e', evalCode];
   await kurage.$exit(commandArgs);
 }

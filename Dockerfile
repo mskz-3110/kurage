@@ -6,16 +6,13 @@ ARG WORKDIR
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV BUN_INSTALL=/root/.bun
-ENV DENO_INSTALL=/root/.deno
-ENV PATH="${BUN_INSTALL}/bin:${DENO_INSTALL}/bin:${WORKDIR}/bin:${PATH}"
+ENV PATH="${BUN_INSTALL}/bin:${WORKDIR}/bin:${PATH}"
 ENV VHS_NO_SANDBOX=true
 
 RUN apt update \
   && apt install -y --no-install-recommends ca-certificates curl git unzip \
   && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://bun.sh/install | bash
-RUN curl -fsSL https://deno.land/install.sh | sh
-
 RUN npm install -g pnpm
 
 RUN apt update && apt install -y ffmpeg \

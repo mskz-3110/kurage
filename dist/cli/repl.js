@@ -9,8 +9,6 @@ async function replAsync() {
   if (runtimeName === 'node')
     if (kurage.runtime.supported('webcontainer')) commandArgs = ['node', '-i'];
     else commandArgs = ['node', '-i', '-e', replCode];
-  else if (runtimeName === 'deno')
-    commandArgs = ['deno', 'repl', '-A', '--eval', replCode];
   else if (runtimeName === 'bun') commandArgs = ['bun', 'repl'];
   await kurage.$exit(commandArgs);
 }

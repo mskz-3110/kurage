@@ -1,4 +1,4 @@
-const names = ['bun', 'deno', 'node'] as const;
+const names = ['bun', 'node'] as const;
 
 export type Name = (typeof names)[number];
 

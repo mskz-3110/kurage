@@ -10,9 +10,6 @@ if (command.exitCode === 0) {
 
 await $.chdirAsync($.dirname($.urlToPath(import.meta.url)), async () => {
   const args = [kurage.runtime.name];
-  if (args[0] === 'deno') {
-    args.push('-A');
-  }
   const command = kurage.command.new([...args, 'sleep.js', '3000']);
   const exec = command.execAsync();
   await setTimeout(1000);
