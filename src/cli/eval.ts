@@ -1,15 +1,21 @@
 import kurage from '../kurage.js';
 
 export async function evalAsync() {
-  const evalCode = [kurage.runtime.evalCode, ...kurage.process.args].join('');
-  let commandArgs: string[] = [];
-  const runtimeName = kurage.runtime.name;
-  if (runtimeName === 'node') {
-    commandArgs = ['node', '-e', evalCode];
-  } else if (runtimeName === 'bun') {
-    commandArgs = ['bun', '-e', evalCode];
+  const code = kurage.process.args.join('');
+  if (kurage.runtime.name === 'node') {
+    await kurage.$exit(['node', '-e', [kurage.runtime.evalCode, code].join('')]);
+  } else {
+    Object.assign(globalThis, {
+      kurage,
+      $: kurage.spellbook,
+    });
+    const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor as new (
+      code: string
+    ) => () => Promise<void>;
+    await kurage.command.loggingActionAsync(['bun', '-e', code], () =>
+      new AsyncFunction(code)()
+    );
   }
-  await kurage.$exit(commandArgs);
 }
 
 if (import.meta.main) {

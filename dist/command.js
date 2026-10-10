@@ -87,6 +87,20 @@ var Command = class Command {
   static new(...args) {
     return new Command(...args);
   }
+  static async loggingActionAsync(args, action) {
+    const command = Command.new(args);
+    command.#stopwatch.start();
+    Logger.write('command-start', command);
+    try {
+      await action();
+    } catch (e) {
+      command.#exitCode = process.exitCode = 1;
+      Logger.write('error', `UncaughtException: ${Exception.new(e).toString()}`);
+    } finally {
+      command.#stopwatch.stop();
+      Logger.write('command-end', command);
+    }
+  }
   #args = [];
   get args() {
     return this.#args;
@@ -97,13 +111,14 @@ var Command = class Command {
     return this.#stopwatch;
   }
   #process;
+  #exitCode = 0;
   get process() {
     return this.#process;
   }
   get exitCode() {
     if (this.#process != null && this.#process.exitCode != null)
       return this.#process.exitCode;
-    return 1;
+    return this.#exitCode;
   }
   #exception;
   get exception() {
@@ -122,6 +137,7 @@ var Command = class Command {
   }
   #setupExec(hooks) {
     this.#stopwatch.start();
+    this.#exitCode = 1;
     for (const signal of Command.#signals) process.on(signal, this.kill);
     return hooks.onStart?.(this);
   }

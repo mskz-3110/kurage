@@ -119,6 +119,24 @@ export class Command {
     return new Command(...args);
   }
 
+  static async loggingActionAsync(
+    args: readonly string[],
+    action: () => unknown | Promise<unknown>
+  ) {
+    const command = Command.new(args);
+    command.#stopwatch.start();
+    Logger.write('command-start', command);
+    try {
+      await action();
+    } catch (e: unknown) {
+      command.#exitCode = process.exitCode = 1;
+      Logger.write('error', `UncaughtException: ${Exception.new(e).toString()}`);
+    } finally {
+      command.#stopwatch.stop();
+      Logger.write('command-end', command);
+    }
+  }
+
   #args: string[] = [];
 
   get args(): readonly string[] {
@@ -135,6 +153,8 @@ export class Command {
 
   #process: ChildProcess | undefined;
 
+  #exitCode: number = 0;
+
   get process(): ChildProcess | undefined {
     return this.#process;
   }
@@ -144,7 +164,7 @@ export class Command {
       return this.#process!.exitCode!;
     }
 
-    return 1;
+    return this.#exitCode;
   }
 
   #exception: Exception | undefined;
@@ -171,6 +191,7 @@ export class Command {
 
   #setupExec(hooks: ExecHooks): any {
     this.#stopwatch.start();
+    this.#exitCode = 1;
     for (const signal of Command.#signals) {
       process.on(signal, this.kill);
     }

@@ -21,6 +21,10 @@ export declare class Command {
     defaultStdio: StdioOptions
   ): SpawnOptions;
   static new(...args: ConstructorParameters<typeof Command>): Command;
+  static loggingActionAsync(
+    args: readonly string[],
+    action: () => unknown | Promise<unknown>
+  ): Promise<void>;
   get args(): readonly string[];
   get stopwatch(): Stopwatch;
   get process(): ChildProcess | undefined;
