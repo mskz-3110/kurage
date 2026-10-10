@@ -1,7 +1,7 @@
 import kurage from '../kurage.js';
 
 export async function evalAsync() {
-  const evalCode = [kurage.eval.code, ...kurage.process.args].join('');
+  const evalCode = [kurage.runtime.evalCode, ...kurage.process.args].join('');
   let commandArgs: string[] = [];
   const runtimeName = kurage.runtime.name;
   if (runtimeName === 'node') {

@@ -5,5 +5,7 @@ export declare class Runtime {
   static get name(): Name;
   static get names(): readonly Name[];
   static supported(name: string): boolean;
+  static get evalCode(): string;
+  static get replCode(): string;
 }
 export {};

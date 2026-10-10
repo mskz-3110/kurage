@@ -6,7 +6,6 @@ import { Color } from './color.js';
 import type { ExecHooks } from './command.js';
 import { Command, Stream } from './command.js';
 import { Duration } from './duration.js';
-import { Eval } from './eval.js';
 import { Exception } from './exception.js';
 import { Line } from './line.js';
 import { Logger } from './logger.js';
@@ -84,7 +83,6 @@ export const kurage = {
   color: Color,
   command: Command,
   duration: Duration,
-  eval: Eval,
   exception: Exception,
   line: Line,
   log: (name: string, arg: unknown, time?: Time) => {

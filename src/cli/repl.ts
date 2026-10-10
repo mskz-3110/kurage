@@ -1,7 +1,7 @@
 import kurage from '../kurage.js';
 
 export async function replAsync() {
-  const replCode = kurage.eval.replCode;
+  const replCode = kurage.runtime.replCode;
   console.error(kurage.color.paint('magenta', replCode));
 
   let commandArgs: string[] = [];

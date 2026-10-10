@@ -4,7 +4,6 @@ import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import { Command, Stream } from './command.js';
 import { Duration } from './duration.js';
-import { Eval } from './eval.js';
 import { Exception } from './exception.js';
 import { Line } from './line.js';
 import { Logger } from './logger.js';
@@ -63,7 +62,6 @@ const kurage = {
   color: Color,
   command: Command,
   duration: Duration,
-  eval: Eval,
   exception: Exception,
   line: Line,
   log: (name, arg, time) => {

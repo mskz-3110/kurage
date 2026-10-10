@@ -8,7 +8,6 @@ export default defineConfig({
     'color': 'src/color.ts',
     'command': 'src/command.ts',
     'duration': 'src/duration.ts',
-    'eval': 'src/eval.ts',
     'exception': 'src/exception.ts',
     'line': 'src/line.ts',
     'logger': 'src/logger.ts',
