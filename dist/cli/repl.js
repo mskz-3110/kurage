@@ -4,12 +4,8 @@ import kurage from '../kurage.js';
 async function replAsync() {
   const replCode = kurage.runtime.replCode;
   console.error(kurage.color.paint('magenta', replCode));
-  let commandArgs = [];
-  const runtimeName = kurage.runtime.name;
-  if (runtimeName === 'node')
-    if (kurage.runtime.supported('webcontainer')) commandArgs = ['node', '-i'];
-    else commandArgs = ['node', '-i', '-e', replCode];
-  else if (runtimeName === 'bun') commandArgs = ['bun', 'repl'];
+  let commandArgs = ['node', '-i', '-e', replCode];
+  if (kurage.runtime.name === 'bun') commandArgs = ['bun', 'repl'];
   await kurage.$exit(commandArgs);
 }
 if (import.meta.main) await replAsync();
