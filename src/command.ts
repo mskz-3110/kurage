@@ -89,7 +89,7 @@ export class Command {
     Color.set('success', Color.get('green'));
     Color.set('failure', Color.get('red'));
 
-    Logger.$.addHandler('command-start', {
+    Logger.addHandler('command-start', {
       write: console.error,
       format: (_: Time, command: Command): string => {
         return [
@@ -100,7 +100,7 @@ export class Command {
       },
     });
 
-    Logger.$.addHandler('command-end', {
+    Logger.addHandler('command-end', {
       write: console.error,
       format: (_: Time, command: Command): string => {
         const exitCode = command.exitCode;
@@ -185,8 +185,8 @@ export class Command {
   async execAsync(
     options: SpawnOptions = {},
     hooks: ExecHooks = {
-      onStart: (command) => Logger.$.write('command-start', command),
-      onEnd: (command) => Logger.$.write('command-end', command),
+      onStart: (command) => Logger.write('command-start', command),
+      onEnd: (command) => Logger.write('command-end', command),
     }
   ): Promise<Command> {
     const context = this.#setupExec(hooks);
@@ -272,7 +272,7 @@ export class Command {
 
   exit() {
     if (this.#exception != null) {
-      Logger.$.write('error', this.#exception.toString());
+      Logger.write('error', this.#exception.toString());
     }
     process.exit(this.exitCode);
   }

@@ -88,7 +88,7 @@ export const kurage = {
   exception: Exception,
   line: Line,
   log: (name: string, arg: unknown, time?: Time) => {
-    return Logger.$.write(name, arg, time);
+    return Logger.write(name, arg, time);
   },
   logger: Logger,
   path: Path,

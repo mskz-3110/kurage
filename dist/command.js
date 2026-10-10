@@ -59,7 +59,7 @@ var Command = class Command {
     Color.set('duration', Color.get('gray'));
     Color.set('success', Color.get('green'));
     Color.set('failure', Color.get('red'));
-    Logger.$.addHandler('command-start', {
+    Logger.addHandler('command-start', {
       write: console.error,
       format: (_, command) => {
         return [
@@ -69,7 +69,7 @@ var Command = class Command {
         ].join(' ');
       },
     });
-    Logger.$.addHandler('command-end', {
+    Logger.addHandler('command-end', {
       write: console.error,
       format: (_, command) => {
         const exitCode = command.exitCode;
@@ -132,8 +132,8 @@ var Command = class Command {
   async execAsync(
     options = {},
     hooks = {
-      onStart: (command) => Logger.$.write('command-start', command),
-      onEnd: (command) => Logger.$.write('command-end', command),
+      onStart: (command) => Logger.write('command-start', command),
+      onEnd: (command) => Logger.write('command-end', command),
     }
   ) {
     const context = this.#setupExec(hooks);
@@ -201,7 +201,7 @@ var Command = class Command {
     return this;
   }
   exit() {
-    if (this.#exception != null) Logger.$.write('error', this.#exception.toString());
+    if (this.#exception != null) Logger.write('error', this.#exception.toString());
     process.exit(this.exitCode);
   }
   exitIfFailure() {

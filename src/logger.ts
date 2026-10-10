@@ -13,11 +13,12 @@ export type Handler = {
 };
 
 export class Logger {
-  static $: Logger = Logger.new();
+  static #handlers: Record<string, Handler[]> = {};
 
-  static format(time: Time, arg: any): string {
-    return `[${time}] ${String(arg)}`;
-  }
+  static #invalidNames: string[] = [
+    ...Object.getOwnPropertyNames(Logger),
+    ...Object.getOwnPropertyNames(Logger.prototype),
+  ];
 
   static {
     Color.set('debug', Color.get('cyan'));
@@ -25,28 +26,28 @@ export class Logger {
     Color.set('warn', Color.get('yellow'));
     Color.set('error', Color.get('red'));
 
-    Logger.$.addHandler('debug', {
+    Logger.addHandler('debug', {
       write: console.log,
       format: (time: Time, arg: any) => {
         return Color.paint('debug', Logger.format(time, arg));
       },
     });
 
-    Logger.$.addHandler('info', {
+    Logger.addHandler('info', {
       write: console.log,
       format: (time: Time, arg: any) => {
         return Color.paint('info', Logger.format(time, arg));
       },
     });
 
-    Logger.$.addHandler('warn', {
+    Logger.addHandler('warn', {
       write: console.error,
       format: (time: Time, arg: any) => {
         return Color.paint('warn', Logger.format(time, arg));
       },
     });
 
-    Logger.$.addHandler('error', {
+    Logger.addHandler('error', {
       write: console.error,
       format: (time: Time, arg: any) => {
         return Color.paint('error', Logger.format(time, arg));
@@ -54,50 +55,43 @@ export class Logger {
     });
   }
 
-  static new(...args: ConstructorParameters<typeof Logger>): Logger {
-    return new Logger(...args);
+  static format(time: Time, arg: any): string {
+    return `[${time}] ${String(arg)}`;
   }
 
-  #invalidNames: string[] = [
-    ...Object.getOwnPropertyNames(Logger),
-    ...Object.getOwnPropertyNames(Logger.prototype),
-  ];
-
-  #handlers: Record<string, Handler[]> = {};
-
-  get names(): readonly string[] {
-    return Object.keys(this.#handlers);
+  static get names(): readonly string[] {
+    return Object.keys(Logger.#handlers);
   }
 
-  getHandlers(name: string): Handler[] {
-    return Object.hasOwn(this.#handlers, name) ? this.#handlers[name]! : [];
+  static getHandlers(name: string): Handler[] {
+    return Object.hasOwn(Logger.#handlers, name) ? Logger.#handlers[name]! : [];
   }
 
-  setHandlers(name: string, handlers: Handler[]) {
-    this.#handlers[name] = handlers;
+  static setHandlers(name: string, handlers: Handler[]) {
+    Logger.#handlers[name] = handlers;
   }
 
-  addHandler(name: string, handler: Handler) {
-    if (this.#invalidNames.includes(name) || name === '') {
+  static addHandler(name: string, handler: Handler) {
+    if (Logger.#invalidNames.includes(name) || name === '') {
       return;
     }
 
-    if (Object.hasOwn(this.#handlers, name)) {
-      this.#handlers[name]!.push(handler);
+    if (Object.hasOwn(Logger.#handlers, name)) {
+      Logger.#handlers[name]!.push(handler);
     } else {
-      this.#handlers[name] = [handler];
+      Logger.#handlers[name] = [handler];
     }
   }
 
-  write(name: string, arg: any, time: Time = Time.new()) {
-    if (!Object.hasOwn(this.#handlers, name)) {
+  static write(name: string, arg: any, time: Time = Time.new()) {
+    if (!Object.hasOwn(Logger.#handlers, name)) {
       console.error(
         `Undefined logger name: ${name} # ${String(arg)}${Line.eol}${Backtrace.new()}`
       );
       return;
     }
 
-    for (const handler of this.#handlers[name]!) {
+    for (const handler of Logger.#handlers[name]!) {
       handler.write(handler.format(time, arg));
     }
   }
