@@ -4,7 +4,9 @@ export async function createAsync() {
   const code = kurage.line.join(
     kurage.line.split(
       `
-${kurage.runtime.scriptCode}
+#!/usr/bin/env node
+const { kurage } = await import('kurage');
+const $ = kurage.spellbook;
 
 ${kurage.line.join(process.stdin.isTTY ? [] : await kurage.spellbook.readStreamLinesAsync(process.stdin))}
 `.trim()

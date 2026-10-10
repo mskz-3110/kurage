@@ -6,17 +6,18 @@ import kurage from '../kurage.js';
 async function runAsync() {
   if (0 < kurage.process.args.length) {
     const [path, ...args] = kurage.process.args;
-    if (kurage.runtime.name === 'node') await kurage.$exit(['node', path, ...args]);
-    else {
-      const absolutePath = pathModule.resolve(path);
-      await kurage.command.loggingActionAsync(
-        ['bun', absolutePath, ...args],
-        async () => {
-          process.argv = [process.execPath, absolutePath, ...args];
-          await import(pathToFileURL(absolutePath).href);
-        }
-      );
-    }
+    const absolutePath = pathModule.resolve(path);
+    Object.assign(globalThis, {
+      kurage,
+      $: kurage.spellbook,
+    });
+    await kurage.command.loggingActionAsync(
+      [kurage.runtime.name, absolutePath, ...args],
+      async () => {
+        process.argv = [process.execPath, absolutePath, ...args];
+        await import(pathToFileURL(absolutePath).href);
+      }
+    );
   }
 }
 if (import.meta.main) await runAsync();
