@@ -29,7 +29,6 @@ var Command = class Command {
   static get stream() {
     return Stream;
   }
-  static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
   static #signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGBREAK'];
   static mergeStdio(options, overrideStdio, defaultStdio) {
     const mergedOptions = { ...options };
@@ -92,6 +91,7 @@ var Command = class Command {
   get args() {
     return this.#args;
   }
+  #string = '';
   #stopwatch = Stopwatch.new();
   get stopwatch() {
     return this.#stopwatch;
@@ -111,6 +111,7 @@ var Command = class Command {
   }
   constructor(args) {
     this.#args = [...args];
+    if (0 < args.length) this.#string = `${this.#args[0]} |args|=${this.#args.length}`;
   }
   #appendExceptionMessage() {
     if (this.#exception != null)
@@ -209,11 +210,7 @@ var Command = class Command {
     return this.throwIfException();
   }
   toString() {
-    return this.#args
-      .map((arg) =>
-        Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg)
-      )
-      .join(' ');
+    return this.#string;
   }
 };
 

@@ -3,11 +3,10 @@ import { buffer } from 'node:stream/consumers';
 import kurage from '../kurage.js';
 
 async function execJsonAsync() {
-  const args = kurage.process.args;
   let stdinBytes = Buffer.alloc(0);
   const stdout = kurage.command.stream.new();
   const stderr = kurage.command.stream.new();
-  const command = kurage.command.new(args);
+  const command = kurage.command.new(kurage.process.args);
   const exec = command.execAsync({ stdio: ['pipe', stdout, stderr] }, {});
   if (!process.stdin.isTTY && command.process?.stdin != null) {
     stdinBytes = await buffer(process.stdin);
@@ -18,11 +17,11 @@ async function execJsonAsync() {
   console.log(
     JSON.stringify(
       {
-        args: command.args,
+        string: command.toString(),
         cwd: process.cwd(),
         time: {
-          start: command.stopwatch.startTime?.toString(),
-          stop: command.stopwatch.stopTime?.toString(),
+          start: command.stopwatch.startTime?.date.toISOString(),
+          stop: command.stopwatch.stopTime?.date.toISOString(),
           duration: command.stopwatch.duration,
         },
         exitCode: command.exitCode,

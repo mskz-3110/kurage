@@ -66,8 +66,8 @@ export class Spellbook {
     return await Spellbook.chdirAsync(osModule.tmpdir(), block);
   }
 
-  static randomBytes(size: number = 16): Buffer<ArrayBuffer> {
-    return cryptoModule.randomBytes(size);
+  static uuid(): string {
+    return cryptoModule.randomUUID();
   }
 
   static exists(path: string): boolean {

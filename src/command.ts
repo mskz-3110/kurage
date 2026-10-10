@@ -41,8 +41,6 @@ export class Command {
     return Stream;
   }
 
-  static #commandLineSafeStringRegex = /^[a-zA-Z0-9/._-]+$/;
-
   static #signals: NodeJS.Signals[] = [
     'SIGINT',
     'SIGTERM',
@@ -127,6 +125,8 @@ export class Command {
     return this.#args;
   }
 
+  #string: string = '';
+
   #stopwatch: Stopwatch = Stopwatch.new();
 
   get stopwatch(): Stopwatch {
@@ -155,6 +155,9 @@ export class Command {
 
   constructor(args: readonly string[]) {
     this.#args = [...args];
+    if (0 < args.length) {
+      this.#string = `${this.#args[0]} |args|=${this.#args.length}`;
+    }
   }
 
   #appendExceptionMessage() {
@@ -285,10 +288,6 @@ export class Command {
   }
 
   toString(): string {
-    return this.#args
-      .map((arg) =>
-        Command.#commandLineSafeStringRegex.test(arg) ? arg : JSON.stringify(arg)
-      )
-      .join(' ');
+    return this.#string;
   }
 }

@@ -20,7 +20,7 @@ export declare class Spellbook {
   static chdirAsync(dir: string, block?: DirBlock): Promise<string>;
   static mkdirAsync(dir: string, block?: DirBlock): Promise<string>;
   static tmpdirAsync(block?: DirBlock): Promise<string>;
-  static randomBytes(size?: number): Buffer<ArrayBuffer>;
+  static uuid(): string;
   static exists(path: string): boolean;
   static absolute(path: string): string;
   static relative(toPath: string, fromPath?: string): string;

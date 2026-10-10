@@ -36,8 +36,8 @@ var Spellbook = class Spellbook {
   static async tmpdirAsync(block) {
     return await Spellbook.chdirAsync(osModule.tmpdir(), block);
   }
-  static randomBytes(size = 16) {
-    return cryptoModule.randomBytes(size);
+  static uuid() {
+    return cryptoModule.randomUUID();
   }
   static exists(path) {
     return fsModule.existsSync(path);

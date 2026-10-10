@@ -1,11 +1,11 @@
 const { kurage } = await import('kurage');
 const $ = kurage.spellbook;
 
-let scripts = kurage.process.args;
-if (scripts.length === 0) {
+let files = kurage.process.args;
+if (files.length === 0) {
   const __FILE__ = $.urlToPath(import.meta.url);
   const basename = $.basename(__FILE__);
-  scripts = $.glob(kurage.path.join([$.dirname(__FILE__), '**', '*.js']), {
+  files = $.glob(kurage.path.join([$.dirname(__FILE__), '**', '*.js']), {
     exclude: (path) => path === basename,
   });
 }
@@ -16,7 +16,7 @@ for (const name of kurage.runtime.names) {
   }
 
   console.error(kurage.color.paint('magenta', `<${name}>`));
-  for (const script of scripts) {
+  for (const script of files) {
     await kurage.$([name, script]);
   }
 }
