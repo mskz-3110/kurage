@@ -6,10 +6,7 @@ export async function runAsync() {
   if (0 < kurage.process.args.length) {
     const [path, ...args] = kurage.process.args;
     const absolutePath = pathModule.resolve(path!);
-    Object.assign(globalThis, {
-      kurage,
-      $: kurage.spellbook,
-    });
+    kurage.setupGlobals(globalThis);
     await kurage.command.loggingActionAsync(
       [kurage.runtime.name, absolutePath, ...args],
       async () => {

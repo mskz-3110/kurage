@@ -32,6 +32,12 @@ const execAsync = async (
 };
 
 export const kurage = {
+  setupGlobals: (target: object) => {
+    Object.assign(target, {
+      kurage,
+      $: kurage.spellbook,
+    });
+  },
   $: async (
     args: readonly string[],
     options: SpawnOptions = {},

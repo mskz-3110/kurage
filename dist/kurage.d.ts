@@ -21,6 +21,7 @@ export type PackageJson = {
   description: string;
 };
 export declare const kurage: {
+  setupGlobals: (target: object) => void;
   $: (
     args: readonly string[],
     options?: SpawnOptions,

@@ -19,6 +19,12 @@ const execAsync = async (args, options = {}, hooks) => {
   return await Command.new(args).execAsync(options, hooks);
 };
 const kurage = {
+  setupGlobals: (target) => {
+    Object.assign(target, {
+      kurage,
+      $: kurage.spellbook,
+    });
+  },
   $: async (args, options = {}, hooks) => {
     (await execAsync(args, options, hooks)).exitIfFailure();
   },

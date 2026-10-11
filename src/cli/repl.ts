@@ -5,8 +5,7 @@ export async function replAsync() {
   kurage.process.cleanup();
   await kurage.command.loggingActionAsync([kurage.runtime.name, 'repl'], async () => {
     const repl = start({ prompt: '> ' });
-    const setReplContext = () =>
-      Object.assign(repl.context, { kurage, $: kurage.spellbook });
+    const setReplContext = () => kurage.setupGlobals(repl.context);
     setReplContext();
     const replWithResetContext = repl as typeof repl & {
       resetContext: () => void;

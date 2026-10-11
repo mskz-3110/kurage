@@ -35,6 +35,7 @@
     "dist"
   ],
   "scripts": {
+    "install:frozen": "pnpm install --frozen-lockfile",
     "docker:build": "docker compose up -d --build",
     "docker:bash": "docker compose run --rm kurage bash",
     "docker:vhs": "docker compose run -e PS1='$ ' --rm kurage bash -c 'node tools/readme/generate_assets.js'",
@@ -46,7 +47,8 @@
     "ci": "npm run build && npm run test"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22",
+    "bun": ">=1.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.1",
