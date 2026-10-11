@@ -13,7 +13,6 @@ export default defineConfig({
     'logger': 'src/logger.ts',
     'path': 'src/path.ts',
     'process': 'src/process.ts',
-    'runtime': 'src/runtime.ts',
     'spellbook': 'src/spellbook.ts',
     'stopwatch': 'src/stopwatch.ts',
     'time': 'src/time.ts',

@@ -8,7 +8,7 @@ export async function runAsync() {
     const absolutePath = pathModule.resolve(path!);
     kurage.setupGlobals(globalThis);
     await kurage.command.loggingActionAsync(
-      [kurage.runtime.name, absolutePath, ...args],
+      [kurage.runtimeName, absolutePath, ...args],
       async () => {
         process.argv = [process.execPath, absolutePath, ...args];
         await import(pathToFileURL(absolutePath).href);

@@ -3,7 +3,7 @@ import kurage from '../kurage.js';
 
 export async function replAsync() {
   kurage.process.cleanup();
-  await kurage.command.loggingActionAsync([kurage.runtime.name, 'repl'], async () => {
+  await kurage.command.loggingActionAsync([kurage.runtimeName, 'repl'], async () => {
     const repl = start({ prompt: '> ' });
     const setReplContext = () => kurage.setupGlobals(repl.context);
     setReplContext();

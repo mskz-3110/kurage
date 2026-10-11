@@ -13,7 +13,7 @@ async function infoJsonAsync() {
         },
         kurage: {
           version: kurage.packageJson.version,
-          runtime: kurage.runtime.name,
+          runtime: kurage.runtimeName,
         },
       },
       null,

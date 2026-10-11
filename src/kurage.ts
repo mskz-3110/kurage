@@ -11,7 +11,6 @@ import { Line } from './line.js';
 import { Logger } from './logger.js';
 import { Path } from './path.js';
 import { Process } from './process.js';
-import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Time } from './time.js';
@@ -22,6 +21,8 @@ export type PackageJson = {
   version: string;
   description: string;
 };
+
+const runtimeName = Object.hasOwn(process.versions, 'bun') ? 'bun' : 'node';
 
 const execAsync = async (
   args: readonly string[],
@@ -97,11 +98,13 @@ export const kurage = {
   logger: Logger,
   path: Path,
   process: Process,
-  runtime: Runtime,
   spellbook: Spellbook,
   stopwatch: Stopwatch,
   time: Time,
   transcluder: Transcluder,
+  get runtimeName() {
+    return runtimeName;
+  },
   get packageJson(): PackageJson {
     return packageJson;
   },

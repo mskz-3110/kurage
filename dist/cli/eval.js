@@ -5,7 +5,7 @@ async function evalAsync() {
   const code = kurage.process.args.join('');
   kurage.setupGlobals(globalThis);
   const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
-  await kurage.command.loggingActionAsync([kurage.runtime.name, '-e', code], () =>
+  await kurage.command.loggingActionAsync([kurage.runtimeName, '-e', code], () =>
     new AsyncFunction(code)()
   );
 }

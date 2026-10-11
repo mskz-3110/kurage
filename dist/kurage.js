@@ -9,12 +9,12 @@ import { Line } from './line.js';
 import { Logger } from './logger.js';
 import { Path } from './path.js';
 import { Process } from './process.js';
-import { Runtime } from './runtime.js';
 import { Spellbook } from './spellbook.js';
 import { Stopwatch } from './stopwatch.js';
 import { Time } from './time.js';
 import { Transcluder } from './transcluder.js';
 
+const runtimeName = Object.hasOwn(process.versions, 'bun') ? 'bun' : 'node';
 const execAsync = async (args, options = {}, hooks) => {
   return await Command.new(args).execAsync(options, hooks);
 };
@@ -76,11 +76,13 @@ const kurage = {
   logger: Logger,
   path: Path,
   process: Process,
-  runtime: Runtime,
   spellbook: Spellbook,
   stopwatch: Stopwatch,
   time: Time,
   transcluder: Transcluder,
+  get runtimeName() {
+    return runtimeName;
+  },
   get packageJson() {
     return packageJson;
   },

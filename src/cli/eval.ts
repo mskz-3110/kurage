@@ -6,7 +6,7 @@ export async function evalAsync() {
   const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor as new (
     code: string
   ) => () => Promise<void>;
-  await kurage.command.loggingActionAsync([kurage.runtime.name, '-e', code], () =>
+  await kurage.command.loggingActionAsync([kurage.runtimeName, '-e', code], () =>
     new AsyncFunction(code)()
   );
 }
