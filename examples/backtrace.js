@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const { kurage } = await import('kurage');
 const { inspect } = await import('node:util');
 
