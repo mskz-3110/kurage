@@ -1,0 +1,5 @@
+FROM debian:bookworm-slim
+
+ARG WORKDIR
+
+WORKDIR ${WORKDIR}

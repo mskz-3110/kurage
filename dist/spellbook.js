@@ -60,6 +60,11 @@ var Spellbook = class Spellbook {
     fsModule.cpSync(srcPath, dstPath, options);
   }
   static rename(oldPath, newPath) {
+    if (Spellbook.exists(newPath)) {
+      const stats = Spellbook.stat(newPath);
+      fsModule.chmodSync(oldPath, stats.mode & Spellbook.#modeAllPermissions);
+      fsModule.chownSync(oldPath, stats.uid, stats.gid);
+    }
     fsModule.renameSync(oldPath, newPath);
   }
   static remove(path, options = {}) {
@@ -107,11 +112,6 @@ var Spellbook = class Spellbook {
     try {
       Spellbook.remove(tmpPath);
       Spellbook.write(tmpPath, data);
-      if (Spellbook.exists(path))
-        fsModule.chmodSync(
-          tmpPath,
-          Spellbook.stat(path).mode & Spellbook.#modeAllPermissions
-        );
       Spellbook.rename(tmpPath, path);
     } finally {
       Spellbook.remove(tmpPath);

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import kurage from '../kurage.js';
-import { createAsync } from './create.js';
 import { evalAsync } from './eval.js';
 import { execAsync } from './exec.js';
 import { execJsonAsync } from './exec-json.js';
+import { generateAsync } from './generate.js';
 import { infoJsonAsync } from './info-json.js';
 import { replAsync } from './repl.js';
 import { runAsync } from './run.js';
@@ -23,6 +23,7 @@ Commands:
   run <file> [args...]          run a file
   info-json                     show system information and output result as JSON
   txcl <files...>               process file transclusions
+  generate [file]               generate a script template and write it to a file or stdout
 
 Options:
   -v, --version                 show version number
@@ -38,7 +39,7 @@ Examples:
   ${packageJson.name} script.js
   ${packageJson.name} info-json
   ${packageJson.name} txcl README.md
-  ${packageJson.name} create script.js
+  ${packageJson.name} generate script.js
 `.trim();
 };
 const cliActions = {
@@ -49,7 +50,7 @@ const cliActions = {
   'repl': replAsync,
   'run': runAsync,
   'txcl': txclAsync,
-  'create': createAsync,
+  'generate': generateAsync,
 };
 const mode = (process.argv[2] ?? '').toLowerCase();
 if (mode === '')

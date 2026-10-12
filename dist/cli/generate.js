@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 import kurage from '../kurage.js';
 
-export async function createAsync() {
+async function generateAsync() {
   const code = kurage.line.join(
     kurage.line.split(
       `
@@ -12,13 +13,10 @@ ${kurage.line.join(process.stdin.isTTY ? [] : await kurage.spellbook.readStreamL
 `.trim()
     )
   );
-  if (0 < kurage.process.args.length) {
-    kurage.spellbook.write(kurage.process.args[0]!, code);
-  } else {
-    console.log(code);
-  }
+  if (0 < kurage.process.args.length)
+    kurage.spellbook.write(kurage.process.args[0], code);
+  else console.log(code);
 }
+if (import.meta.main) await generateAsync();
 
-if (import.meta.main) {
-  await createAsync();
-}
+export { generateAsync };

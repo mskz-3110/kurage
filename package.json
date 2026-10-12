@@ -36,9 +36,10 @@
   ],
   "scripts": {
     "install:frozen": "pnpm install --frozen-lockfile",
-    "docker:build": "docker compose up -d --build",
-    "docker:bash": "docker compose run --rm kurage bash",
-    "docker:vhs": "docker compose run -e PS1='$ ' --rm kurage bash -c 'node tools/readme/generate-assets.js'",
+    "docker:build": "docker compose up -d --build kurage-minimum && docker compose up -d --build kurage-develop",
+    "docker:min": "docker compose run --rm kurage-minimum bash",
+    "docker:dev": "docker compose run --rm kurage-develop bash",
+    "docker:vhs": "docker compose run -e PS1='$ ' --rm kurage-develop bash -c 'node tools/readme/generate-assets.js'",
     "build:src": "biome check --write src && rolldown --config && biome format dist --write && tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts && biome check --write .",
     "build:bin": "bun build src/cli/kurage.ts --compile --compile-autoload-package-json --outfile bin/kurage",
     "build": "npm run build:src && npm run build:bin",
@@ -48,7 +49,8 @@
   },
   "engines": {
     "node": ">=22",
-    "bun": ">=1.4.0"
+    "bun": ">=1.4.0",
+    "pnpm": ">=11"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.1",
