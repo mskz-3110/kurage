@@ -1,0 +1,22 @@
+{
+  "name": "kurage",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "kurage-develop",
+  "workspaceFolder": "/kurage",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "terminal": {
+        "profiles": {
+          "linux": {
+            "bash": {
+              "path": "bash",
+              "args": ["-l"]
+            }
+          }
+        },
+        "defaultProfile": "bash"
+      }
+    }
+  }
+}

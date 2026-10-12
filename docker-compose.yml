@@ -1,6 +1,7 @@
 services:
   kurage-minimum:
     hostname: kurage-minimum
+    command: sleep infinity
     build:
       context: .
       dockerfile: docker/Dockerfile.minimum
@@ -13,11 +14,11 @@ services:
       - TZ=UTC
   kurage-develop:
     hostname: kurage-develop
+    command: sleep infinity
     build:
       context: .
       dockerfile: docker/Dockerfile.develop
       args:
-        - VHS_VER=0.10.0
         - TTYD_VER=1.7.7
         - WORKDIR=/kurage
     working_dir: /kurage
