@@ -40,6 +40,16 @@ var Spellbook = class Spellbook {
   static uuid() {
     return cryptoModule.randomUUID();
   }
+  static findIndex(values, predicate, fromIndex = 0) {
+    for (let index = Math.max(0, fromIndex); index < values.length; index += 1)
+      if (predicate(values[index], index, values)) return index;
+    return -1;
+  }
+  static sliceRange(values, startIndex, endIndex, invert = false) {
+    return invert
+      ? [...values.slice(0, startIndex), ...values.slice(endIndex + 1)]
+      : values.slice(startIndex + 1, endIndex);
+  }
   static exists(path) {
     return path === '' ? true : fsModule.existsSync(path);
   }

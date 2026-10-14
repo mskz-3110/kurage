@@ -1,4 +1,3 @@
-import type { PackageJson } from '../kurage.js';
 import kurage from '../kurage.js';
 import { evalAsync } from './eval.js';
 import { execAsync } from './exec.js';
@@ -9,41 +8,37 @@ import { replAsync } from './repl.js';
 import { runAsync } from './run.js';
 import { txclAsync } from './txcl.js';
 
-const createHelpMessage = (packageJson: PackageJson): string => {
-  return `
-Usage: ${packageJson.name} [options] [commands...]
+const packageName = kurage.packageJson.name;
+const argument = kurage.argument
+  .new(packageName)
+  .command('repl', 'Start REPL mode (default)')
+  .command('eval <code>', 'Evaluate JavaScript code')
+  .command('exec <command> [args...]', 'Execute a command')
+  .command('exec-json <command> [args...]', 'Execute a command and output result as JSON')
+  .command('run <file> [args...]', 'Run a file')
+  .command('<file> [args...]', 'Run a file')
+  .command('info-json', 'Show system information and output result as JSON')
+  .command('txcl <files...>', 'Process file transclusions')
+  .command(
+    'generate [file]',
+    'Generate a script template and write it to a file or stdout'
+  )
+  .option('-v, --version', 'Show version number', false)
+  .example(packageName)
+  .example(`${packageName} repl`)
+  .example(
+    `${packageName} eval "kurage.logger.out(${packageName}.spellbook.inspect(${packageName}));"`
+  )
+  .example(`${packageName} exec cat script.js`)
+  .example(`${packageName} exec-json cat script.js`)
+  .example(`${packageName} run script.js`)
+  .example(`${packageName} script.js`)
+  .example(`${packageName} info-json`)
+  .example(`${packageName} txcl README.md`)
+  .example(`${packageName} generate script.js`)
+  .parse(process.argv.slice(2));
 
-${packageJson.description}
-
-Commands:
-  repl                          start REPL mode (default)
-  eval <code>                   evaluate JavaScript code
-  exec <command> [args...]      execute a command
-  exec-json <command> [args...] execute a command and output result as JSON
-  run <file> [args...]          run a file
-  info-json                     show system information and output result as JSON
-  txcl <files...>               process file transclusions
-  generate [file]               generate a script template and write it to a file or stdout
-
-Options:
-  -v, --version                 show version number
-  -h, --help                    show help message
-
-Examples:
-  ${packageJson.name}
-  ${packageJson.name} repl
-  ${packageJson.name} eval "kurage.logger.out(${packageJson.name}.spellbook.inspect(${packageJson.name}));"
-  ${packageJson.name} exec cat script.js
-  ${packageJson.name} exec-json cat script.js
-  ${packageJson.name} run script.js
-  ${packageJson.name} script.js
-  ${packageJson.name} info-json
-  ${packageJson.name} txcl README.md
-  ${packageJson.name} generate script.js
-`.trim();
-};
-
-const cliActions: Record<string, () => Promise<void>> = {
+const actions: Record<string, () => Promise<void>> = {
   'eval': evalAsync,
   'exec-json': execJsonAsync,
   'exec': execAsync,
@@ -53,28 +48,21 @@ const cliActions: Record<string, () => Promise<void>> = {
   'txcl': txclAsync,
   'generate': generateAsync,
 };
-const mode = (process.argv[2] ?? '').toLowerCase();
-if (mode === '') {
-  (async () => {
-    await cliActions.repl!();
-  })();
-} else if (Object.keys(cliActions).includes(mode)) {
-  process.argv = process.argv.slice(1);
-  (async () => {
-    await cliActions[mode]!();
-  })();
-} else if (['-v', '--version'].includes(mode)) {
+const mode = (argument.args[0] ?? 'repl').toLowerCase();
+const action = actions[mode];
+if (argument.options.version) {
   kurage.logger.out(kurage.packageJson.version);
-} else if (['-h', '--help'].includes(mode)) {
-  kurage.logger.out(createHelpMessage(kurage.packageJson));
-} else if (kurage.spellbook.exists(process.argv[2]!)) {
+} else if (action != null) {
+  if (argument.args[0] != null) {
+    process.argv = process.argv.slice(1);
+  }
   (async () => {
-    await cliActions.run!();
+    await action();
+  })();
+} else if (kurage.spellbook.exists(argument.args[0]!)) {
+  (async () => {
+    await actions.run!();
   })();
 } else {
-  kurage.logger.err(
-    kurage.color.paint('error', `Invalid args: ${kurage.process.args.join(' ')}`)
-  );
-  kurage.logger.out(createHelpMessage(kurage.packageJson));
-  process.exit(1);
+  argument.abort(`Invalid args: ${argument.args.join(' ')}`);
 }

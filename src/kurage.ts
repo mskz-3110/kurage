@@ -1,5 +1,6 @@
 import type { SpawnOptions } from 'node:child_process';
 import packageJson from '../package.json' with { type: 'json' };
+import { Argument } from './argument.js';
 import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
 import { Color } from './color.js';
@@ -86,6 +87,7 @@ export const kurage = {
     );
   },
   backtrace: Backtrace,
+  argument: Argument,
   bytes: Bytes,
   color: Color,
   command: Command,

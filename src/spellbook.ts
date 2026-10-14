@@ -72,6 +72,30 @@ export class Spellbook {
     return cryptoModule.randomUUID();
   }
 
+  static findIndex<T>(
+    values: readonly T[],
+    predicate: (value: T, index: number, values: readonly T[]) => boolean,
+    fromIndex: number = 0
+  ): number {
+    for (let index = Math.max(0, fromIndex); index < values.length; index += 1) {
+      if (predicate(values[index]!, index, values)) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  static sliceRange<T>(
+    values: readonly T[],
+    startIndex: number,
+    endIndex: number,
+    invert: boolean = false
+  ): T[] {
+    return invert
+      ? [...values.slice(0, startIndex), ...values.slice(endIndex + 1)]
+      : values.slice(startIndex + 1, endIndex);
+  }
+
   static exists(path: string): boolean {
     return path === '' ? true : fsModule.existsSync(path);
   }

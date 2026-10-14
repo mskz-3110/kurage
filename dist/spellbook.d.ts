@@ -21,6 +21,17 @@ export declare class Spellbook {
   static mkdirAsync(dir: string, block?: DirBlock): Promise<string>;
   static tmpdirAsync(block?: DirBlock): Promise<string>;
   static uuid(): string;
+  static findIndex<T>(
+    values: readonly T[],
+    predicate: (value: T, index: number, values: readonly T[]) => boolean,
+    fromIndex?: number
+  ): number;
+  static sliceRange<T>(
+    values: readonly T[],
+    startIndex: number,
+    endIndex: number,
+    invert?: boolean
+  ): T[];
   static exists(path: string): boolean;
   static absolute(path: string): string;
   static relative(toPath: string, fromPath?: string): string;

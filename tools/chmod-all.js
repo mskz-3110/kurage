@@ -3,7 +3,13 @@ const { kurage } = await import('kurage');
 const $ = kurage.spellbook;
 
 const files = [
-  ...$.glob(['dist/cli/*.js', 'examples/**/*.js', 'tools/*.js', 'tools/**/*.js']),
+  ...$.glob([
+    'dist/cli/*.js',
+    'examples/**/*.js',
+    'examples/**/*.sh',
+    'tools/*.js',
+    'tools/**/*.js',
+  ]),
 ];
 kurage.logger.out(JSON.stringify(files, null, 2));
 

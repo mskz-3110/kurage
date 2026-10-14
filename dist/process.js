@@ -17,6 +17,10 @@ var Process = class Process {
   static get args() {
     return process.argv.slice(2);
   }
+  static abort(message = '', exitCode = 1) {
+    if (message !== '') Logger.write('error', message);
+    process.exit(exitCode);
+  }
   static setup() {
     for (const [name, handler] of Object.entries(Process.#listeners))
       try {

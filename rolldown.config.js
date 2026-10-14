@@ -3,6 +3,7 @@ import { defineConfig } from 'rolldown';
 export default defineConfig({
   input: {
     'kurage': 'src/kurage.ts',
+    'argument': 'src/argument.ts',
     'backtrace': 'src/backtrace.ts',
     'bytes': 'src/bytes.ts',
     'color': 'src/color.ts',

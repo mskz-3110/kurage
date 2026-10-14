@@ -26,6 +26,13 @@ export class Process {
     return process.argv.slice(2);
   }
 
+  static abort(message: string = '', exitCode: number = 1): never {
+    if (message !== '') {
+      Logger.write('error', message);
+    }
+    process.exit(exitCode);
+  }
+
   static setup() {
     for (const [name, handler] of Object.entries(Process.#listeners)) {
       try {

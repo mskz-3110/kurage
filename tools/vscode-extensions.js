@@ -4,7 +4,7 @@ const { kurage } = await import('kurage');
 const isWsl = Boolean(process.env.WSL_DISTRO_NAME);
 const isWindows = process.platform === 'win32';
 const showCommand = kurage.process.args.includes('--command');
-let extensions = [];
+const extensions = [];
 
 if (!isWsl) {
   extensions.push('ms-vscode-remote.remote-containers');
@@ -15,7 +15,5 @@ if (isWindows) {
 }
 
 for (const extension of extensions) {
-  kurage.logger.out(
-    showCommand ? `code --install-extension ${extension}` : extension
-  );
+  kurage.logger.out(showCommand ? `code --install-extension ${extension}` : extension);
 }
