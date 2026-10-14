@@ -3,15 +3,11 @@ Source tools/readme/vhs/.common.tape
 
 Type "kurage"
 Enter
+Sleep 1s
 
-Type "globalThis.kurage = (await import('kurage')).default;undefined;"
+Type "kurage.logger.out('REPL');"
 Enter
-
-Type "kurage.process.cleanup();"
-Enter
-
-Type "await kurage.$(['node', '-v']);"
-Enter
+Sleep 1s
 
 Type ".exit"
 Enter

@@ -22,7 +22,6 @@ export default defineConfig({
     'cli/eval': 'src/cli/eval.ts',
     'cli/exec-json': 'src/cli/exec-json.ts',
     'cli/exec': 'src/cli/exec.ts',
-    'cli/generate': 'src/cli/generate.ts',
     'cli/info-json': 'src/cli/info-json.ts',
     'cli/repl': 'src/cli/repl.ts',
     'cli/run': 'src/cli/run.ts',

@@ -3,7 +3,6 @@ import kurage from '../kurage.js';
 import { evalAsync } from './eval.js';
 import { execAsync } from './exec.js';
 import { execJsonAsync } from './exec-json.js';
-import { generateAsync } from './generate.js';
 import { infoJsonAsync } from './info-json.js';
 import { replAsync } from './repl.js';
 import { runAsync } from './run.js';
@@ -20,10 +19,6 @@ const argument = kurage.argument
   .command('<file> [args...]', 'Run a file')
   .command('info-json', 'Show system information and output result as JSON')
   .command('txcl <files...>', 'Process file transclusions')
-  .command(
-    'generate [file]',
-    'Generate a script template and write it to a file or stdout'
-  )
   .option('-v, --version', 'Show version number', false)
   .example(packageName)
   .example(`${packageName} repl`)
@@ -36,7 +31,6 @@ const argument = kurage.argument
   .example(`${packageName} script.js`)
   .example(`${packageName} info-json`)
   .example(`${packageName} txcl README.md`)
-  .example(`${packageName} generate script.js`)
   .parse(process.argv.slice(2));
 const actions = {
   'eval': evalAsync,
@@ -46,7 +40,6 @@ const actions = {
   'repl': replAsync,
   'run': runAsync,
   'txcl': txclAsync,
-  'generate': generateAsync,
 };
 const action = actions[(argument.args[0] ?? 'repl').toLowerCase()];
 if (argument.options.version) kurage.logger.out(kurage.packageJson.version);
