@@ -117,37 +117,43 @@ var Argument = class Argument {
     );
     const typeLabel = (option) =>
       `(${option.takesValue ? 'string' : 'boolean'}:${option.required ? 'Required' : JSON.stringify(option.defaultValue)})`;
-    const widths = {
-      command: Math.max(
+    const commandWidths = {
+      usage: Math.max(
         0,
         ...this.#commandDefinitions.map(
           (commandDefinition) => commandDefinition.usage.length
         )
       ),
+    };
+    const optionWidths = {
       flags: Math.max(0, ...options.map((option) => option.flags.length)),
       typeLabel: Math.max(0, ...options.map((option) => typeLabel(option).length)),
       description: Math.max(0, ...options.map((option) => option.description.length)),
     };
-    return Line.join([
-      `Usage: ${this.#name} [options]${this.#commandDefinitions.length > 0 ? ' [command]' : ''}`,
-      'Options:',
-      ...options.map(
-        (option) =>
-          `  ${option.flags.padEnd(widths.flags)} ${typeLabel(option).padEnd(widths.typeLabel)} ${option.description.padEnd(widths.description)}`
-      ),
-      ...(this.#commandDefinitions.length > 0
-        ? [
-            'Commands:',
-            ...this.#commandDefinitions.map(
-              (commandDefinition) =>
-                `  ${commandDefinition.usage.padEnd(widths.command)} ${commandDefinition.description}`
-            ),
-          ]
-        : []),
-      ...(this.#examples.length > 0
-        ? ['Examples:', ...this.#examples.map((example) => `  ${example}`)]
-        : []),
-    ]);
+    const builder = Line.builder
+      .new()
+      .append('Usage: ')
+      .append(this.#name)
+      .append(' [options]')
+      .append(' [command]', this.#commandDefinitions.length > 0)
+      .push()
+      .line('Options:');
+    for (const option of options)
+      builder.line(
+        `  ${option.flags.padEnd(optionWidths.flags)} ${typeLabel(option).padEnd(optionWidths.typeLabel)} ${option.description.padEnd(optionWidths.description)}`
+      );
+    if (this.#commandDefinitions.length > 0) {
+      builder.line('Commands:');
+      for (const commandDefinition of this.#commandDefinitions)
+        builder.line(
+          `  ${commandDefinition.usage.padEnd(commandWidths.usage)} ${commandDefinition.description}`
+        );
+    }
+    if (this.#examples.length > 0) {
+      builder.line('Examples:');
+      for (const example of this.#examples) builder.line(`  ${example}`);
+    }
+    return builder.toString();
   }
 };
 

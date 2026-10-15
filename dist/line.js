@@ -25,10 +25,36 @@ var Scanner = class Scanner {
     return this;
   }
 };
+var Builder = class Builder {
+  static new(...args) {
+    return new Builder(...args);
+  }
+  #text = '';
+  #lines = [];
+  append(text, condition = true) {
+    if (condition) this.#text = `${this.#text}${text}`;
+    return this;
+  }
+  push() {
+    this.line(this.#text);
+    this.#text = '';
+    return this;
+  }
+  line(text, condition = true) {
+    if (condition) this.#lines.push(text);
+    return this;
+  }
+  toString() {
+    return Line.join(this.#lines);
+  }
+};
 var Line = class Line {
   static eol = '\n';
   static get scanner() {
     return Scanner;
+  }
+  static get builder() {
+    return Builder;
   }
   static join(lines, eol = Line.eol) {
     return lines.join(eol);
@@ -38,4 +64,4 @@ var Line = class Line {
   }
 };
 
-export { Line, Scanner };
+export { Builder, Line, Scanner };

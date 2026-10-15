@@ -11,9 +11,18 @@ export declare class Scanner {
   scan(index: number, line: string): Match | undefined;
   set(name: string, matcher: RegExp): Scanner;
 }
+export declare class Builder {
+  #private;
+  static new(...args: ConstructorParameters<typeof Builder>): Builder;
+  append(text: string, condition?: boolean): this;
+  push(): this;
+  line(text: string, condition?: boolean): this;
+  toString(): string;
+}
 export declare class Line {
   static eol: string;
   static get scanner(): typeof Scanner;
+  static get builder(): typeof Builder;
   static join(lines: string[], eol?: string): string;
   static split(text: string, eol?: string): string[];
 }

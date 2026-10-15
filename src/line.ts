@@ -37,11 +37,49 @@ export class Scanner {
   }
 }
 
+export class Builder {
+  static new(...args: ConstructorParameters<typeof Builder>): Builder {
+    return new Builder(...args);
+  }
+
+  #text = '';
+
+  #lines: string[] = [];
+
+  append(text: string, condition: boolean = true): this {
+    if (condition) {
+      this.#text = `${this.#text}${text}`;
+    }
+    return this;
+  }
+
+  push(): this {
+    this.line(this.#text);
+    this.#text = '';
+    return this;
+  }
+
+  line(text: string, condition: boolean = true): this {
+    if (condition) {
+      this.#lines.push(text);
+    }
+    return this;
+  }
+
+  toString(): string {
+    return Line.join(this.#lines);
+  }
+}
+
 export class Line {
   static eol = '\n';
 
   static get scanner(): typeof Scanner {
     return Scanner;
+  }
+
+  static get builder(): typeof Builder {
+    return Builder;
   }
 
   static join(lines: string[], eol: string = Line.eol): string {
