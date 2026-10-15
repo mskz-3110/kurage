@@ -9,11 +9,11 @@ ENV PATH="${BUN_INSTALL}/bin:${WORKDIR}/bin:${PATH}"
 ENV VHS_NO_SANDBOX=true
 
 RUN apt update \
-  && apt install -y --no-install-recommends ca-certificates curl git gnupg unzip \
+  && apt install -y --no-install-recommends ca-certificates curl git gnupg jq unzip vim \
   && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://bun.sh/install | bash
 RUN bun upgrade
-RUN npm install -g pnpm jq
+RUN npm install -g pnpm
 
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg \

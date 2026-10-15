@@ -32,6 +32,11 @@ const argument = kurage.argument
   .example(`${packageName} info-json`)
   .example(`${packageName} txcl README.md`)
   .parse(process.argv.slice(2));
+if (argument.options.version) {
+  kurage.logger.out(kurage.packageJson.version);
+  process.exit(0);
+}
+const $ = kurage.spellbook;
 const actions = {
   'eval': evalAsync,
   'exec-json': execJsonAsync,
@@ -41,15 +46,18 @@ const actions = {
   'run': runAsync,
   'txcl': txclAsync,
 };
-const action = actions[(argument.args[0] ?? 'repl').toLowerCase()];
-if (argument.options.version) kurage.logger.out(kurage.packageJson.version);
-else if (action != null) {
-  if (argument.args[0] != null) process.argv = process.argv.slice(1);
-  (async () => {
-    await action();
-  })();
-} else if (kurage.spellbook.exists(argument.args[0]))
-  (async () => {
-    await actions.run();
-  })();
-else argument.abort(`Invalid args: ${argument.args.join(' ')}`);
+let args = argument.args;
+let mode = (args.shift() ?? '').toLowerCase();
+if (mode === '')
+  if (process.stdin.isTTY) mode = 'repl';
+  else {
+    mode = 'eval';
+    args = await $.readStreamLinesAsync(process.stdin);
+  }
+let action = actions[mode];
+if (action != null) process.argv = [...process.argv.slice(0, 2), ...args];
+else if ($.exists(mode)) action = actions['run'];
+else argument.abort(`Invalid args: ${[mode, ...args].join(' ')}`);
+(async () => {
+  await action();
+})();

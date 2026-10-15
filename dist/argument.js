@@ -1,4 +1,5 @@
 import { Backtrace } from './backtrace.js';
+import { Line } from './line.js';
 import { Logger } from './logger.js';
 import { Process } from './process.js';
 
@@ -32,7 +33,7 @@ var Argument = class Argument {
       .replace(/^-+/, '')
       .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
     if (optionName === '')
-      this.abort(`Invalid flags: empty\n${Backtrace.new().toString()}`);
+      this.abort(Line.join(['Invalid flags: empty', Backtrace.new().toString()]));
     const optionDefinition = {
       flags,
       aliases,
@@ -127,7 +128,7 @@ var Argument = class Argument {
       typeLabel: Math.max(0, ...options.map((option) => typeLabel(option).length)),
       description: Math.max(0, ...options.map((option) => option.description.length)),
     };
-    return [
+    return Line.join([
       `Usage: ${this.#name} [options]${this.#commandDefinitions.length > 0 ? ' [command]' : ''}`,
       'Options:',
       ...options.map(
@@ -146,7 +147,7 @@ var Argument = class Argument {
       ...(this.#examples.length > 0
         ? ['Examples:', ...this.#examples.map((example) => `  ${example}`)]
         : []),
-    ].join('\n');
+    ]);
   }
 };
 
