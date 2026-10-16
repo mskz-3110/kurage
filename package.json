@@ -36,7 +36,7 @@
   ],
   "scripts": {
     "install:frozen": "pnpm install --frozen-lockfile",
-    "docker:build": "docker compose up -d --build kurage-minimum && docker compose build --no-cache kurage-develop && docker compose up -d kurage-develop",
+    "docker:build": "docker compose up -d --build kurage-minimum && docker compose up -d --build kurage-develop",
     "docker:min": "docker compose run --rm kurage-minimum bash",
     "docker:dev": "docker compose run --rm kurage-develop bash",
     "docker:vhs": "docker compose run -e PS1='$ ' --rm kurage-develop bash -c 'node tools/readme/generate-assets.js'",
@@ -49,7 +49,7 @@
   "engines": {
     "node": ">=22",
     "bun": ">=1.4.0",
-    "pnpm": ">=11"
+    "pnpm": ">=12"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.1",

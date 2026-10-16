@@ -1,6 +1,5 @@
 import { Bytes } from './bytes.js';
-import { Command, Stream } from './command.js';
-import { Line, Scanner } from './line.js';
+import { Scanner } from './line.js';
 import { Spellbook } from './spellbook.js';
 
 type Node = {
@@ -161,18 +160,6 @@ export class Transcluder {
             lines: (await Spellbook.readLinesAsync(element.content, encoding)).map(
               (line) => parser.sanitize(line)
             ),
-            ...element,
-          });
-        } else if (element.symbol === '$') {
-          const stdout = Stream.new();
-          (
-            await Command.new(element.content.split(' ')).execAsync(
-              { stdio: ['ignore', stdout, 'ignore'] },
-              {}
-            )
-          ).exitIfFailure();
-          replacer.addMarker({
-            lines: Line.split(stdout.buffer.toString(encoding).trimEnd()),
             ...element,
           });
         }

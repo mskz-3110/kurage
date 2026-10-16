@@ -23,13 +23,7 @@ var Process = class Process {
   }
   static setup() {
     for (const [name, handler] of Object.entries(Process.#listeners))
-      try {
-        if (!process.listeners(name).includes(handler)) process.on(name, handler);
-      } catch (e) {
-        if (e instanceof Error && 'code' in e) {
-          if (e.code !== 'ERR_INVALID_REPL_INPUT') throw e;
-        }
-      }
+      if (!process.listeners(name).includes(handler)) process.on(name, handler);
   }
   static cleanup() {
     for (const [name, handler] of Object.entries(Process.#listeners))

@@ -56,8 +56,8 @@ if (mode === '')
   }
 let action = actions[mode];
 if (action != null) process.argv = [...process.argv.slice(0, 2), ...args];
-else if ($.exists(mode)) action = actions['run'];
-else argument.abort(`Invalid args: ${[mode, ...args].join(' ')}`);
+else if ($.exists(mode)) action = actions.run;
+else argument.abort(`Invalid arg: ${mode}`);
 (async () => {
   await action();
 })();

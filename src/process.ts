@@ -35,16 +35,8 @@ export class Process {
 
   static setup() {
     for (const [name, handler] of Object.entries(Process.#listeners)) {
-      try {
-        if (!process.listeners(name).includes(handler)) {
-          process.on(name, handler);
-        }
-      } catch (e: unknown) {
-        if (e instanceof Error && 'code' in e) {
-          if (e.code !== 'ERR_INVALID_REPL_INPUT') {
-            throw e;
-          }
-        }
+      if (!process.listeners(name).includes(handler)) {
+        process.on(name, handler);
       }
     }
   }
