@@ -1,4 +1,5 @@
 import kurage from '../dist/kurage.js';
+import { mockProcessExit } from './helpers.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -35,7 +36,7 @@ describe('kurage', () => {
     });
 
     it('exits when the command fails', async () => {
-      const processExit = vi.spyOn(process, 'exit').mockImplementation((code) => {
+      mockProcessExit((code) => {
         throw new Error(`exit:${code}`);
       });
 
@@ -70,7 +71,7 @@ describe('kurage', () => {
 
   describe('$exit', () => {
     it('exits with the command exit code', async () => {
-      const processExit = vi.spyOn(process, 'exit').mockImplementation((code) => {
+      mockProcessExit((code) => {
         throw new Error(`exit:${code}`);
       });
 

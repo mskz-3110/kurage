@@ -7,7 +7,7 @@ afterEach(() => {
 
 describe('Stopwatch', () => {
   it('creates a stopwatch', () => {
-    expect(Stopwatch.new() != null).toBe(true);
+    expect(Stopwatch.new()).toBeInstanceOf(Stopwatch);
   });
 
   it('measures elapsed time & resets when restarted', () => {

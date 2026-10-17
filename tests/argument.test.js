@@ -1,20 +1,15 @@
 import { Argument } from '../dist/argument.js';
 import { Logger } from '../dist/logger.js';
+import { mockLoggerWrite, mockProcessExit } from './helpers.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
 const withProcessMocks = (callback, exit = () => {}) => {
-  const state = { exitCodes: [], messages: [] };
-  vi.spyOn(process, 'exit').mockImplementation((code) => {
-    state.exitCodes.push(code);
-    exit();
-  });
+  const state = { exitCodes: mockProcessExit(exit), messages: [] };
   vi.spyOn(Logger, 'err').mockImplementation((message) => state.messages.push(message));
-  vi.spyOn(Logger, 'write').mockImplementation((_, message) =>
-    state.messages.push(message)
-  );
+  mockLoggerWrite(state.messages, (_, message) => message);
 
   callback(state);
   return state;

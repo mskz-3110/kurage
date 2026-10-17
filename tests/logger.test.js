@@ -3,9 +3,6 @@ import { Time } from '../dist/time.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
-});
-
-afterEach(() => {
   Logger.unsetHandlers('test');
   Logger.unsetHandlers('replace');
   Logger.unsetHandlers('write');

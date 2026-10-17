@@ -12,7 +12,7 @@ afterEach(() => {
 
 describe('Time', () => {
   it('exposes a date formatter', () => {
-    expect(Time.formatter != null).toBe(true);
+    expect(Time.formatter).toBeDefined();
   });
 
   it('accepts nonnegative drift thresholds & refreshes its time base', () => {
@@ -37,7 +37,7 @@ describe('Time', () => {
   });
 
   it('creates a Time from the current instant', () => {
-    expect(Time.new().date instanceof Date).toBe(true);
+    expect(Time.new().date).toBeInstanceOf(Date);
   });
 
   it('calculates elapsed milliseconds since another Time', () => {

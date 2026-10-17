@@ -3,6 +3,7 @@ import eventsModule from 'node:events';
 import streamModule from 'node:stream';
 import { Command } from '../dist/command.js';
 import { Logger } from '../dist/logger.js';
+import { mockLoggerWrite, mockProcessExit } from './helpers.js';
 
 const unavailableCommand = 'kurage-command-that-does-not-exist';
 
@@ -75,7 +76,7 @@ describe('Command', () => {
   describe('execAsync', () => {
     it('uses the default logging hooks', async () => {
       const names = [];
-      vi.spyOn(Logger, 'write').mockImplementation((name) => names.push(name));
+      mockLoggerWrite(names, (name) => name);
 
       await Command.new([]).execAsync();
 
@@ -275,8 +276,7 @@ describe('Command', () => {
         {},
         {}
       );
-      const exitCodes = [];
-      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
+      const exitCodes = mockProcessExit();
 
       command.exit();
 
@@ -285,10 +285,9 @@ describe('Command', () => {
 
     it('logs an exception before exiting', async () => {
       const command = await Command.new([unavailableCommand]).execAsync({}, {});
-      const exitCodes = [];
+      const exitCodes = mockProcessExit();
       const messages = [];
-      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
-      vi.spyOn(Logger, 'write').mockImplementation((_, message) => messages.push(message));
+      mockLoggerWrite(messages, (_, message) => message);
 
       command.exit();
 
@@ -298,8 +297,7 @@ describe('Command', () => {
 
     it('returns the command without exiting on success', async () => {
       const success = await Command.new([process.execPath, '-e', '']).execAsync({}, {});
-      const exitCodes = [];
-      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
+      const exitCodes = mockProcessExit();
 
       expect(success.exitIfFailure()).toBe(success);
 
@@ -311,8 +309,7 @@ describe('Command', () => {
         {},
         {}
       );
-      const exitCodes = [];
-      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
+      const exitCodes = mockProcessExit();
 
       expect(command.exitIfFailure()).toBe(command);
 
@@ -323,7 +320,7 @@ describe('Command', () => {
   describe('loggingActionAsync', () => {
     it('logs start & end for a successful action', async () => {
       const messages = [];
-      vi.spyOn(Logger, 'write').mockImplementation((name) => messages.push(name));
+      mockLoggerWrite(messages, (name) => name);
 
       await Command.loggingActionAsync(['task'], () => {});
 
@@ -333,9 +330,7 @@ describe('Command', () => {
     it('records action errors & sets a failing process exit code', async () => {
       const processExitCode = process.exitCode;
       const messages = [];
-      vi.spyOn(Logger, 'write').mockImplementation((name, message) =>
-        messages.push([name, message])
-      );
+      mockLoggerWrite(messages);
 
       try {
         await Command.loggingActionAsync(['task'], () => {

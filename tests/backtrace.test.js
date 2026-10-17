@@ -8,7 +8,7 @@ describe('Backtrace', () => {
   });
 
   it('creates a backtrace with an optional maximum length', () => {
-    expect(Array.isArray(Backtrace.new().frames)).toBe(true);
+    expect(Backtrace.new().frames).toEqual(expect.any(Array));
     expect(Backtrace.new(0, 1).frames.length).toBeLessThanOrEqual(1);
   });
 

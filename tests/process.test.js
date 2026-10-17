@@ -1,5 +1,5 @@
-import { Logger } from '../dist/logger.js';
 import { Process } from '../dist/process.js';
+import { mockLoggerWrite, mockProcessExit } from './helpers.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -19,12 +19,9 @@ describe('Process', () => {
   });
 
   it('logs an optional message & exits with the requested code', () => {
-    const exitCodes = [];
+    const exitCodes = mockProcessExit();
     const messages = [];
-    vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
-    vi.spyOn(Logger, 'write').mockImplementation((name, message) =>
-      messages.push([name, message])
-    );
+    mockLoggerWrite(messages);
 
     Process.abort('stopped', 2);
     Process.abort();
@@ -34,12 +31,9 @@ describe('Process', () => {
   });
 
   it('logs uncaught exceptions & unhandled rejections before exiting', () => {
-    const exitCodes = [];
+    const exitCodes = mockProcessExit();
     const messages = [];
-    vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
-    vi.spyOn(Logger, 'write').mockImplementation((name, message) =>
-      messages.push([name, message])
-    );
+    mockLoggerWrite(messages);
 
     process.emit('uncaughtException', new Error('uncaught'));
     process.emit('unhandledRejection', 'rejected');
