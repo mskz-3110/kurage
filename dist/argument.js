@@ -73,7 +73,7 @@ var Argument = class Argument {
   }
   parse(args) {
     this.#args = [];
-    const optionValues = {};
+    const optionValues = Object.create(null);
     const specifiedOptionNames = /* @__PURE__ */ new Set();
     for (const optionDefinition of this.#optionDefinitions)
       optionValues[optionDefinition.name] = optionDefinition.defaultValue;
@@ -99,16 +99,17 @@ var Argument = class Argument {
         this.abort(`Missing value: ${matchedOptionDefinition.flags}`);
       optionValues[matchedOptionDefinition.name] = args[++index];
     }
-    if (!specifiedOptionNames.has('help')) {
-      const missingRequiredOption = this.#optionDefinitions.find(
-        (optionDefinition) =>
-          optionDefinition.required && !specifiedOptionNames.has(optionDefinition.name)
-      );
-      if (missingRequiredOption != null)
-        this.abort(`Missing required option: ${missingRequiredOption.flags}`);
-    }
+    const helpSpecified = specifiedOptionNames.has('help');
+    const missingRequiredOption = this.#optionDefinitions.find(
+      (optionDefinition) =>
+        optionDefinition.required &&
+        !specifiedOptionNames.has(optionDefinition.name) &&
+        !helpSpecified
+    );
+    if (missingRequiredOption != null)
+      this.abort(`Missing required option: ${missingRequiredOption.flags}`);
     this.#options = optionValues;
-    if (optionValues.help === true) this.abort();
+    if (helpSpecified) this.abort();
     return this;
   }
   help() {

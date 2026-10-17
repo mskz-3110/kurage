@@ -140,7 +140,7 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
 
   parse(args: readonly string[]): this {
     this.#args = [];
-    const optionValues: Record<string, string | boolean> = {};
+    const optionValues = Object.create(null) as Record<string, string | boolean>;
     const specifiedOptionNames = new Set<string>();
     for (const optionDefinition of this.#optionDefinitions) {
       optionValues[optionDefinition.name] = optionDefinition.defaultValue;
@@ -177,18 +177,19 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
       optionValues[matchedOptionDefinition.name] = args[++index]!;
     }
 
-    if (!specifiedOptionNames.has('help')) {
-      const missingRequiredOption = this.#optionDefinitions.find(
-        (optionDefinition) =>
-          optionDefinition.required && !specifiedOptionNames.has(optionDefinition.name)
-      );
-      if (missingRequiredOption != null) {
-        this.abort(`Missing required option: ${missingRequiredOption.flags}`);
-      }
+    const helpSpecified = specifiedOptionNames.has('help');
+    const missingRequiredOption = this.#optionDefinitions.find(
+      (optionDefinition) =>
+        optionDefinition.required &&
+        !specifiedOptionNames.has(optionDefinition.name) &&
+        !helpSpecified
+    );
+    if (missingRequiredOption != null) {
+      this.abort(`Missing required option: ${missingRequiredOption.flags}`);
     }
 
     this.#options = optionValues as Options;
-    if (optionValues.help === true) {
+    if (helpSpecified) {
       this.abort();
     }
 
