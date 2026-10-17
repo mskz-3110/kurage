@@ -26,7 +26,7 @@ var Spellbook = class Spellbook {
       newDir = process.cwd();
       await block?.();
     } finally {
-      if (oldDir !== newDir) process.chdir(oldDir);
+      if (process.cwd() !== oldDir) process.chdir(oldDir);
     }
     return newDir;
   }
@@ -118,9 +118,10 @@ var Spellbook = class Spellbook {
     }
   }
   static replace(path, data) {
-    const tmpPath = Path.with(path, { name: `.${Spellbook.filename(path)}` });
+    const tmpPath = Path.with(path, {
+      name: `.${Spellbook.filename(path)}.${Spellbook.uuid()}`,
+    });
     try {
-      Spellbook.remove(tmpPath);
       Spellbook.write(tmpPath, data);
       Spellbook.rename(tmpPath, path);
     } finally {
@@ -155,10 +156,9 @@ var Spellbook = class Spellbook {
     const accessors = [];
     const methods = [];
     let descriptors = Object.entries(Object.getOwnPropertyDescriptors(value));
-    if (descriptors.length === 0)
-      descriptors = Object.entries(
-        Object.getOwnPropertyDescriptors(Object.getPrototypeOf(value))
-      );
+    const prototype = Object.getPrototypeOf(value);
+    if (descriptors.length === 0 && prototype != null)
+      descriptors = Object.entries(Object.getOwnPropertyDescriptors(prototype));
     for (const [name, descriptor] of descriptors) {
       if (ignoreNames.includes(name)) continue;
       if (typeof descriptor.get === 'function' || typeof descriptor.set === 'function') {

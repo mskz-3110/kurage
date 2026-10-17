@@ -50,7 +50,7 @@ export class Spellbook {
       newDir = process.cwd();
       await block?.();
     } finally {
-      if (oldDir !== newDir) {
+      if (process.cwd() !== oldDir) {
         process.chdir(oldDir);
       }
     }
@@ -193,10 +193,9 @@ export class Spellbook {
 
   static replace(path: string, data: string | Uint8Array) {
     const tmpPath = Path.with(path, {
-      name: `.${Spellbook.filename(path)}`,
+      name: `.${Spellbook.filename(path)}.${Spellbook.uuid()}`,
     });
     try {
-      Spellbook.remove(tmpPath);
       Spellbook.write(tmpPath, data);
       Spellbook.rename(tmpPath, path);
     } finally {
@@ -241,10 +240,9 @@ export class Spellbook {
     const accessors: string[] = [];
     const methods: string[] = [];
     let descriptors = Object.entries(Object.getOwnPropertyDescriptors(value));
-    if (descriptors.length === 0) {
-      descriptors = Object.entries(
-        Object.getOwnPropertyDescriptors(Object.getPrototypeOf(value))
-      );
+    const prototype = Object.getPrototypeOf(value);
+    if (descriptors.length === 0 && prototype != null) {
+      descriptors = Object.entries(Object.getOwnPropertyDescriptors(prototype));
     }
     for (const [name, descriptor] of descriptors) {
       if (ignoreNames.includes(name)) {
