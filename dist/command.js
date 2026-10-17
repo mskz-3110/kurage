@@ -198,9 +198,16 @@ var Command = class Command {
           this.#exception.error.stack = this.#exception.error.message;
           this.#process.stdout?.destroy();
           this.#process.stderr?.destroy();
+          stdout?.destroy();
+          stderr?.destroy();
           resolve();
         });
       });
+      await Promise.all(
+        [stdout, stderr]
+          .filter((stream) => stream != null && !stream.closed)
+          .map((stream) => new Promise((resolve) => stream.once('close', resolve)))
+      );
     } catch (e) {
       this.#stopwatch.stop();
       this.#exception = Exception.new(e);

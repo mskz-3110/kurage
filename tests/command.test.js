@@ -1,3 +1,6 @@
+import childProcessModule from 'node:child_process';
+import eventsModule from 'node:events';
+import streamModule from 'node:stream';
 import { Command } from '../dist/command.js';
 import { Logger } from '../dist/logger.js';
 
@@ -104,17 +107,15 @@ describe('Command', () => {
     it('connects Stream instances to child stdio', async () => {
       const stdout = Command.stream.new();
       const stderr = Command.stream.new();
-      const streamsClosed = Promise.all(
-        [stdout, stderr].map((stream) => new Promise((resolve) => stream.once('close', resolve)))
-      );
       const command = await Command.new([
         process.execPath,
         '-e',
         "process.stdout.write('out'); process.stderr.write('err')",
       ]).execAsync({ stdio: ['ignore', stdout, stderr] }, {});
-      await streamsClosed;
 
       expect(command.exitCode).toBe(0);
+      expect(stdout.closed).toBe(true);
+      expect(stderr.closed).toBe(true);
       expect(stdout.writableFinished).toBe(true);
       expect(stderr.writableFinished).toBe(true);
     });
@@ -122,8 +123,6 @@ describe('Command', () => {
     it('connects stdout-only & stderr-only Stream instances', async () => {
       const stdout = Command.stream.new();
       const stderr = Command.stream.new();
-      const stdoutClosed = new Promise((resolve) => stdout.once('close', resolve));
-      const stderrClosed = new Promise((resolve) => stderr.once('close', resolve));
       const stdoutCommand = await Command.new([process.execPath, '-e', '']).execAsync(
         { stdio: ['ignore', stdout, 'inherit'] },
         {}
@@ -132,12 +131,50 @@ describe('Command', () => {
         { stdio: ['ignore', 'inherit', stderr] },
         {}
       );
-      await Promise.all([stdoutClosed, stderrClosed]);
-
       expect(stdoutCommand.exitCode).toBe(0);
       expect(stderrCommand.exitCode).toBe(0);
+      expect(stdout.closed).toBe(true);
+      expect(stderr.closed).toBe(true);
       expect(stdout.writableFinished).toBe(true);
       expect(stderr.writableFinished).toBe(true);
+    });
+
+    it('waits for connected streams to close after the child process closes', async () => {
+      const stdout = Command.stream.new();
+      const stderr = Command.stream.new();
+      const child = Object.assign(new eventsModule.EventEmitter(), {
+        stdout: new streamModule.PassThrough(),
+        stderr: new streamModule.PassThrough(),
+        exitCode: 0,
+        killed: false,
+        kill() {},
+      });
+      const spawn = vi.spyOn(childProcessModule, 'spawn').mockReturnValue(child);
+
+      try {
+        const commandPromise = Command.new(['command']).execAsync(
+          { stdio: ['ignore', stdout, stderr] },
+          {}
+        );
+        child.emit('close', 0, null);
+
+        let isResolved = false;
+        commandPromise.then(() => {
+          isResolved = true;
+        });
+        await Promise.resolve();
+        expect(isResolved).toBe(false);
+
+        child.stdout.end();
+        child.stderr.end();
+        const command = await commandPromise;
+
+        expect(command.exitCode).toBe(0);
+        expect(stdout.closed).toBe(true);
+        expect(stderr.closed).toBe(true);
+      } finally {
+        spawn.mockRestore();
+      }
     });
 
     it('returns a failing exit code without an exception', async () => {

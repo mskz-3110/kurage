@@ -266,9 +266,17 @@ export class Command {
           this.#exception.error.stack = this.#exception.error.message;
           this.#process!.stdout?.destroy();
           this.#process!.stderr?.destroy();
+          stdout?.destroy();
+          stderr?.destroy();
           resolve();
         });
       });
+
+      await Promise.all(
+        [stdout, stderr]
+          .filter((stream): stream is Stream => stream != null && !stream.closed)
+          .map((stream) => new Promise<void>((resolve) => stream.once('close', resolve)))
+      );
     } catch (e: unknown) {
       this.#stopwatch.stop();
       this.#exception = Exception.new(e);

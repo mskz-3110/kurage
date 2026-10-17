@@ -1,0 +1,176 @@
+import kurage from '../dist/kurage.js';
+
+const mockCommandOutput = (output) => {
+  return vi.spyOn(kurage.command, 'new').mockImplementationOnce(() => ({
+    execAsync: async (options) => {
+      const stdout = options.stdio[1];
+      Object.defineProperty(stdout, 'buffer', { value: Buffer.from(output) });
+      stdout.end(output);
+      return {
+        exitIfFailure() {
+          return this;
+        },
+      };
+    },
+  }));
+};
+
+describe('kurage', () => {
+  it('setupGlobals', () => {
+    const target = {};
+
+    kurage.setupGlobals(target);
+
+    expect(target.kurage).toBe(kurage);
+    expect(target.$).toBe(kurage.spellbook);
+  });
+
+  describe('$', () => {
+    it('resolves when the command succeeds', async () => {
+      await expect(kurage.$([process.execPath, '-e', ''])).resolves.toBeUndefined();
+    });
+
+    it('exits when the command fails', async () => {
+      const processExit = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        throw new Error(`exit:${code}`);
+      });
+
+      try {
+        await expect(
+          kurage.$([process.execPath, '-e', 'process.exit(3)'])
+        ).rejects.toThrow('exit:3');
+      } finally {
+        processExit.mockRestore();
+      }
+    });
+  });
+
+  describe('$command', () => {
+    it('returns the command & forwards hooks', async () => {
+      const events = [];
+      const command = await kurage.$command(
+        [process.execPath, '-e', ''],
+        {},
+        {
+          onStart: (startedCommand) => {
+            events.push(['start', startedCommand]);
+            return 'context';
+          },
+          onEnd: (endedCommand, context) => events.push(['end', endedCommand, context]),
+        }
+      );
+
+      expect(command.exitCode).toBe(0);
+      expect(events).toEqual([
+        ['start', command],
+        ['end', command, 'context'],
+      ]);
+    });
+  });
+
+  describe('$exit', () => {
+    it('exits with the command exit code', async () => {
+      const processExit = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        throw new Error(`exit:${code}`);
+      });
+
+      try {
+        await expect(kurage.$exit([process.execPath, '-e', ''])).rejects.toThrow(
+          'exit:0'
+        );
+      } finally {
+        processExit.mockRestore();
+      }
+    });
+  });
+
+  describe('$out', () => {
+    it('returns trimmed stdout', async () => {
+      const commandNew = mockCommandOutput('first\nsecond\n\n');
+      try {
+        await expect(kurage.$out(['command'])).resolves.toBe('first\nsecond');
+      } finally {
+        commandNew.mockRestore();
+      }
+    });
+
+    it('uses the requested encoding', async () => {
+      const commandNew = mockCommandOutput('text');
+      try {
+        await expect(kurage.$out(['command'], {}, 'base64')).resolves.toBe('dGV4dA==');
+      } finally {
+        commandNew.mockRestore();
+      }
+    });
+  });
+
+  describe('$ok', () => {
+    it('returns true for a successful command', async () => {
+      await expect(kurage.$ok([process.execPath, '-e', ''])).resolves.toBe(true);
+    });
+
+    it('returns false for a failed command', async () => {
+      await expect(
+        kurage.$ok([process.execPath, '-e', 'process.exit(4)'])
+      ).resolves.toBe(false);
+    });
+  });
+
+  describe('log', () => {
+    it('forwards the logger name, argument & time', () => {
+      const loggerWrite = vi.spyOn(kurage.logger, 'write').mockImplementation(() => {});
+      const time = kurage.time.new();
+
+      try {
+        kurage.log('info', 'message', time);
+        expect(loggerWrite).toHaveBeenCalledWith('info', 'message', time);
+      } finally {
+        loggerWrite.mockRestore();
+      }
+    });
+  });
+
+  it('runtimeName: bun', async () => {
+    const bunDescriptor = Object.getOwnPropertyDescriptor(process.versions, 'bun');
+    try {
+      Object.defineProperty(process.versions, 'bun', {
+        configurable: true,
+        value: 'test',
+      });
+      vi.resetModules();
+      const { default: bunKurage } = await import('../dist/kurage.js');
+      expect(bunKurage.runtimeName).toBe('bun');
+    } finally {
+      if (bunDescriptor == null) {
+        delete process.versions.bun;
+      } else {
+        Object.defineProperty(process.versions, 'bun', bunDescriptor);
+      }
+      vi.resetModules();
+    }
+  });
+
+  it('modules & runtimeName & packageJson', () => {
+    expect(kurage.backtrace).toBeDefined();
+    expect(kurage.argument).toBeDefined();
+    expect(kurage.bytes).toBeDefined();
+    expect(kurage.color).toBeDefined();
+    expect(kurage.command).toBeDefined();
+    expect(kurage.duration).toBeDefined();
+    expect(kurage.exception).toBeDefined();
+    expect(kurage.line).toBeDefined();
+    expect(kurage.logger).toBeDefined();
+    expect(kurage.path).toBeDefined();
+    expect(kurage.process).toBeDefined();
+    expect(kurage.spellbook).toBeDefined();
+    expect(kurage.stopwatch).toBeDefined();
+    expect(kurage.time).toBeDefined();
+    expect(kurage.transcluder).toBeDefined();
+    expect(['node', 'bun']).toContain(kurage.runtimeName);
+    expect(kurage.packageJson).toMatchObject({
+      name: 'kurage',
+      version: expect.any(String),
+      description: expect.any(String),
+    });
+  });
+});
