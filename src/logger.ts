@@ -113,6 +113,10 @@ export class Logger {
     Logger.#handlers[name] = handlers;
   }
 
+  static unsetHandlers(name: string) {
+    delete Logger.#handlers[name];
+  }
+
   static addHandler(name: string, handler: Handler) {
     if (Logger.#invalidNames.includes(name) || name === '') {
       return;

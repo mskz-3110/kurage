@@ -28,6 +28,9 @@ var Color = class Color {
     if (Color.#invalidNames.includes(name) || name === '') return;
     Color.#colors[name] = value;
   }
+  static unset(name) {
+    delete Color.#colors[name];
+  }
   static paint(name, message, enabled = true) {
     if (!enabled || !Color.enabled || message === '') return message;
     const value = Color.get(name);

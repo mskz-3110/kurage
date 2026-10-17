@@ -8,7 +8,7 @@ const unavailableCommand = 'kurage-command-that-does-not-exist';
 
 describe('Command', () => {
   describe('new', () => {
-    it('copies args & formats the command', () => {
+    it('copies arguments & formats the command name', () => {
       const args = ['node', 'script.js'];
       const command = Command.new(args);
       args.push('changed');
@@ -47,7 +47,7 @@ describe('Command', () => {
       expect(options).toEqual({});
     });
 
-    it('expands a stdio string & applies overrides', () => {
+    it('expands a stdio string & applies entry overrides', () => {
       expect(
         Command.mergeStdio({ stdio: 'inherit' }, ['ignore', null, 'pipe'], 'pipe')
       ).toEqual({ stdio: ['ignore', 'inherit', 'pipe'] });
@@ -83,7 +83,7 @@ describe('Command', () => {
       expect(names).toEqual(['command-start', 'command-end']);
     });
 
-    it('executes a command & passes hook context', async () => {
+    it('executes the command & passes hook context', async () => {
       const hooks = [];
       const command = await Command.new([process.execPath, '-e', ''])
         .execAsync({}, {
@@ -120,7 +120,7 @@ describe('Command', () => {
       expect(stderr.writableFinished).toBe(true);
     });
 
-    it('connects stdout-only & stderr-only Stream instances', async () => {
+    it('connects stdout-only & stderr-only streams', async () => {
       const stdout = Command.stream.new();
       const stderr = Command.stream.new();
       const stdoutCommand = await Command.new([process.execPath, '-e', '']).execAsync(
@@ -313,7 +313,7 @@ describe('Command', () => {
       expect(messages[0]).toContain(command.exception.toString());
     });
 
-    it('exits only on failure & otherwise returns the command', async () => {
+    it('returns the command without exiting on success', async () => {
       const success = await Command.new([process.execPath, '-e', '']).execAsync({}, {});
       const processExit = process.exit;
       const exitCodes = [];
@@ -362,7 +362,7 @@ describe('Command', () => {
       expect(messages).toEqual(['command-start', 'command-end']);
     });
 
-    it('records action errors & restores process exit code', async () => {
+    it('records action errors & sets a failing process exit code', async () => {
       const loggerWrite = Logger.write;
       const processExitCode = process.exitCode;
       const messages = [];
@@ -384,7 +384,7 @@ describe('Command', () => {
     });
   });
 
-  describe('logging handlers', () => {
+  describe('loggingHandlers', () => {
     it('formats command start & end records', async () => {
       const success = await Command.new([process.execPath, '-e', '']).execAsync({}, {});
       const failure = await Command.new([process.execPath, '-e', 'process.exit(3)']).execAsync(

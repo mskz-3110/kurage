@@ -25,7 +25,7 @@ const withProcessMocks = (callback, exit = () => {}) => {
 
 describe('Argument', () => {
   describe('option', () => {
-    it('empty', () => {
+    it('uses default option values when no options are provided', () => {
       const argument = Argument.new('test')
         .option('-v, --verbose', 'Enable verbose output', false)
         .option('-c, --color <type>', 'Set color mode', 'auto')

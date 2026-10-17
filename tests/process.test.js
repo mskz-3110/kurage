@@ -2,7 +2,7 @@ import { Logger } from '../dist/logger.js';
 import { Process } from '../dist/process.js';
 
 describe('Process', () => {
-  it('args', () => {
+  it('returns command-line arguments after the executable', () => {
     const argv = process.argv;
     const args = ['test'];
     process.argv = [...argv.slice(0, 2), ...args];
@@ -14,7 +14,7 @@ describe('Process', () => {
     }
   });
 
-  it('abort', () => {
+  it('logs an optional message & exits with the requested code', () => {
     const processExit = process.exit;
     const loggerWrite = Logger.write;
     const exitCodes = [];
@@ -34,7 +34,7 @@ describe('Process', () => {
     expect(exitCodes).toEqual([2, 1]);
   });
 
-  it('exception', () => {
+  it('logs uncaught exceptions & unhandled rejections before exiting', () => {
     const processExit = process.exit;
     const loggerWrite = Logger.write;
     const exitCodes = [];
@@ -59,7 +59,7 @@ describe('Process', () => {
     expect(exitCodes).toEqual([1, 1]);
   });
 
-  it('setup & cleanup', () => {
+  it('registers process listeners once & removes them on cleanup', () => {
     const listenerCount = process.listeners('uncaughtException').length;
 
     try {
@@ -78,7 +78,7 @@ describe('Process', () => {
     }
   });
 
-  it('exit', () => {
+  it('cleans up listeners when the process exits', () => {
     const exitListener = process
       .listeners('exit')
       .find((listener) => listener.toString().includes('Process.cleanup'));

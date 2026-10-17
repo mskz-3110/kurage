@@ -6,24 +6,27 @@ afterEach(() => {
 });
 
 describe('Stopwatch', () => {
-  it('new', () => {
+  it('creates a stopwatch', () => {
     expect(Stopwatch.new() != null).toBe(true);
   });
 
-  it('duration', () => {
-    const startTime = {
-      value: 1000,
+  it('measures elapsed time & resets when restarted', () => {
+    const createTime = (value) => ({
+      value,
       since(baseTime) {
         return this.value - baseTime.value;
       },
-    };
-    const stopTime = {
-      value: 2500,
-      since(baseTime) {
-        return this.value - baseTime.value;
-      },
-    };
-    vi.spyOn(Time, 'new').mockReturnValueOnce(startTime).mockReturnValueOnce(stopTime);
+    });
+    const startTime = createTime(1000);
+    const stopTime = createTime(2500);
+    const restartedAt = createTime(3000);
+    const currentTime = createTime(3500);
+    vi.spyOn(Time, 'new')
+      .mockReturnValueOnce(startTime)
+      .mockReturnValueOnce(stopTime)
+      .mockReturnValueOnce(restartedAt)
+      .mockReturnValueOnce(restartedAt)
+      .mockReturnValueOnce(currentTime);
     const stopwatch = Stopwatch.new();
     stopwatch.start();
     stopwatch.stop();

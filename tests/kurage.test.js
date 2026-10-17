@@ -16,7 +16,7 @@ const mockCommandOutput = (output) => {
 };
 
 describe('kurage', () => {
-  it('setupGlobals', () => {
+  it('adds kurage & spellbook globals to a target', () => {
     const target = {};
 
     kurage.setupGlobals(target);
@@ -130,27 +130,29 @@ describe('kurage', () => {
     });
   });
 
-  it('runtimeName: bun', async () => {
-    const bunDescriptor = Object.getOwnPropertyDescriptor(process.versions, 'bun');
-    try {
-      Object.defineProperty(process.versions, 'bun', {
-        configurable: true,
-        value: 'test',
-      });
-      vi.resetModules();
-      const { default: bunKurage } = await import('../dist/kurage.js');
-      expect(bunKurage.runtimeName).toBe('bun');
-    } finally {
-      if (bunDescriptor == null) {
-        delete process.versions.bun;
-      } else {
-        Object.defineProperty(process.versions, 'bun', bunDescriptor);
+  describe('runtimeName', () => {
+    it('detects the Bun runtime', async () => {
+      const bunDescriptor = Object.getOwnPropertyDescriptor(process.versions, 'bun');
+      try {
+        Object.defineProperty(process.versions, 'bun', {
+          configurable: true,
+          value: 'test',
+        });
+        vi.resetModules();
+        const { default: bunKurage } = await import('../dist/kurage.js');
+        expect(bunKurage.runtimeName).toBe('bun');
+      } finally {
+        if (bunDescriptor == null) {
+          delete process.versions.bun;
+        } else {
+          Object.defineProperty(process.versions, 'bun', bunDescriptor);
+        }
+        vi.resetModules();
       }
-      vi.resetModules();
-    }
+    });
   });
 
-  it('modules & runtimeName & packageJson', () => {
+  it('exposes modules & runtime and package metadata', () => {
     expect(kurage.backtrace).toBeDefined();
     expect(kurage.argument).toBeDefined();
     expect(kurage.bytes).toBeDefined();

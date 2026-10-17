@@ -73,6 +73,9 @@ var Logger = class Logger {
   static setHandlers(name, handlers) {
     Logger.#handlers[name] = handlers;
   }
+  static unsetHandlers(name) {
+    delete Logger.#handlers[name];
+  }
   static addHandler(name, handler) {
     if (Logger.#invalidNames.includes(name) || name === '') return;
     if (Object.hasOwn(Logger.#handlers, name)) Logger.#handlers[name].push(handler);

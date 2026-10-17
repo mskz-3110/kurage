@@ -1,7 +1,7 @@
 import { Bytes } from '../dist/bytes.js';
 
 describe('Bytes', () => {
-  it('toText & fromText', () => {
+  it('converts text to bytes & back', () => {
     [
       'text'
     ].forEach((text) => {
@@ -9,7 +9,7 @@ describe('Bytes', () => {
     });
   });
 
-  it('toText & fromLines', () => {
+  it('converts lines to text with the requested line ending', () => {
     [
       [''],
       ['a', 'b'],

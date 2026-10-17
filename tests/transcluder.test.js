@@ -4,10 +4,13 @@ import { Transcluder } from '../dist/transcluder.js';
 const $ = Spellbook;
 
 describe('Transcluder', () => {
+  it('creates a Transcluder', () => {
+    expect(Transcluder.new()).toBeInstanceOf(Transcluder);
+  });
+
   it('exposes Parser & Replacer', () => {
     expect(Transcluder.parser.new()).toBeInstanceOf(Transcluder.parser);
     expect(Transcluder.replacer.new()).toBeInstanceOf(Transcluder.replacer);
-    expect(Transcluder.new()).toBeInstanceOf(Transcluder);
   });
 
   describe('equals', () => {
@@ -25,7 +28,7 @@ describe('Transcluder', () => {
   });
 
   describe('Parser', () => {
-    it('parses a marker with its content & formats', () => {
+    it('parses marker content & surrounding formats', () => {
       const elements = Transcluder.parser.new().parse([
         'before',
         '<!-- :< file.txt { ``` -->',
@@ -43,7 +46,7 @@ describe('Transcluder', () => {
       ]);
     });
 
-    it('ignores unmatched closing markers & comments without an opening brace', () => {
+    it('ignores unmatched closing markers & non-directive comments', () => {
       expect(
         Transcluder.parser.new().parse(['<!-- :} -->', '<!-- :not a marker -->', 'plain'])
       ).toEqual([]);
@@ -69,7 +72,7 @@ describe('Transcluder', () => {
       expect(elements).toEqual([]);
     });
 
-    it('sanitizes directive comments but preserves ordinary text', () => {
+    it('removes directive comments & preserves ordinary text', () => {
       const parser = Transcluder.parser.new();
 
       expect(parser.sanitize('<!-- :< file.txt { -->')).toBe('');
@@ -95,7 +98,7 @@ describe('Transcluder', () => {
       ]);
     });
 
-    it('inserts start & end formats around included lines', () => {
+    it('inserts start and end formats around included lines', () => {
       const replacer = Transcluder.replacer.new();
       replacer.addMarker({
         start: { index: 1, format: '```text' },
@@ -162,7 +165,7 @@ describe('Transcluder', () => {
   });
 
   describe('transcludeLinesAsync', () => {
-    it('inserts file lines & sanitizes directive comments in included content', async () => {
+    it('inserts file lines & removes nested directive comments', async () => {
       await $.tmpdirAsync(async () => {
         const dir = $.uuid();
         try {
@@ -219,7 +222,7 @@ describe('Transcluder', () => {
       expect(await Transcluder.new().transcludeLinesAsync('.', lines)).toEqual(lines);
     });
 
-    it('rejects when the included file does not exist & restores cwd', async () => {
+    it('rejects for a missing include & restores the working directory', async () => {
       await $.tmpdirAsync(async () => {
         const cwd = process.cwd();
 
@@ -236,7 +239,7 @@ describe('Transcluder', () => {
   });
 
   describe('transcludeFileAsync', () => {
-    it('accepts a file name without a directory & skips unchanged files', async () => {
+    it('accepts a file name without a directory & skips unchanged content', async () => {
       await $.tmpdirAsync(async () => {
         const dir = $.uuid();
         try {

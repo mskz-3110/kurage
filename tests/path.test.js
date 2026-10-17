@@ -1,15 +1,15 @@
 import { Path } from '../dist/path.js';
 
 describe('Path', () => {
-  it('split', () => {
+  it('splits a path into segments', () => {
     expect(Path.split('a/b')).toEqual(['a', 'b']);
   });
 
-  it('join', () => {
+  it('joins path segments', () => {
     expect(Path.join(['a', 'b'])).toBe('a/b');
   });
 
-  it('rebuild', () => {
+  it('rebuilds a path with custom split & join functions', () => {
     expect(
       Path.rebuild(
         'a/b',
@@ -19,7 +19,7 @@ describe('Path', () => {
     ).toBe('a\\b');
   });
 
-  it('with', () => {
+  it('replaces selected path components', () => {
     expect(Path.with('/tmp/file.md', { name: '.file' })).toBe('/tmp/.file.md');
     expect(Path.with('/tmp/file.md', { ext: '.txt' })).toBe('/tmp/file.txt');
   });

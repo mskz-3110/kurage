@@ -17,6 +17,7 @@ export declare class Logger {
   static get names(): readonly string[];
   static getHandlers(name: string): Handler[];
   static setHandlers(name: string, handlers: Handler[]): void;
+  static unsetHandlers(name: string): void;
   static addHandler(name: string, handler: Handler): void;
   static write(name: string, arg: any, time?: Time): void;
 }

@@ -37,6 +37,10 @@ export class Color {
     Color.#colors[name] = value;
   }
 
+  static unset(name: string) {
+    delete Color.#colors[name];
+  }
+
   static paint(name: string, message: string, enabled: boolean = true): string {
     if (!enabled || !Color.enabled || message === '') {
       return message;

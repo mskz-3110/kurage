@@ -1,18 +1,21 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { Time } from '../dist/time.js';
 
+const driftThreshold = Time.driftThreshold;
+
 afterEach(() => {
   vi.restoreAllMocks();
+  Time.driftThreshold = 0;
+  Time.now();
+  Time.driftThreshold = driftThreshold;
 });
 
 describe('Time', () => {
-  it('formatter', () => {
+  it('exposes a date formatter', () => {
     expect(Time.formatter != null).toBe(true);
   });
 
-  it('driftThreshold', () => {
-    const value = Time.driftThreshold;
-
+  it('accepts nonnegative drift thresholds & refreshes its time base', () => {
     Time.driftThreshold = 123;
     expect(Time.driftThreshold).toBe(123);
 
@@ -25,26 +28,24 @@ describe('Time', () => {
     expect(Time.now()).toBe(1000);
     expect(dateNow).toHaveBeenCalled();
     expect(performanceNow).toHaveBeenCalled();
-
-    Time.driftThreshold = value;
   });
 
-  it('now', () => {
+  it('returns the current time as a finite number', () => {
     const value = Time.now();
     expect(typeof value).toBe('number');
     expect(Number.isFinite(value)).toBe(true);
   });
 
-  it('new', () => {
+  it('creates a Time from the current instant', () => {
     expect(Time.new().date instanceof Date).toBe(true);
   });
 
-  it('since', () => {
+  it('calculates elapsed milliseconds since another Time', () => {
     const baseTime = Time.new();
     expect(Time.new().since(baseTime)).toBeGreaterThanOrEqual(0);
   });
 
-  it('toString', () => {
+  it('formats the date with the default or a supplied formatter', () => {
     const time = Time.new();
     expect(time.toString()).toBe(Time.formatter.format(time.date));
     const formatter = new Intl.DateTimeFormat('en-US');

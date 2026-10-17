@@ -1,7 +1,7 @@
 import { Duration } from '../dist/duration.js';
 
 describe('Duration', () => {
-  it('parse & toString', () => {
+  it('parses supported units & formats the duration', () => {
     [
       ['123ms', 123],
       ['1.5s', 1500],
@@ -18,7 +18,7 @@ describe('Duration', () => {
     expect(() => Duration.parse('10xs')).toThrow('Invalid unit: xs');
   });
 
-  it('new', () => {
+  it('creates a duration with the corresponding amount & unit', () => {
     const duration = Duration.new(1500);
     expect(duration.ms).toBe(1500);
     expect(duration.amount).toBe(1.5);
