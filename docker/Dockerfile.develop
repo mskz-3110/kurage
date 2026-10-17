@@ -8,7 +8,8 @@ ENV PATH="/root/.bun/bin:/root/.local/bin:/root/.local/share/mise/shims:${WORKDI
 ENV VHS_NO_SANDBOX=true
 
 RUN apt update \
-  && apt install -y --no-install-recommends ca-certificates curl git gnupg jq unzip vim libatomic1 \
+  && apt install -y --no-install-recommends ca-certificates curl git git-lfs gnupg jq unzip vim libatomic1 \
+  && git lfs install \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/apt/keyrings \
