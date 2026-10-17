@@ -1,10 +1,6 @@
-import { Line, Scanner } from '../dist/line.js';
+import { Line } from '../dist/line.js';
 
 describe('Line', () => {
-  it('scanner', () => {
-    expect(Line.scanner != null).toBe(true);
-  });
-
   it('split', () => {
     expect(Line.split('')).toEqual([]);
     expect(Line.split('a\nb')).toEqual(['a', 'b']);
@@ -17,9 +13,21 @@ describe('Line', () => {
   });
 });
 
+describe('Builder', () => {
+  it('append & push & line', () => {
+    const builder = Line.builder.new();
+    builder.append('a').append('ignored', false).append('b').push();
+    builder.line('ignored', false).line('c');
+
+    expect(builder.text).toBe('');
+    expect(builder.lines).toEqual(['ab', 'c']);
+    expect(builder.toString()).toBe('ab\nc');
+  });
+});
+
 describe('Scanner', () => {
   it('scan', () => {
-    const scanner = Scanner.new({
+    const scanner = Line.scanner.new({
       comment: /<!--\s*([\s\S]*\S)\s*-->/g,
     });
 
