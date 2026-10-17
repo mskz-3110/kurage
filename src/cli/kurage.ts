@@ -38,17 +38,17 @@ if (argument.options.version) {
 }
 
 const $ = kurage.spellbook;
-const actions: Record<string, () => Promise<void>> = {
-  'eval': evalAsync,
-  'exec-json': execJsonAsync,
-  'exec': execAsync,
-  'info-json': infoJsonAsync,
-  'repl': replAsync,
-  'run': runAsync,
-  'txcl': txclAsync,
-};
+const actions = new Map<string, () => Promise<void>>([
+  ['eval', evalAsync],
+  ['exec-json', execJsonAsync],
+  ['exec', execAsync],
+  ['info-json', infoJsonAsync],
+  ['repl', replAsync],
+  ['run', runAsync],
+  ['txcl', txclAsync],
+]);
 let args = argument.args as string[];
-let mode = (args.shift() ?? '').toLowerCase();
+let mode = args.shift() ?? '';
 if (mode === '') {
   if (process.stdin.isTTY) {
     mode = 'repl';
@@ -58,11 +58,11 @@ if (mode === '') {
   }
 }
 
-let action = actions[mode];
+let action = actions.get(mode);
 if (action != null) {
   process.argv = [...process.argv.slice(0, 2), ...args];
 } else if ($.exists(mode)) {
-  action = actions.run;
+  action = actions.get('run');
 } else {
   argument.abort(`Invalid arg: ${mode}`);
 }

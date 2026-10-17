@@ -49,6 +49,15 @@ describe('Transcluder', () => {
       ).toEqual([]);
     });
 
+    it('ignores unclosed markers', () => {
+      expect(
+        Transcluder.parser.new().parse([
+          '<!-- :< missing.txt { -->',
+          'original content',
+        ])
+      ).toEqual([]);
+    });
+
     it('ignores children inside anonymous explanatory blocks', () => {
       const elements = Transcluder.parser.new().parse([
         '<!-- :{ -->',
@@ -202,6 +211,12 @@ describe('Transcluder', () => {
 
         expect(await Transcluder.new().transcludeLinesAsync('.', lines)).toEqual(lines);
       });
+    });
+
+    it('leaves lines unchanged when an include marker is unclosed', async () => {
+      const lines = ['<!-- :< missing.txt { -->', 'original content'];
+
+      expect(await Transcluder.new().transcludeLinesAsync('.', lines)).toEqual(lines);
     });
 
     it('rejects when the included file does not exist & restores cwd', async () => {

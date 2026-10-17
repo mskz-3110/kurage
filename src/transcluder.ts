@@ -73,7 +73,7 @@ export class Parser {
       stack.push(node);
     });
     return nodes
-      .filter((node) => node.symbol !== '')
+      .filter((node) => node.symbol !== '' && node.end.index !== -1)
       .map(({ children, ...element }) => element);
   }
 
