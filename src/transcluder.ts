@@ -36,10 +36,6 @@ export class Parser {
         return;
       }
 
-      if (match.text.length === 0) {
-        return;
-      }
-
       if (match.text.startsWith('}')) {
         const closeNode = stack.pop();
         if (closeNode != null) {
@@ -174,7 +170,7 @@ export class Transcluder {
   ): Promise<boolean> {
     const lines = await Spellbook.readLinesAsync(path, encoding);
     const replacedLines = await this.transcludeLinesAsync(
-      Spellbook.dirname(path),
+      Spellbook.dirname(path) || '.',
       lines,
       encoding
     );

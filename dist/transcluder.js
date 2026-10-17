@@ -13,7 +13,6 @@ var Parser = class Parser {
     lines.forEach((line, index) => {
       const match = this.#scanner.scan(index, line);
       if (match == null) return;
-      if (match.text.length === 0) return;
       if (match.text.startsWith('}')) {
         const closeNode = stack.pop();
         if (closeNode != null) {
@@ -110,7 +109,7 @@ var Transcluder = class Transcluder {
   async transcludeFileAsync(path, encoding = 'utf8') {
     const lines = await Spellbook.readLinesAsync(path, encoding);
     const replacedLines = await this.transcludeLinesAsync(
-      Spellbook.dirname(path),
+      Spellbook.dirname(path) || '.',
       lines,
       encoding
     );
