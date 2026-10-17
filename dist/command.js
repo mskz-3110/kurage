@@ -129,11 +129,10 @@ var Command = class Command {
     if (0 < args.length) this.#string = `${this.#args[0]} |args|=${this.#args.length}`;
   }
   #appendExceptionMessage() {
-    if (this.#exception != null)
-      this.#exception.error.message =
-        this.#exception.error.message === ''
-          ? this.toString()
-          : `${this.#exception.error.message} @ ${this}`;
+    this.#exception.error.message =
+      this.#exception.error.message === ''
+        ? this.toString()
+        : `${this.#exception.error.message} @ ${this}`;
   }
   #setupExec(hooks) {
     this.#stopwatch.start();
@@ -153,8 +152,9 @@ var Command = class Command {
       onEnd: (command) => Logger.write('command-end', command),
     }
   ) {
-    const context = this.#setupExec(hooks);
+    let context;
     try {
+      context = this.#setupExec(hooks);
       this.#process = void 0;
       this.#exception = void 0;
       if (this.#args.length === 0) return this;

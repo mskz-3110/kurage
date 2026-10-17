@@ -181,12 +181,10 @@ export class Command {
   }
 
   #appendExceptionMessage() {
-    if (this.#exception != null) {
-      this.#exception.error.message =
-        this.#exception.error.message === ''
-          ? this.toString()
-          : `${this.#exception.error.message} @ ${this}`;
-    }
+    this.#exception!.error.message =
+      this.#exception!.error.message === ''
+        ? this.toString()
+        : `${this.#exception!.error.message} @ ${this}`;
   }
 
   #setupExec(hooks: ExecHooks): any {
@@ -213,8 +211,9 @@ export class Command {
       onEnd: (command) => Logger.write('command-end', command),
     }
   ): Promise<Command> {
-    const context = this.#setupExec(hooks);
+    let context: any;
     try {
+      context = this.#setupExec(hooks);
       this.#process = undefined;
       this.#exception = undefined;
 
