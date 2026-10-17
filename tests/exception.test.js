@@ -7,7 +7,7 @@ describe('Exception', () => {
     const exception = Exception.new(error);
     expect(exception.error.message).toBe('error');
     expect(exception.error).not.toBe(error);
-    expect(exception.error.stack).toBe('');
+    expect(exception.error.stack).toBe(undefined);
   });
 
   it('new(Exception)', () => {
@@ -17,7 +17,7 @@ describe('Exception', () => {
     exception2.error.message = 'exception2';
     expect(exception1.error.message).toBe('exception1');
     expect(exception2.error.message).toBe('exception2');
-    expect(exception2.error.stack).toBe('');
+    expect(exception2.error.stack).toBe(undefined);
   });
 
   it('new(string)', () => {
