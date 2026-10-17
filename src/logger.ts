@@ -13,7 +13,7 @@ export type Handler = {
 };
 
 export class Logger {
-  static #handlers: Record<string, Handler[]> = {};
+  static #handlers: Record<string, Handler[]> = Object.create(null);
 
   static #outStreams: NodeJS.WritableStream[] = [process.stdout];
 
@@ -72,11 +72,29 @@ export class Logger {
   }
 
   static addOutStream(stream: NodeJS.WritableStream) {
-    Logger.#outStreams.push(stream);
+    if (!Logger.#outStreams.includes(stream)) {
+      Logger.#outStreams.push(stream);
+    }
+  }
+
+  static removeOutStream(stream: NodeJS.WritableStream) {
+    const index = Logger.#outStreams.indexOf(stream);
+    if (index !== -1) {
+      Logger.#outStreams.splice(index, 1);
+    }
   }
 
   static addErrStream(stream: NodeJS.WritableStream) {
-    Logger.#errStreams.push(stream);
+    if (!Logger.#errStreams.includes(stream)) {
+      Logger.#errStreams.push(stream);
+    }
+  }
+
+  static removeErrStream(stream: NodeJS.WritableStream) {
+    const index = Logger.#errStreams.indexOf(stream);
+    if (index !== -1) {
+      Logger.#errStreams.splice(index, 1);
+    }
   }
 
   static format(time: Time, arg: any): string {

@@ -10,7 +10,9 @@ export declare class Logger {
   static out(message: string): void;
   static err(message: string): void;
   static addOutStream(stream: NodeJS.WritableStream): void;
+  static removeOutStream(stream: NodeJS.WritableStream): void;
   static addErrStream(stream: NodeJS.WritableStream): void;
+  static removeErrStream(stream: NodeJS.WritableStream): void;
   static format(time: Time, arg: any): string;
   static get names(): readonly string[];
   static getHandlers(name: string): Handler[];

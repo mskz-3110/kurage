@@ -4,7 +4,7 @@ import { Line } from './line.js';
 import { Time } from './time.js';
 
 var Logger = class Logger {
-  static #handlers = {};
+  static #handlers = Object.create(null);
   static #outStreams = [process.stdout];
   static #errStreams = [process.stderr];
   static #invalidNames = [
@@ -48,10 +48,18 @@ var Logger = class Logger {
     for (const stream of Logger.#errStreams) stream.write(`${message}${Line.eol}`);
   }
   static addOutStream(stream) {
-    Logger.#outStreams.push(stream);
+    if (!Logger.#outStreams.includes(stream)) Logger.#outStreams.push(stream);
+  }
+  static removeOutStream(stream) {
+    const index = Logger.#outStreams.indexOf(stream);
+    if (index !== -1) Logger.#outStreams.splice(index, 1);
   }
   static addErrStream(stream) {
-    Logger.#errStreams.push(stream);
+    if (!Logger.#errStreams.includes(stream)) Logger.#errStreams.push(stream);
+  }
+  static removeErrStream(stream) {
+    const index = Logger.#errStreams.indexOf(stream);
+    if (index !== -1) Logger.#errStreams.splice(index, 1);
   }
   static format(time, arg) {
     return `[${time}] ${String(arg)}`;
