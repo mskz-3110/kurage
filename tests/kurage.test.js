@@ -1,5 +1,9 @@
 import kurage from '../dist/kurage.js';
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 const mockCommandOutput = (output) => {
   return vi.spyOn(kurage.command, 'new').mockImplementationOnce(() => ({
     execAsync: async (options) => {
@@ -35,13 +39,9 @@ describe('kurage', () => {
         throw new Error(`exit:${code}`);
       });
 
-      try {
-        await expect(
-          kurage.$([process.execPath, '-e', 'process.exit(3)'])
-        ).rejects.toThrow('exit:3');
-      } finally {
-        processExit.mockRestore();
-      }
+      await expect(
+        kurage.$([process.execPath, '-e', 'process.exit(3)'])
+      ).rejects.toThrow('exit:3');
     });
   });
 
@@ -74,33 +74,21 @@ describe('kurage', () => {
         throw new Error(`exit:${code}`);
       });
 
-      try {
-        await expect(kurage.$exit([process.execPath, '-e', ''])).rejects.toThrow(
-          'exit:0'
-        );
-      } finally {
-        processExit.mockRestore();
-      }
+      await expect(kurage.$exit([process.execPath, '-e', ''])).rejects.toThrow(
+        'exit:0'
+      );
     });
   });
 
   describe('$out', () => {
     it('returns trimmed stdout', async () => {
-      const commandNew = mockCommandOutput('first\nsecond\n\n');
-      try {
-        await expect(kurage.$out(['command'])).resolves.toBe('first\nsecond');
-      } finally {
-        commandNew.mockRestore();
-      }
+      mockCommandOutput('first\nsecond\n\n');
+      await expect(kurage.$out(['command'])).resolves.toBe('first\nsecond');
     });
 
     it('uses the requested encoding', async () => {
-      const commandNew = mockCommandOutput('text');
-      try {
-        await expect(kurage.$out(['command'], {}, 'base64')).resolves.toBe('dGV4dA==');
-      } finally {
-        commandNew.mockRestore();
-      }
+      mockCommandOutput('text');
+      await expect(kurage.$out(['command'], {}, 'base64')).resolves.toBe('dGV4dA==');
     });
   });
 
@@ -121,12 +109,8 @@ describe('kurage', () => {
       const loggerWrite = vi.spyOn(kurage.logger, 'write').mockImplementation(() => {});
       const time = kurage.time.new();
 
-      try {
-        kurage.log('info', 'message', time);
-        expect(loggerWrite).toHaveBeenCalledWith('info', 'message', time);
-      } finally {
-        loggerWrite.mockRestore();
-      }
+      kurage.log('info', 'message', time);
+      expect(loggerWrite).toHaveBeenCalledWith('info', 'message', time);
     });
   });
 

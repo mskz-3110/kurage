@@ -2,6 +2,10 @@ import { Logger } from '../dist/logger.js';
 import { Time } from '../dist/time.js';
 
 afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+afterEach(() => {
   Logger.unsetHandlers('test');
   Logger.unsetHandlers('replace');
   Logger.unsetHandlers('write');
@@ -92,10 +96,8 @@ describe('Logger', () => {
     const errMessages = [];
     const outStream = { write: (message) => outMessages.push(message) };
     const errStream = { write: (message) => errMessages.push(message) };
-    const stdoutWrite = process.stdout.write;
-    const stderrWrite = process.stderr.write;
-    process.stdout.write = () => true;
-    process.stderr.write = () => true;
+    vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+    vi.spyOn(process.stderr, 'write').mockReturnValue(true);
 
     try {
       Logger.addOutStream(outStream);
@@ -111,8 +113,6 @@ describe('Logger', () => {
     } finally {
       Logger.removeOutStream(outStream);
       Logger.removeErrStream(errStream);
-      process.stdout.write = stdoutWrite;
-      process.stderr.write = stderrWrite;
     }
 
     expect(outMessages).toEqual(['out message\n']);
@@ -120,15 +120,10 @@ describe('Logger', () => {
   });
 
   it('reports writes to an undefined logger name', () => {
-    const loggerErr = Logger.err;
     const messages = [];
-    Logger.err = (message) => messages.push(message);
+    vi.spyOn(Logger, 'err').mockImplementation((message) => messages.push(message));
 
-    try {
-      Logger.write('missing', 'message', Time.new());
-    } finally {
-      Logger.err = loggerErr;
-    }
+    Logger.write('missing', 'message', Time.new());
 
     expect(messages[0]).toContain('Undefined logger name: missing # message');
   });

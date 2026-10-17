@@ -6,6 +6,10 @@ import { Logger } from '../dist/logger.js';
 
 const unavailableCommand = 'kurage-command-that-does-not-exist';
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe('Command', () => {
   describe('new', () => {
     it('copies arguments & formats the command name', () => {
@@ -70,15 +74,10 @@ describe('Command', () => {
 
   describe('execAsync', () => {
     it('uses the default logging hooks', async () => {
-      const loggerWrite = Logger.write;
       const names = [];
-      Logger.write = (name) => names.push(name);
+      vi.spyOn(Logger, 'write').mockImplementation((name) => names.push(name));
 
-      try {
-        await Command.new([]).execAsync();
-      } finally {
-        Logger.write = loggerWrite;
-      }
+      await Command.new([]).execAsync();
 
       expect(names).toEqual(['command-start', 'command-end']);
     });
@@ -149,32 +148,28 @@ describe('Command', () => {
         killed: false,
         kill() {},
       });
-      const spawn = vi.spyOn(childProcessModule, 'spawn').mockReturnValue(child);
+      vi.spyOn(childProcessModule, 'spawn').mockReturnValue(child);
 
-      try {
-        const commandPromise = Command.new(['command']).execAsync(
-          { stdio: ['ignore', stdout, stderr] },
-          {}
-        );
-        child.emit('close', 0, null);
+      const commandPromise = Command.new(['command']).execAsync(
+        { stdio: ['ignore', stdout, stderr] },
+        {}
+      );
+      child.emit('close', 0, null);
 
-        let isResolved = false;
-        commandPromise.then(() => {
-          isResolved = true;
-        });
-        await Promise.resolve();
-        expect(isResolved).toBe(false);
+      let isResolved = false;
+      commandPromise.then(() => {
+        isResolved = true;
+      });
+      await Promise.resolve();
+      expect(isResolved).toBe(false);
 
-        child.stdout.end();
-        child.stderr.end();
-        const command = await commandPromise;
+      child.stdout.end();
+      child.stderr.end();
+      const command = await commandPromise;
 
-        expect(command.exitCode).toBe(0);
-        expect(stdout.closed).toBe(true);
-        expect(stderr.closed).toBe(true);
-      } finally {
-        spawn.mockRestore();
-      }
+      expect(command.exitCode).toBe(0);
+      expect(stdout.closed).toBe(true);
+      expect(stderr.closed).toBe(true);
     });
 
     it('returns a failing exit code without an exception', async () => {
@@ -280,34 +275,22 @@ describe('Command', () => {
         {},
         {}
       );
-      const processExit = process.exit;
       const exitCodes = [];
-      process.exit = (code) => exitCodes.push(code);
+      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
 
-      try {
-        command.exit();
-      } finally {
-        process.exit = processExit;
-      }
+      command.exit();
 
       expect(exitCodes).toEqual([3]);
     });
 
     it('logs an exception before exiting', async () => {
       const command = await Command.new([unavailableCommand]).execAsync({}, {});
-      const processExit = process.exit;
-      const loggerWrite = Logger.write;
       const exitCodes = [];
       const messages = [];
-      process.exit = (code) => exitCodes.push(code);
-      Logger.write = (_, message) => messages.push(message);
+      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
+      vi.spyOn(Logger, 'write').mockImplementation((_, message) => messages.push(message));
 
-      try {
-        command.exit();
-      } finally {
-        process.exit = processExit;
-        Logger.write = loggerWrite;
-      }
+      command.exit();
 
       expect(exitCodes).toEqual([command.exitCode]);
       expect(messages[0]).toContain(command.exception.toString());
@@ -315,15 +298,10 @@ describe('Command', () => {
 
     it('returns the command without exiting on success', async () => {
       const success = await Command.new([process.execPath, '-e', '']).execAsync({}, {});
-      const processExit = process.exit;
       const exitCodes = [];
-      process.exit = (code) => exitCodes.push(code);
+      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
 
-      try {
-        expect(success.exitIfFailure()).toBe(success);
-      } finally {
-        process.exit = processExit;
-      }
+      expect(success.exitIfFailure()).toBe(success);
 
       expect(exitCodes).toEqual([]);
     });
@@ -333,15 +311,10 @@ describe('Command', () => {
         {},
         {}
       );
-      const processExit = process.exit;
       const exitCodes = [];
-      process.exit = (code) => exitCodes.push(code);
+      vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
 
-      try {
-        expect(command.exitIfFailure()).toBe(command);
-      } finally {
-        process.exit = processExit;
-      }
+      expect(command.exitIfFailure()).toBe(command);
 
       expect(exitCodes).toEqual([3]);
     });
@@ -349,31 +322,26 @@ describe('Command', () => {
 
   describe('loggingActionAsync', () => {
     it('logs start & end for a successful action', async () => {
-      const loggerWrite = Logger.write;
       const messages = [];
-      Logger.write = (name) => messages.push(name);
+      vi.spyOn(Logger, 'write').mockImplementation((name) => messages.push(name));
 
-      try {
-        await Command.loggingActionAsync(['task'], () => {});
-      } finally {
-        Logger.write = loggerWrite;
-      }
+      await Command.loggingActionAsync(['task'], () => {});
 
       expect(messages).toEqual(['command-start', 'command-end']);
     });
 
     it('records action errors & sets a failing process exit code', async () => {
-      const loggerWrite = Logger.write;
       const processExitCode = process.exitCode;
       const messages = [];
-      Logger.write = (name, message) => messages.push([name, message]);
+      vi.spyOn(Logger, 'write').mockImplementation((name, message) =>
+        messages.push([name, message])
+      );
 
       try {
         await Command.loggingActionAsync(['task'], () => {
           throw new Error('action failed');
         });
       } finally {
-        Logger.write = loggerWrite;
         process.exitCode = processExitCode;
       }
 

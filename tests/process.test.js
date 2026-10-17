@@ -1,6 +1,10 @@
 import { Logger } from '../dist/logger.js';
 import { Process } from '../dist/process.js';
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe('Process', () => {
   it('returns command-line arguments after the executable', () => {
     const argv = process.argv;
@@ -15,40 +19,30 @@ describe('Process', () => {
   });
 
   it('logs an optional message & exits with the requested code', () => {
-    const processExit = process.exit;
-    const loggerWrite = Logger.write;
     const exitCodes = [];
     const messages = [];
-    process.exit = (code) => exitCodes.push(code);
-    Logger.write = (name, message) => messages.push([name, message]);
+    vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
+    vi.spyOn(Logger, 'write').mockImplementation((name, message) =>
+      messages.push([name, message])
+    );
 
-    try {
-      Process.abort('stopped', 2);
-      Process.abort();
-    } finally {
-      process.exit = processExit;
-      Logger.write = loggerWrite;
-    }
+    Process.abort('stopped', 2);
+    Process.abort();
 
     expect(messages).toEqual([['error', 'stopped']]);
     expect(exitCodes).toEqual([2, 1]);
   });
 
   it('logs uncaught exceptions & unhandled rejections before exiting', () => {
-    const processExit = process.exit;
-    const loggerWrite = Logger.write;
     const exitCodes = [];
     const messages = [];
-    process.exit = (code) => exitCodes.push(code);
-    Logger.write = (name, message) => messages.push([name, message]);
+    vi.spyOn(process, 'exit').mockImplementation((code) => exitCodes.push(code));
+    vi.spyOn(Logger, 'write').mockImplementation((name, message) =>
+      messages.push([name, message])
+    );
 
-    try {
-      process.emit('uncaughtException', new Error('uncaught'));
-      process.emit('unhandledRejection', 'rejected');
-    } finally {
-      process.exit = processExit;
-      Logger.write = loggerWrite;
-    }
+    process.emit('uncaughtException', new Error('uncaught'));
+    process.emit('unhandledRejection', 'rejected');
 
     expect(messages[0][0]).toBe('error');
     expect(messages[0][1]).toContain('UncaughtException:');
@@ -82,17 +76,12 @@ describe('Process', () => {
     const exitListener = process
       .listeners('exit')
       .find((listener) => listener.toString().includes('Process.cleanup'));
-    const cleanup = Process.cleanup;
     let called = false;
-    Process.cleanup = () => {
+    vi.spyOn(Process, 'cleanup').mockImplementation(() => {
       called = true;
-    };
+    });
 
-    try {
-      exitListener();
-    } finally {
-      Process.cleanup = cleanup;
-    }
+    exitListener();
 
     expect(called).toBe(true);
   });

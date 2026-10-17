@@ -1,9 +1,17 @@
 import { Color } from '../dist/color.js';
 
-const hasColors = process.stdout.hasColors;
+const hasColorsDescriptor = Object.getOwnPropertyDescriptor(
+  process.stdout,
+  'hasColors'
+);
 
 afterEach(() => {
-  process.stdout.hasColors = hasColors;
+  vi.restoreAllMocks();
+  if (hasColorsDescriptor == null) {
+    delete process.stdout.hasColors;
+  } else {
+    Object.defineProperty(process.stdout, 'hasColors', hasColorsDescriptor);
+  }
   Color.unset('custom');
 });
 
@@ -39,7 +47,10 @@ describe('Color', () => {
   });
 
   it('wraps messages with color codes when enabled', () => {
-    process.stdout.hasColors = () => true;
+    Object.defineProperty(process.stdout, 'hasColors', {
+      configurable: true,
+      value: vi.fn(() => true),
+    });
 
     expect(Color.paint('red', 'text')).toBe('\u001b[31mtext\u001b[0m');
     expect(Color.paint('reset', 'text')).toBe('\u001b[0mtext');

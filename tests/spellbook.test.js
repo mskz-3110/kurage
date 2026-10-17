@@ -3,6 +3,10 @@ import fsModule from 'node:fs';
 import osModule from 'node:os';
 import pathModule from 'node:path';
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe('Spellbook', () => {
   const originalCwd = process.cwd();
   const dir = fsModule.mkdtempSync(
@@ -198,17 +202,13 @@ describe('Spellbook', () => {
     });
 
     it('closes the file when writing fails', () => {
-      const writeSync = vi.spyOn(fsModule, 'fsyncSync').mockImplementation(() => {
+      vi.spyOn(fsModule, 'fsyncSync').mockImplementation(() => {
         throw new Error('sync failed');
       });
 
-      try {
-        expect(() =>
-          Spellbook.write(pathModule.join(dir, 'failed.txt'), 'value')
-        ).toThrow('sync failed');
-      } finally {
-        writeSync.mockRestore();
-      }
+      expect(() =>
+        Spellbook.write(pathModule.join(dir, 'failed.txt'), 'value')
+      ).toThrow('sync failed');
     });
   });
 

@@ -1,26 +1,23 @@
 import { Argument } from '../dist/argument.js';
 import { Logger } from '../dist/logger.js';
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 const withProcessMocks = (callback, exit = () => {}) => {
-  const processExit = process.exit;
-  const loggerErr = Logger.err;
-  const loggerWrite = Logger.write;
   const state = { exitCodes: [], messages: [] };
-  process.exit = (code) => {
+  vi.spyOn(process, 'exit').mockImplementation((code) => {
     state.exitCodes.push(code);
     exit();
-  };
-  Logger.err = (message) => state.messages.push(message);
-  Logger.write = (_, message) => state.messages.push(message);
+  });
+  vi.spyOn(Logger, 'err').mockImplementation((message) => state.messages.push(message));
+  vi.spyOn(Logger, 'write').mockImplementation((_, message) =>
+    state.messages.push(message)
+  );
 
-  try {
-    callback(state);
-    return state;
-  } finally {
-    process.exit = processExit;
-    Logger.err = loggerErr;
-    Logger.write = loggerWrite;
-  }
+  callback(state);
+  return state;
 };
 
 describe('Argument', () => {
