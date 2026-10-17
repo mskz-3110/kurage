@@ -2,7 +2,7 @@
   "name": "kurage",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "kurage-develop",
-  "workspaceFolder": "/kurage",
+  "workspaceFolder": "/workspaces/kurage",
   "shutdownAction": "stopCompose",
   "overrideCommand": false
 }

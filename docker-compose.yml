@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: docker/Dockerfile.minimum
       args:
-        - WORKDIR=/kurage
-    working_dir: /kurage
+        - WORKDIR=/workspaces/kurage
+    working_dir: /workspaces/kurage
     volumes:
-      - ./:/kurage
+      - ./:/workspaces/kurage
     environment:
       - TZ=UTC
   kurage-develop:
@@ -20,11 +20,11 @@ services:
       dockerfile: docker/Dockerfile.develop
       args:
         - TTYD_VER=1.7.7
-        - WORKDIR=/kurage
-    working_dir: /kurage
+        - WORKDIR=/workspaces/kurage
+    working_dir: /workspaces/kurage
     volumes:
-      - ./:/kurage
-      - kurage_node_modules:/kurage/node_modules
+      - ./:/workspaces/kurage
+      - kurage_node_modules:/workspaces/kurage/node_modules
       - kurage_bun_cache:/root/.bun
     environment:
       - TZ=UTC
