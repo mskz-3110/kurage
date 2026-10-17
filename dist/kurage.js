@@ -1,4 +1,3 @@
-import typescriptModule from 'typescript';
 import packageJson from '../package.json' with { type: 'json' };
 import { Argument } from './argument.js';
 import { Backtrace } from './backtrace.js';
@@ -81,12 +80,6 @@ const kurage = {
   process: Process,
   spellbook: Spellbook,
   stopwatch: Stopwatch,
-  transpile: (lines) => {
-    if (0 < lines.length && lines[0].startsWith('#!')) lines[0] = '';
-    return typescriptModule.transpile(Line.join(lines), {
-      target: typescriptModule.ScriptTarget.ESNext,
-    });
-  },
   time: Time,
   transcluder: Transcluder,
   get runtimeName() {
