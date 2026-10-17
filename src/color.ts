@@ -26,7 +26,7 @@ export class Color {
   }
 
   static get(name: string): string {
-    return Color.#colors[name] ?? '';
+    return Object.hasOwn(Color.#colors, name) ? Color.#colors[name]! : '';
   }
 
   static set(name: string, value: string) {

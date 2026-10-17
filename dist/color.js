@@ -22,7 +22,7 @@ var Color = class Color {
     return Object.keys(Color.#colors);
   }
   static get(name) {
-    return Color.#colors[name] ?? '';
+    return Object.hasOwn(Color.#colors, name) ? Color.#colors[name] : '';
   }
   static set(name, value) {
     if (Color.#invalidNames.includes(name) || name === '') return;
