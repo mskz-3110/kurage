@@ -57,6 +57,7 @@ export declare const kurage: {
   process: typeof Process;
   spellbook: typeof Spellbook;
   stopwatch: typeof Stopwatch;
+  transpile: (lines: string[]) => string;
   time: typeof Time;
   transcluder: typeof Transcluder;
   readonly runtimeName: 'bun' | 'node';

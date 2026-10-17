@@ -1,4 +1,5 @@
 import type { SpawnOptions } from 'node:child_process';
+import typescriptModule from 'typescript';
 import packageJson from '../package.json' with { type: 'json' };
 import { Argument } from './argument.js';
 import { Backtrace } from './backtrace.js';
@@ -102,6 +103,14 @@ export const kurage = {
   process: Process,
   spellbook: Spellbook,
   stopwatch: Stopwatch,
+  transpile: (lines: string[]): string => {
+    if (0 < lines.length && lines[0]!.startsWith('#!')) {
+      lines[0]! = '';
+    }
+    return typescriptModule.transpile(Line.join(lines), {
+      target: typescriptModule.ScriptTarget.ESNext,
+    });
+  },
   time: Time,
   transcluder: Transcluder,
   get runtimeName() {

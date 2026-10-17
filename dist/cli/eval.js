@@ -2,9 +2,9 @@
 import kurage from '../kurage.js';
 
 async function evalAsync() {
-  const code = kurage.process.args.join('');
   kurage.setupGlobals(globalThis);
   const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+  const code = kurage.transpile([...kurage.process.args]);
   await kurage.command.loggingActionAsync([kurage.runtimeName, '-e', code], () =>
     new AsyncFunction(code)()
   );

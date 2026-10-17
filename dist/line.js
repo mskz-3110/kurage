@@ -29,23 +29,23 @@ var Builder = class Builder {
   static new(...args) {
     return new Builder(...args);
   }
-  #text = '';
-  #lines = [];
+  text = '';
+  lines = [];
   append(text, condition = true) {
-    if (condition) this.#text = `${this.#text}${text}`;
+    if (condition) this.text = `${this.text}${text}`;
     return this;
   }
   push() {
-    this.line(this.#text);
-    this.#text = '';
+    this.line(this.text);
+    this.text = '';
     return this;
   }
   line(text, condition = true) {
-    if (condition) this.#lines.push(text);
+    if (condition) this.lines.push(text);
     return this;
   }
   toString() {
-    return Line.join(this.#lines);
+    return Line.join(this.lines);
   }
 };
 var Line = class Line {

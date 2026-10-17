@@ -42,32 +42,32 @@ export class Builder {
     return new Builder(...args);
   }
 
-  #text = '';
+  text = '';
 
-  #lines: string[] = [];
+  lines: string[] = [];
 
   append(text: string, condition: boolean = true): this {
     if (condition) {
-      this.#text = `${this.#text}${text}`;
+      this.text = `${this.text}${text}`;
     }
     return this;
   }
 
   push(): this {
-    this.line(this.#text);
-    this.#text = '';
+    this.line(this.text);
+    this.text = '';
     return this;
   }
 
   line(text: string, condition: boolean = true): this {
     if (condition) {
-      this.#lines.push(text);
+      this.lines.push(text);
     }
     return this;
   }
 
   toString(): string {
-    return Line.join(this.#lines);
+    return Line.join(this.lines);
   }
 }
 
@@ -82,7 +82,7 @@ export class Line {
     return Builder;
   }
 
-  static join(lines: string[], eol: string = Line.eol): string {
+  static join(lines: readonly string[], eol: string = Line.eol): string {
     return lines.join(eol);
   }
 

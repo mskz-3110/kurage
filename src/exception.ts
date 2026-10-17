@@ -9,7 +9,7 @@ export class Exception {
     if (error instanceof Exception) {
       this.error = error.error;
     } else if (error instanceof Error) {
-      this.error = new Error(error.message);
+      this.error = error;
     } else {
       this.error = new Error(String(error));
     }

@@ -22,7 +22,7 @@ export class Process {
     unhandledRejection: Process.#unhandledRejection,
   };
 
-  static get args(): readonly string[] {
+  static get args(): string[] {
     return process.argv.slice(2);
   }
 
