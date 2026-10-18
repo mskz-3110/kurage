@@ -21,6 +21,7 @@ export type PackageJson = {
   description: string;
 };
 export declare const kurage: {
+  isMain: (importMetaMain: boolean, scriptPath: string) => boolean;
   setupGlobals: (target: object) => void;
   $: (
     args: readonly string[],

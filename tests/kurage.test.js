@@ -21,6 +21,32 @@ const mockCommandOutput = (output) => {
 };
 
 describe('kurage', () => {
+  describe('isMain', () => {
+    it('returns true when import.meta.main is true', () => {
+      expect(kurage.isMain(true, 'tools/doctor.js')).toBe(true);
+    });
+
+    it('matches the script path in argv when import.meta.main is false', () => {
+      const argv = process.argv[1];
+      process.argv[1] = kurage.spellbook.absolute('tools/doctor.js');
+      try {
+        expect(kurage.isMain(false, 'tools/doctor.js')).toBe(true);
+      } finally {
+        process.argv[1] = argv;
+      }
+    });
+
+    it('returns false when neither main condition matches', () => {
+      const argv = process.argv[1];
+      process.argv[1] = kurage.spellbook.absolute('tools/doctor.js');
+      try {
+        expect(kurage.isMain(false, 'tools/install-mise.js')).toBe(false);
+      } finally {
+        process.argv[1] = argv;
+      }
+    });
+  });
+
   it('adds kurage & spellbook globals to a target', () => {
     const target = {};
 

@@ -20,6 +20,9 @@ const execAsync = async (args, options = {}, hooks) => {
   return await Command.new(args).execAsync(options, hooks);
 };
 const kurage = {
+  isMain: (importMetaMain, scriptPath) => {
+    return importMetaMain || process.argv[1] === Spellbook.absolute(scriptPath);
+  },
   setupGlobals: (target) => {
     Object.assign(target, {
       kurage,

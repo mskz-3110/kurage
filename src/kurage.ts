@@ -34,6 +34,9 @@ const execAsync = async (
 };
 
 export const kurage = {
+  isMain: (importMetaMain: boolean, scriptPath: string): boolean => {
+    return importMetaMain || process.argv[1] === Spellbook.absolute(scriptPath);
+  },
   setupGlobals: (target: object) => {
     Object.assign(target, {
       kurage,
