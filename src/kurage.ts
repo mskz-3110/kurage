@@ -70,17 +70,15 @@ export const kurage = {
     encoding: BufferEncoding = 'utf8'
   ): Promise<string> => {
     const stdout = Stream.new();
-    (
-      await execAsync(
-        args,
-        Command.mergeStdio(
-          options,
-          [undefined, stdout, undefined],
-          ['ignore', stdout, 'ignore']
-        ),
-        {}
-      )
-    ).exitIfFailure();
+    await execAsync(
+      args,
+      Command.mergeStdio(
+        options,
+        [undefined, stdout, undefined],
+        ['ignore', stdout, 'ignore']
+      ),
+      {}
+    );
     return stdout.buffer.toString(encoding).trimEnd();
   },
   $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {

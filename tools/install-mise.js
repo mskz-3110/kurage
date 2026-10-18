@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 const { kurage } = await import('kurage');
-const { installCurl } = await import('./install-curl.js');
 const { updateShellConfig } = await import('./shell-config.js');
 
 export async function installMise() {
@@ -42,7 +41,7 @@ export async function installMise() {
       kurage.path.join([localAppData, 'Microsoft', 'WinGet', 'Packages'])
     ).replaceAll('\\', '/');
     updatedPaths = updateShellConfig(
-      `export PATH="$(cygpath -u "\${LOCALAPPDATA}")/Microsoft/WinGet/Packages/${miseRelativePath}:\${PATH}"`
+      `if command -v cygpath >/dev/null 2>&1; then export PATH="$(cygpath -u "\${LOCALAPPDATA}")/Microsoft/WinGet/Packages/${miseRelativePath}:\${PATH}"; fi`
     );
   };
 
@@ -78,13 +77,9 @@ export async function installMise() {
         return;
       }
     } else {
-      if (!(await kurage.$ok(['curl', '--version']))) {
-        await installCurl();
-      }
-
       const installer = `/tmp/kurage-mise-install-${$.uuid()}.sh`;
       try {
-        await kurage.$(['curl', '-fsSL', 'https://mise.run', '-o', installer]);
+        await $.downloadAsync('https://mise.run', installer);
         await kurage.$(['sh', installer]);
       } finally {
         $.remove(installer);
@@ -95,7 +90,10 @@ export async function installMise() {
     }
   }
 
-  await kurage.$([mise, 'install']);
+  if (await kurage.$ok(['which', 'mise'])) {
+    await kurage.$([mise, 'install']);
+    kurage.logger.out(await kurage.$out(['mise', '-v']));
+  }
 
   for (const rcPath of updatedPaths) {
     kurage.logger.out(`Run: ${kurage.color.paint('cyan', `source ${rcPath}`)}`);

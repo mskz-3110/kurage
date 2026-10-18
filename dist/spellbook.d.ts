@@ -14,6 +14,11 @@ export type MemberNames = {
   accessors: string[];
   methods: string[];
 };
+export declare class DownloadError extends Error {
+  readonly url: string;
+  readonly status: number;
+  constructor(url: string | URL, status: number);
+}
 export declare class Spellbook {
   #private;
   static root(value?: string): string;
@@ -58,6 +63,7 @@ export declare class Spellbook {
   static read(path: string, encoding?: BufferEncoding): string;
   static readStreamLinesAsync(stream: Readable): Promise<string[]>;
   static readLinesAsync(path: string, encoding?: BufferEncoding): Promise<string[]>;
+  static downloadAsync(url: string | URL, path: string): Promise<string>;
   static assertEqual(value1: unknown, value2: unknown, message?: string): void;
   static parseMemberNames(value: unknown, ignoreNames: readonly string[]): MemberNames;
   static inspect(value: unknown, options?: InspectOptions): string;

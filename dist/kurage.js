@@ -40,17 +40,11 @@ const kurage = {
   },
   $out: async (args, options = {}, encoding = 'utf8') => {
     const stdout = Stream.new();
-    (
-      await execAsync(
-        args,
-        Command.mergeStdio(
-          options,
-          [void 0, stdout, void 0],
-          ['ignore', stdout, 'ignore']
-        ),
-        {}
-      )
-    ).exitIfFailure();
+    await execAsync(
+      args,
+      Command.mergeStdio(options, [void 0, stdout, void 0], ['ignore', stdout, 'ignore']),
+      {}
+    );
     return stdout.buffer.toString(encoding).trimEnd();
   },
   $ok: async (args, options = {}) => {

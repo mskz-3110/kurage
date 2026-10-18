@@ -9,10 +9,27 @@ import { Bytes } from './bytes.js';
 import { Color } from './color.js';
 import { Path } from './path.js';
 
+var DownloadError = class extends Error {
+  url;
+  status;
+  constructor(url, status) {
+    const urlString = String(url);
+    super(
+      JSON.stringify({
+        status,
+        url: urlString,
+      })
+    );
+    this.name = 'DownloadError';
+    this.url = urlString;
+    this.status = status;
+  }
+};
 const ignoreStaticNames = ['length', 'name', 'prototype'];
 const ignoreInstanceNames = ['constructor'];
 var Spellbook = class Spellbook {
   static #modeAllPermissions = 511;
+  static #emptyBytes = /* @__PURE__ */ new Uint8Array();
   static #root = process.env.INIT_CWD ?? process.cwd();
   static root(value) {
     if (value != null) Spellbook.#root = value;
@@ -145,6 +162,14 @@ var Spellbook = class Spellbook {
       fsModule.createReadStream(pathModule.resolve(path), { encoding })
     );
   }
+  static async downloadAsync(url, path) {
+    const response = await fetch(url);
+    if (!response.ok) throw new DownloadError(url, response.status);
+    Spellbook.write(path, Spellbook.#emptyBytes);
+    if (response.body != null)
+      for await (const chunk of response.body) Spellbook.write(path, chunk, true);
+    return path;
+  }
   static assertEqual(value1, value2, message = '') {
     if (value1 !== value2)
       throw new Error(
@@ -204,4 +229,4 @@ var Spellbook = class Spellbook {
   }
 };
 
-export { Spellbook };
+export { DownloadError, Spellbook };

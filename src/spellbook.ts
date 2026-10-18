@@ -27,11 +27,27 @@ export type MemberNames = {
   methods: string[];
 };
 
+export class DownloadError extends Error {
+  readonly url: string;
+
+  readonly status: number;
+
+  constructor(url: string | URL, status: number) {
+    const urlString = String(url);
+    super(JSON.stringify({ status, url: urlString }));
+    this.name = 'DownloadError';
+    this.url = urlString;
+    this.status = status;
+  }
+}
+
 const ignoreStaticNames: string[] = ['length', 'name', 'prototype'];
 const ignoreInstanceNames: string[] = ['constructor'];
 
 export class Spellbook {
   static #modeAllPermissions: number = 0o777;
+
+  static #emptyBytes = new Uint8Array();
 
   static #root: string = process.env.INIT_CWD ?? process.cwd();
 
@@ -225,6 +241,21 @@ export class Spellbook {
     return Spellbook.readStreamLinesAsync(
       fsModule.createReadStream(pathModule.resolve(path), { encoding })
     );
+  }
+
+  static async downloadAsync(url: string | URL, path: string): Promise<string> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new DownloadError(url, response.status);
+    }
+
+    Spellbook.write(path, Spellbook.#emptyBytes);
+    if (response.body != null) {
+      for await (const chunk of response.body) {
+        Spellbook.write(path, chunk, true);
+      }
+    }
+    return path;
   }
 
   static assertEqual(value1: unknown, value2: unknown, message: string = '') {

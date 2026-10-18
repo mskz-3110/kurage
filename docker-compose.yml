@@ -10,6 +10,8 @@ services:
     working_dir: /workspaces/kurage
     volumes:
       - ./:/workspaces/kurage
+      - kurage_node_modules:/workspaces/kurage/node_modules
+      - kurage_bun_cache:/root/.bun
     environment:
       - TZ=UTC
   kurage-develop:

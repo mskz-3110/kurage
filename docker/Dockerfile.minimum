@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 ARG WORKDIR
 
 RUN apt update \
-  && apt install -y --no-install-recommends libatomic1 \
+  && apt install -y --no-install-recommends ca-certificates curl libatomic1 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR ${WORKDIR}

@@ -277,6 +277,50 @@ describe('Spellbook', () => {
     });
   });
 
+  describe('downloadAsync', () => {
+    it('downloads response bytes to a file and creates parent directories', async () => {
+      const file = pathModule.join(dir, 'download', 'nested', 'file.bin');
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue(
+          new Response(new Uint8Array([0, 1, 255]), { status: 200 })
+        )
+      );
+
+      await expect(Spellbook.downloadAsync('https://example.com/file.bin', file)).resolves.toBe(file);
+      expect(fsModule.readFileSync(file)).toEqual(Buffer.from([0, 1, 255]));
+      expect(fetch).toHaveBeenCalledWith('https://example.com/file.bin');
+      vi.unstubAllGlobals();
+    });
+
+    it('rejects unsuccessful HTTP responses', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+      await expect(
+        Spellbook.downloadAsync('https://example.com/missing', pathModule.join(dir, 'missing'))
+      ).rejects.toThrow('{"status":404,"url":"https://example.com/missing"}');
+      try {
+        await Spellbook.downloadAsync('https://example.com/missing', pathModule.join(dir, 'missing'));
+      } catch (error) {
+        expect(JSON.parse(JSON.stringify(error))).toEqual({
+          name: 'DownloadError',
+          status: 404,
+          url: 'https://example.com/missing',
+        });
+        expect(error.name).toBe('DownloadError');
+      }
+      vi.unstubAllGlobals();
+    });
+
+    it('writes an empty file when the response has no body', async () => {
+      const file = pathModule.join(dir, 'download', 'empty');
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 200 })));
+
+      await expect(Spellbook.downloadAsync('https://example.com/empty', file)).resolves.toBe(file);
+      expect(fsModule.readFileSync(file)).toEqual(Buffer.alloc(0));
+      vi.unstubAllGlobals();
+    });
+  });
+
   describe('assertEqual', () => {
     it('does not throw for equal values & reports unequal values', () => {
       expect(() => Spellbook.assertEqual('same', 'same')).not.toThrow();
