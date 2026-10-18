@@ -32,7 +32,7 @@ export async function installMise() {
   };
   let mise = isWindows ? findWindowsMise() : 'mise';
   let updatedPaths = [];
-  const updateWindowsPath = async () => {
+  const updateWindowsPath = () => {
     if (mise === 'mise') return;
 
     const miseDirectory = $.dirname(mise);
@@ -44,8 +44,6 @@ export async function installMise() {
       `if command -v cygpath >/dev/null 2>&1; then export PATH="$(cygpath -u "\${LOCALAPPDATA}")/Microsoft/WinGet/Packages/${miseRelativePath}:\${PATH}"; fi`
     );
   };
-
-  if (isWindows) await updateWindowsPath();
 
   if (!(await kurage.$ok([mise, '--version']))) {
     if (isWindows) {
@@ -66,7 +64,6 @@ export async function installMise() {
       }
       process.env.PATH = `${windowsLinksPath};${process.env.PATH ?? ''}`;
       mise = findWindowsMise();
-      await updateWindowsPath();
       if (!(await kurage.$ok([mise, '--version']))) {
         kurage.logger.err(
           `mise.exe was not found under ${windowsPackagesPath} or ${windowsLinksPath}.`
@@ -89,6 +86,8 @@ export async function installMise() {
       mise = `${home}/.local/bin/mise`;
     }
   }
+
+  if (isWindows) updateWindowsPath();
 
   if (await kurage.$ok(['which', 'mise'])) {
     await kurage.$([mise, 'install']);
