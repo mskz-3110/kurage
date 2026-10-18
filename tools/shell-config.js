@@ -15,7 +15,7 @@ export function updateShellConfig(text) {
     const rc = $.read(rcPath);
     const command = text.replaceAll('{shell}', shell);
     if (!rc.includes(command)) {
-      $.write(rcPath, `${command}\n`, true);
+      $.write(rcPath, command, true);
       updatedPaths.push(rcPath.replace(process.env.HOME, '~'));
     }
   }
