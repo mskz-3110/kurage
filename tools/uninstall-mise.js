@@ -18,7 +18,8 @@ export async function uninstallMise() {
     const filteredLines = lines.filter(
       (line) =>
         !line.includes('mise activate') &&
-        !(line.includes('cygpath') && line.includes('mise'))
+        !(line.includes('cygpath') && line.includes('mise')) &&
+        !line.includes('/.local/share/mise/shims')
     );
     if (filteredLines.length !== lines.length) {
       $.replace(rcPath, filteredLines.join('\n'));

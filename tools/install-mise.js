@@ -94,6 +94,13 @@ export async function installMise() {
     kurage.logger.out(await kurage.$out(['mise', '-v']));
   }
 
+  const shimsPath = isWindows
+    ? 'if command -v cygpath >/dev/null 2>&1; then export PATH="$(cygpath -u "${LOCALAPPDATA}")/mise/shims:${PATH}"; fi'
+    : `export PATH="${kurage.path.join([home, '.local', 'share', 'mise', 'shims'])}:\${PATH}"`;
+  updatedPaths = [
+    ...new Set([...updatedPaths, ...updateShellConfig(shimsPath)]),
+  ];
+
   for (const rcPath of updatedPaths) {
     kurage.logger.out(`Run: ${kurage.color.paint('cyan', `source ${rcPath}`)}`);
   }
