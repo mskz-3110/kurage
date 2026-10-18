@@ -104,9 +104,9 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
     return this;
   }
 
-  abort(message = ''): never {
+  abort(message = '', code = 2): never {
     Logger.err(this.help());
-    Process.abort(message, 2);
+    Process.abort(message, code);
   }
 
   option<const Flags extends string, const Default extends string | boolean>(
@@ -190,7 +190,7 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
 
     this.#options = optionValues as Options;
     if (helpSpecified) {
-      this.abort();
+      this.abort('', 0);
     }
 
     return this;

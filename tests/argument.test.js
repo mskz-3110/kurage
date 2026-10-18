@@ -105,7 +105,7 @@ describe('Argument', () => {
         return { exitCodes, messages };
       });
 
-      expect(exitCodes).toEqual([2]);
+      expect(exitCodes).toEqual([0]);
       expect(messages[0]).toContain('Usage: test [options]');
     });
 

@@ -50,9 +50,9 @@ var Argument = class Argument {
     else this.#optionDefinitions[definitionIndex] = optionDefinition;
     return this;
   }
-  abort(message = '') {
+  abort(message = '', code = 2) {
     Logger.err(this.help());
-    Process.abort(message, 2);
+    Process.abort(message, code);
   }
   option(flags, description, defaultValue) {
     return this.#addOption(flags, description, false, defaultValue);
@@ -109,7 +109,7 @@ var Argument = class Argument {
     if (missingRequiredOption != null)
       this.abort(`Missing required option: ${missingRequiredOption.flags}`);
     this.#options = optionValues;
-    if (helpSpecified) this.abort();
+    if (helpSpecified) this.abort('', 0);
     return this;
   }
   help() {

@@ -25,7 +25,7 @@ export declare class Argument<
   get options(): Options;
   get args(): readonly string[];
   constructor(name: string);
-  abort(message?: string): never;
+  abort(message?: string, code?: number): never;
   option<const Flags extends string, const Default extends string | boolean>(
     flags: Flags,
     description: string,

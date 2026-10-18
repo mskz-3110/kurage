@@ -22,6 +22,16 @@ await $.chdirAsync(
         '--outfile',
         `${outputDir}/${packageName}`,
       ]);
+
+      await $.chdirAsync(outputDir, async () => {
+        let args = [];
+        if (target.includes('windows')) {
+          args = ['zip', `../${packageName}-${target}.zip`, packageName];
+        } else {
+          args = ['tar', '-czf', `../${packageName}-${target}.tar.gz`, packageName];
+        }
+        await kurage.$(args);
+      });
     }
   }
 );
