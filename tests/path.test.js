@@ -1,12 +1,16 @@
 import { Path } from '../dist/path.js';
+import { Spellbook as $ } from '../dist/spellbook.js';
 
 describe('Path', () => {
   it('splits a path into segments', () => {
-    expect(Path.split('a/b')).toEqual(['a', 'b']);
+    const path = $.relative($.absolute('a/b'));
+    expect(Path.split(path)).toEqual(['a', 'b']);
   });
 
   it('joins path segments', () => {
-    expect(Path.join(['a', 'b'])).toBe('a/b');
+    expect(Path.join(['a', 'b'])).toBe(
+      $.relative($.absolute('a/b'))
+    );
   });
 
   it('rebuilds a path with custom split & join functions', () => {
@@ -20,7 +24,12 @@ describe('Path', () => {
   });
 
   it('replaces selected path components', () => {
-    expect(Path.with('/tmp/file.md', { name: '.file' })).toBe('/tmp/.file.md');
-    expect(Path.with('/tmp/file.md', { ext: '.txt' })).toBe('/tmp/file.txt');
+    const filePath = $.absolute('tmp/file.md');
+    expect(Path.with(filePath, { name: '.file' })).toBe(
+      $.absolute('tmp/.file.md')
+    );
+    expect(Path.with(filePath, { ext: '.txt' })).toBe(
+      $.absolute('tmp/file.txt')
+    );
   });
 });

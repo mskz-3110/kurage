@@ -190,7 +190,7 @@ describe('Command', () => {
       expect(command.exception.error.stack).toContain(command.toString());
     });
 
-    it('records signal termination', async () => {
+    it.skipIf(process.platform === 'win32')('records signal termination', async () => {
       const command = await Command.new([
         process.execPath,
         '-e',

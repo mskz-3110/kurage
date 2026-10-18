@@ -32,7 +32,11 @@ function satisfies(version, range) {
 
 let failed = false;
 for (const [command, requirement] of commands) {
-  if (!(await kurage.$ok([command, '--version']))) {
+  const args =
+    process.platform === 'win32' && command === 'pnpm'
+      ? ['sh', '-c', 'pnpm --version']
+      : [command, '--version'];
+  if (!(await kurage.$ok(args))) {
     logFailure(
       `✗ ${command}: not found${requirement ? ` (required ${requirement})` : ''}`
     );
@@ -40,7 +44,7 @@ for (const [command, requirement] of commands) {
     continue;
   }
 
-  const output = await kurage.$out([command, '--version']);
+  const output = await kurage.$out(args);
   if (!requirement) {
     kurage.logger.out(kurage.color.paint('green', `✓ ${command}: ${output}`));
     continue;
