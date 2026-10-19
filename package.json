@@ -39,7 +39,7 @@
     "docker:build": "docker compose build kurage-minimum kurage-develop",
     "docker:min": "docker compose run --rm kurage-minimum bash",
     "docker:dev": "docker compose run --rm kurage-develop bash",
-    "docker:vhs": "docker compose run --rm kurage-develop bash -c 'node tools/readme/generate-assets.js'",
+    "docker:vhs": "docker compose run --rm kurage-develop bash -c 'node tools/readme/vhs.js'",
     "build:src": "biome check --write src && rolldown --config && biome format dist --write && tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts && biome check --write .",
     "build:bin": "bun build src/cli/kurage.ts --compile --compile-autoload-package-json --outfile bin/kurage",
     "build": "npm run build:src && npm run build:bin",

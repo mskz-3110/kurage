@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const { kurage } = await import('kurage');
-const { updateShellConfig } = await import('./shell-config.js');
+const { updateShellConfig } = await import('./.shell-config.js');
 
 export async function installMise() {
   const $ = kurage.spellbook;
@@ -95,11 +95,9 @@ export async function installMise() {
   }
 
   const shimsPath = isWindows
-    ? 'if command -v cygpath >/dev/null 2>&1; then export PATH="$(cygpath -u "${LOCALAPPDATA}")/mise/shims:${PATH}"; fi'
+    ? `if command -v cygpath >/dev/null 2>&1; then export PATH="$(cygpath -u "\${LOCALAPPDATA}")/mise/shims:\${PATH}"; fi`
     : `export PATH="${kurage.path.join([home, '.local', 'share', 'mise', 'shims'])}:\${PATH}"`;
-  updatedPaths = [
-    ...new Set([...updatedPaths, ...updateShellConfig(shimsPath)]),
-  ];
+  updatedPaths = [...new Set([...updatedPaths, ...updateShellConfig(shimsPath)])];
 
   for (const rcPath of updatedPaths) {
     kurage.logger.out(`Run: ${kurage.color.paint('cyan', `source ${rcPath}`)}`);

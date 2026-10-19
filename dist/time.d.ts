@@ -3,6 +3,7 @@ export declare class Time {
   static get formatter(): Intl.DateTimeFormat;
   static get driftThreshold(): number;
   static set driftThreshold(value: number);
+  static updateOffsetTime(): void;
   static now(): number;
   static new(...args: ConstructorParameters<typeof Time>): Time;
   get date(): Date;

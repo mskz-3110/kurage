@@ -8,6 +8,8 @@ afterEach(() => {
   Time.driftThreshold = 0;
   Time.now();
   Time.driftThreshold = driftThreshold;
+  vi.unstubAllEnvs();
+  Time.updateOffsetTime();
 });
 
 describe('Time', () => {
@@ -34,6 +36,15 @@ describe('Time', () => {
     const value = Time.now();
     expect(typeof value).toBe('number');
     expect(Number.isFinite(value)).toBe(true);
+  });
+
+  it('applies KURAGE_BASE_TIME as an offset from the current time', () => {
+    const baseTime = '2020-01-02T03:04:05.000Z';
+    const expectedOffset = Date.parse(baseTime) - Date.now();
+    vi.stubEnv('KURAGE_BASE_TIME', baseTime);
+    Time.updateOffsetTime();
+
+    expect(Math.abs(Time.now() - Date.now() - expectedOffset)).toBeLessThan(100);
   });
 
   it('creates a Time from the current instant', () => {

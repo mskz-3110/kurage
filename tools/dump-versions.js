@@ -5,8 +5,7 @@ const commands = ['mise', 'node', 'bun', 'pnpm'];
 const versions = {};
 
 for (const command of commands) {
-  const args = [command, '--version'];
-  versions[command] = (await kurage.$out(args)) || null;
+  versions[command] = (await kurage.$out([command, '--version'])) || null;
 }
 
 kurage.logger.out(JSON.stringify(versions, null, 2));

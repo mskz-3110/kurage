@@ -22,6 +22,15 @@ var Time = class Time {
   }
   static #baseRealTime = Date.now();
   static #baseMonotonicTime = performance.now();
+  static #offsetTime;
+  static {
+    Time.updateOffsetTime();
+  }
+  static updateOffsetTime() {
+    Time.#offsetTime = 0;
+    const parsedBaseTime = Date.parse(process.env.KURAGE_BASE_TIME ?? '');
+    if (!Number.isNaN(parsedBaseTime)) Time.#offsetTime = parsedBaseTime - Date.now();
+  }
   static now() {
     const realTime = Date.now();
     const monotonicTime = performance.now();
@@ -32,7 +41,9 @@ var Time = class Time {
       Time.#baseRealTime = realTime;
       Time.#baseMonotonicTime = monotonicTime;
     }
-    return Time.#baseRealTime + monotonicTime - Time.#baseMonotonicTime;
+    return (
+      Time.#baseRealTime + monotonicTime - Time.#baseMonotonicTime + Time.#offsetTime
+    );
   }
   static new(...args) {
     return new Time(...args);

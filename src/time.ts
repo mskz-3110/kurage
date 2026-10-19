@@ -35,6 +35,20 @@ export class Time {
 
   static #baseMonotonicTime: number = performance.now();
 
+  static #offsetTime: number;
+
+  static {
+    Time.updateOffsetTime();
+  }
+
+  static updateOffsetTime() {
+    Time.#offsetTime = 0;
+    const parsedBaseTime = Date.parse(process.env.KURAGE_BASE_TIME ?? '');
+    if (!Number.isNaN(parsedBaseTime)) {
+      Time.#offsetTime = parsedBaseTime - Date.now();
+    }
+  }
+
   static now(): number {
     const realTime = Date.now();
     const monotonicTime = performance.now();
@@ -45,7 +59,9 @@ export class Time {
       Time.#baseRealTime = realTime;
       Time.#baseMonotonicTime = monotonicTime;
     }
-    return Time.#baseRealTime + monotonicTime - Time.#baseMonotonicTime;
+    return (
+      Time.#baseRealTime + monotonicTime - Time.#baseMonotonicTime + Time.#offsetTime
+    );
   }
 
   static new(...args: ConstructorParameters<typeof Time>): Time {
