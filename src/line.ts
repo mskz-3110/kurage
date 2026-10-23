@@ -44,7 +44,11 @@ export class Builder {
 
   text = '';
 
-  lines: string[] = [];
+  lines: string[];
+
+  constructor(lines: string[] = []) {
+    this.lines = [...lines];
+  }
 
   append(text: string, condition: boolean = true): this {
     if (condition) {
@@ -59,7 +63,7 @@ export class Builder {
     return this;
   }
 
-  line(text: string, condition: boolean = true): this {
+  line(text: string = '', condition: boolean = true): this {
     if (condition) {
       this.lines.push(text);
     }

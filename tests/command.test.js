@@ -31,6 +31,22 @@ describe('Command', () => {
       expect(command.args).toEqual([]);
       expect(command.toString()).toBe('');
     });
+
+    it('omits caller paths without a file name or from Bun binaries', async () => {
+      const withoutFile = Command.new([]);
+      await withoutFile.execAsync({}, {}, {
+        getFileName: () => null,
+        getLineNumber: () => 1,
+      });
+      expect(withoutFile.toString()).toBe('');
+
+      const bunBinary = Command.new([]);
+      await bunBinary.execAsync({}, {}, {
+        getFileName: () => '/$bunfs/root/command.js',
+        getLineNumber: () => 1,
+      });
+      expect(bunBinary.toString()).toBe('');
+    });
   });
 
   describe('stream', () => {

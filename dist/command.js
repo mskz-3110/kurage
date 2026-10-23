@@ -1,9 +1,11 @@
 import childProcessModule from 'node:child_process';
 import { PassThrough } from 'node:stream';
+import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Logger } from './logger.js';
+import { Path } from './path.js';
 import { Stopwatch } from './stopwatch.js';
 
 var Stream = class Stream extends PassThrough {
@@ -105,16 +107,15 @@ var Command = class Command {
   get args() {
     return this.#args;
   }
-  #string = '';
   #stopwatch = Stopwatch.new();
   get stopwatch() {
     return this.#stopwatch;
   }
   #process;
-  #exitCode = 0;
   get process() {
     return this.#process;
   }
+  #exitCode = 0;
   get exitCode() {
     if (this.#process != null && this.#process.exitCode != null)
       return this.#process.exitCode;
@@ -124,9 +125,9 @@ var Command = class Command {
   get exception() {
     return this.#exception;
   }
+  #caller;
   constructor(args) {
     this.#args = [...args];
-    if (0 < args.length) this.#string = `${this.#args[0]} |args|=${this.#args.length}`;
   }
   #appendExceptionMessage() {
     this.#exception.error.message =
@@ -134,9 +135,10 @@ var Command = class Command {
         ? this.toString()
         : `${this.#exception.error.message} @ ${this}`;
   }
-  #setupExec(hooks) {
+  #setupExec(hooks, caller) {
     this.#stopwatch.start();
     this.#exitCode = 1;
+    this.#caller = caller;
     for (const signal of Command.#signals) process.on(signal, this.kill);
     return hooks.onStart?.(this);
   }
@@ -150,11 +152,12 @@ var Command = class Command {
     hooks = {
       onStart: (command) => Logger.write('command-start', command),
       onEnd: (command) => Logger.write('command-end', command),
-    }
+    },
+    caller
   ) {
     let context;
     try {
-      context = this.#setupExec(hooks);
+      context = this.#setupExec(hooks, caller ?? Backtrace.caller(1));
       this.#process = void 0;
       this.#exception = void 0;
       if (this.#args.length === 0) return this;
@@ -233,7 +236,15 @@ var Command = class Command {
     return this.throwIfException();
   }
   toString() {
-    return this.#string;
+    const strings = [];
+    if (0 < this.#args.length)
+      strings.push(`${this.#args[0]} |args|=${this.#args.length}`);
+    if (this.#caller != null) {
+      const file = this.#caller.getFileName();
+      if (file != null && !Path.isBunfs(file))
+        strings.push(`${file}:${this.#caller.getLineNumber()}`);
+    }
+    return strings.join(' in ');
   }
 };
 

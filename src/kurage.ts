@@ -1,6 +1,7 @@
 import type { SpawnOptions } from 'node:child_process';
 import packageJson from '../package.json' with { type: 'json' };
 import { Argument } from './argument.js';
+import type { Frame } from './backtrace.js';
 import { Backtrace } from './backtrace.js';
 import { Bytes } from './bytes.js';
 import { Color } from './color.js';
@@ -28,9 +29,10 @@ const runtimeName = Object.hasOwn(process.versions, 'bun') ? 'bun' : 'node';
 const execAsync = async (
   args: readonly string[],
   options: SpawnOptions = {},
-  hooks?: ExecHooks
+  hooks?: ExecHooks,
+  caller?: Frame
 ): Promise<Command> => {
-  return await Command.new(args).execAsync(options, hooks);
+  return await Command.new(args).execAsync(options, hooks, caller);
 };
 
 export const kurage = {
@@ -48,21 +50,21 @@ export const kurage = {
     options: SpawnOptions = {},
     hooks?: ExecHooks
   ): Promise<void> => {
-    (await execAsync(args, options, hooks)).exitIfFailure();
+    (await execAsync(args, options, hooks, Backtrace.caller(1))).exitIfFailure();
   },
   $command: async (
     args: readonly string[],
     options: SpawnOptions = {},
     hooks?: ExecHooks
   ): Promise<Command> => {
-    return await execAsync(args, options, hooks);
+    return await execAsync(args, options, hooks, Backtrace.caller(1));
   },
   $exit: async (
     args: readonly string[],
     options: SpawnOptions = {},
     hooks?: ExecHooks
   ): Promise<void> => {
-    (await execAsync(args, options, hooks)).exit();
+    (await execAsync(args, options, hooks, Backtrace.caller(1))).exit();
   },
   $out: async (
     args: readonly string[],
@@ -77,14 +79,21 @@ export const kurage = {
         [undefined, stdout, undefined],
         ['ignore', stdout, 'ignore']
       ),
-      {}
+      {},
+      Backtrace.caller(1)
     );
     return stdout.buffer.toString(encoding).trimEnd();
   },
   $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {
     return (
-      (await execAsync(args, { stdio: ['ignore', 'ignore', 'ignore'], ...options }, {}))
-        .exitCode === 0
+      (
+        await execAsync(
+          args,
+          { stdio: ['ignore', 'ignore', 'ignore'], ...options },
+          {},
+          Backtrace.caller(1)
+        )
+      ).exitCode === 0
     );
   },
   backtrace: Backtrace,

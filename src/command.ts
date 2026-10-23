@@ -1,10 +1,13 @@
 import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 import { PassThrough } from 'node:stream';
+import type { Frame } from './backtrace.js';
+import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
 import { Exception } from './exception.js';
 import { Logger } from './logger.js';
+import { Path } from './path.js';
 import { Stopwatch } from './stopwatch.js';
 import type { Time } from './time.js';
 
@@ -143,8 +146,6 @@ export class Command {
     return this.#args;
   }
 
-  #string: string = '';
-
   #stopwatch: Stopwatch = Stopwatch.new();
 
   get stopwatch(): Stopwatch {
@@ -153,11 +154,11 @@ export class Command {
 
   #process: ChildProcess | undefined;
 
-  #exitCode: number = 0;
-
   get process(): ChildProcess | undefined {
     return this.#process;
   }
+
+  #exitCode: number = 0;
 
   get exitCode(): number {
     if (this.#process != null && this.#process.exitCode != null) {
@@ -173,11 +174,10 @@ export class Command {
     return this.#exception;
   }
 
+  #caller: Frame | undefined;
+
   constructor(args: readonly string[]) {
     this.#args = [...args];
-    if (0 < args.length) {
-      this.#string = `${this.#args[0]} |args|=${this.#args.length}`;
-    }
   }
 
   #appendExceptionMessage() {
@@ -187,9 +187,10 @@ export class Command {
         : `${this.#exception!.error.message} @ ${this}`;
   }
 
-  #setupExec(hooks: ExecHooks): any {
+  #setupExec(hooks: ExecHooks, caller?: Frame): any {
     this.#stopwatch.start();
     this.#exitCode = 1;
+    this.#caller = caller;
     for (const signal of Command.#signals) {
       process.on(signal, this.kill);
     }
@@ -209,11 +210,12 @@ export class Command {
     hooks: ExecHooks = {
       onStart: (command) => Logger.write('command-start', command),
       onEnd: (command) => Logger.write('command-end', command),
-    }
+    },
+    caller?: Frame
   ): Promise<Command> {
     let context: any;
     try {
-      context = this.#setupExec(hooks);
+      context = this.#setupExec(hooks, caller ?? Backtrace.caller(1));
       this.#process = undefined;
       this.#exception = undefined;
 
@@ -316,6 +318,16 @@ export class Command {
   }
 
   toString(): string {
-    return this.#string;
+    const strings = [];
+    if (0 < this.#args.length) {
+      strings.push(`${this.#args[0]} |args|=${this.#args.length}`);
+    }
+    if (this.#caller != null) {
+      const file = this.#caller.getFileName();
+      if (file != null && !Path.isBunfs(file)) {
+        strings.push(`${file}:${this.#caller.getLineNumber()}`);
+      }
+    }
+    return strings.join(' in ');
   }
 }

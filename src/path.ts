@@ -5,6 +5,10 @@ export type Split = (path: string) => string[];
 export type Join = (paths: readonly string[]) => string;
 
 export class Path {
+  static isBunfs(path: string): boolean {
+    return path.startsWith('/$bunfs/');
+  }
+
   static split(
     path: string,
     split: Split = (path: string) => path.split(pathModule.sep).filter(Boolean)

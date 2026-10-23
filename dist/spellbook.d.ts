@@ -31,12 +31,19 @@ export declare class Spellbook {
     predicate: (value: T, index: number, values: readonly T[]) => boolean,
     fromIndex?: number
   ): number;
+  static squeezeBlankLines(lines: string[]): string[];
   static sliceRange<T>(
     values: readonly T[],
     startIndex: number,
     endIndex: number,
     invert?: boolean
   ): T[];
+  static extrangeAsync(
+    lines: string[],
+    start: string,
+    end: string,
+    invert?: boolean
+  ): Promise<string[]>;
   static exists(path: string): boolean;
   static absolute(path: string): string;
   static relative(toPath: string, fromPath?: string): string;
@@ -59,6 +66,7 @@ export declare class Spellbook {
   static extname(path: string): string;
   static basename(path: string): string;
   static write(path: string, data: string | Uint8Array, isAppend?: boolean): void;
+  static append(path: string, data: string | Uint8Array): void;
   static replace(path: string, data: string | Uint8Array): void;
   static read(path: string, encoding?: BufferEncoding): string;
   static readStreamLinesAsync(stream: Readable): Promise<string[]>;

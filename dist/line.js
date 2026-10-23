@@ -30,7 +30,10 @@ var Builder = class Builder {
     return new Builder(...args);
   }
   text = '';
-  lines = [];
+  lines;
+  constructor(lines = []) {
+    this.lines = [...lines];
+  }
   append(text, condition = true) {
     if (condition) this.text = `${this.text}${text}`;
     return this;
@@ -40,7 +43,7 @@ var Builder = class Builder {
     this.text = '';
     return this;
   }
-  line(text, condition = true) {
+  line(text = '', condition = true) {
     if (condition) this.lines.push(text);
     return this;
   }

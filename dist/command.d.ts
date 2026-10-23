@@ -1,5 +1,6 @@
 import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import { PassThrough } from 'node:stream';
+import type { Frame } from './backtrace.js';
 import { Exception } from './exception.js';
 import { Stopwatch } from './stopwatch.js';
 export type ExecHooks = {
@@ -31,7 +32,7 @@ export declare class Command {
   get exitCode(): number;
   get exception(): Exception | undefined;
   constructor(args: readonly string[]);
-  execAsync(options?: SpawnOptions, hooks?: ExecHooks): Promise<Command>;
+  execAsync(options?: SpawnOptions, hooks?: ExecHooks, caller?: Frame): Promise<Command>;
   kill: (signal: NodeJS.Signals) => void;
   throwIfException(): Command;
   exit(): void;

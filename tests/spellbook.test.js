@@ -1,4 +1,6 @@
 import { Spellbook } from '../dist/spellbook.js';
+import { Path } from '../dist/path.js';
+import { Line } from '../dist/line.js';
 import fsModule from 'node:fs';
 import osModule from 'node:os';
 import pathModule from 'node:path';
@@ -85,10 +87,20 @@ describe('Spellbook', () => {
   });
 
   describe('tmpdirAsync', () => {
-    it('runs from the temporary directory & restores cwd', async () => {
-    const cwd = process.cwd();
-    expect(await Spellbook.tmpdirAsync()).toBe(osModule.tmpdir());
-    expect(process.cwd()).toBe(cwd);
+    it('returns the temporary directory without changing cwd when block is omitted', async () => {
+      const cwd = process.cwd();
+      expect(await Spellbook.tmpdirAsync()).toBe(osModule.tmpdir());
+      expect(process.cwd()).toBe(cwd);
+    });
+
+    it('runs from the temporary directory & restores cwd when block is provided', async () => {
+      const cwd = process.cwd();
+      expect(
+        await Spellbook.tmpdirAsync(async () => {
+          expect(process.cwd()).toBe(osModule.tmpdir());
+        })
+      ).toBe(osModule.tmpdir());
+      expect(process.cwd()).toBe(cwd);
     });
   });
 
@@ -110,11 +122,66 @@ describe('Spellbook', () => {
     });
   });
 
+  describe('squeezeBlankLines', () => {
+    it('squeezes consecutive blank lines throughout the array', () => {
+      const lines = ['first', '', '  ', 'second', '', ''];
+      const result = Spellbook.squeezeBlankLines(lines);
+
+      expect(result).not.toBe(lines);
+      expect(result).toEqual(['first', '', 'second']);
+      expect(lines).toEqual(['first', '', '  ', 'second', '', '']);
+    });
+
+    it('returns an empty array when all lines are blank', () => {
+      const lines = ['', '  '];
+
+      expect(Spellbook.squeezeBlankLines(lines)).toEqual([]);
+      expect(lines).toEqual(['', '  ']);
+    });
+
+    it('removes leading blank lines', () => {
+      expect(Spellbook.squeezeBlankLines(['', '  ', 'first'])).toEqual(['first']);
+    });
+
+    it('leaves arrays without trailing blank lines unchanged', () => {
+      const lines = ['first', '  second'];
+
+      const result = Spellbook.squeezeBlankLines(lines);
+
+      expect(result).not.toBe(lines);
+      expect(result).toEqual(['first', '  second']);
+      expect(lines).toEqual(['first', '  second']);
+    });
+  });
+
   describe('sliceRange', () => {
     it('returns the selected range or its inverse', () => {
       const values = ['a', 'b', 'c', 'd', 'e'];
       expect(Spellbook.sliceRange(values, 0, 4)).toEqual(['b', 'c', 'd']);
       expect(Spellbook.sliceRange(values, 1, 3, true)).toEqual(['a', 'e']);
+    });
+  });
+
+  describe('extrangeAsync', () => {
+    it('selects lines between the first start marker and next end marker', async () => {
+      const lines = ['before', 'start', 'inside', 'end', 'after'];
+      expect(await Spellbook.extrangeAsync(lines, 'start', 'end')).toEqual(['inside']);
+      expect(await Spellbook.extrangeAsync(lines, 'start', 'end', true)).toEqual([
+        'before', 'after'
+      ]);
+    });
+
+    it('returns an empty array when either marker is missing', async () => {
+      const lines = ['a', 'b'];
+      expect(await Spellbook.extrangeAsync(lines, 'missing', 'b')).toEqual([]);
+      expect(await Spellbook.extrangeAsync(lines, 'a', 'missing')).toEqual([]);
+    });
+
+    it('returns the original lines when a marker is missing & invert is true', async () => {
+      const lines = ['a', 'b'];
+
+      expect(await Spellbook.extrangeAsync(lines, 'missing', 'b', true)).toBe(lines);
+      expect(await Spellbook.extrangeAsync(lines, 'a', 'missing', true)).toBe(lines);
     });
   });
 
@@ -125,7 +192,7 @@ describe('Spellbook', () => {
 
       expect(Spellbook.exists(file)).toBe(true);
       expect(Spellbook.exists(pathModule.join(dir, 'missing'))).toBe(false);
-      expect(Spellbook.exists('')).toBe(true);
+      expect(Spellbook.exists('')).toBe(false);
       expect(Spellbook.absolute('.')).toBe(process.cwd());
       expect(Spellbook.relative(file, dir)).toBe('exists.txt');
       expect(Spellbook.stat(file).isFile()).toBe(true);

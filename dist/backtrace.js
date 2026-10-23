@@ -5,6 +5,9 @@ var Backtrace = class Backtrace {
   static normalizeOffset(offset) {
     return 0 <= offset ? offset : 0;
   }
+  static caller(offset = 0) {
+    return new Backtrace(Backtrace.normalizeOffset(offset) + 1, 1).frames[0];
+  }
   static new(offset = 0, maxLength = 0) {
     return new Backtrace(Backtrace.normalizeOffset(offset) + 1, maxLength);
   }

@@ -52,7 +52,8 @@ var Spellbook = class Spellbook {
     return await Spellbook.chdirAsync(dir, block);
   }
   static async tmpdirAsync(block) {
-    return await Spellbook.chdirAsync(osModule.tmpdir(), block);
+    const dir = osModule.tmpdir();
+    return block == null ? dir : await Spellbook.chdirAsync(dir, block);
   }
   static uuid() {
     return cryptoModule.randomUUID();
@@ -62,13 +63,27 @@ var Spellbook = class Spellbook {
       if (predicate(values[index], index, values)) return index;
     return -1;
   }
+  static squeezeBlankLines(lines) {
+    const squeezedLines = lines.filter(
+      (line, index) => line.trim() !== '' || (index > 0 && lines[index - 1].trim() !== '')
+    );
+    if (squeezedLines.at(-1)?.trim() === '') squeezedLines.pop();
+    return squeezedLines;
+  }
   static sliceRange(values, startIndex, endIndex, invert = false) {
     return invert
       ? [...values.slice(0, startIndex), ...values.slice(endIndex + 1)]
       : values.slice(startIndex + 1, endIndex);
   }
+  static async extrangeAsync(lines, start, end, invert = false) {
+    const startIndex = Spellbook.findIndex(lines, (line) => line === start);
+    if (startIndex < 0) return invert ? lines : [];
+    const endIndex = Spellbook.findIndex(lines, (line) => line === end, startIndex + 1);
+    if (endIndex < 0) return invert ? lines : [];
+    return Spellbook.sliceRange(lines, startIndex, endIndex, invert);
+  }
   static exists(path) {
-    return path === '' ? true : fsModule.existsSync(path);
+    return path === '' ? false : fsModule.existsSync(path);
   }
   static absolute(path) {
     return pathModule.resolve(path);
@@ -124,7 +139,8 @@ var Spellbook = class Spellbook {
     let fd;
     try {
       const dir = Spellbook.dirname(path);
-      if (!Spellbook.exists(dir)) fsModule.mkdirSync(dir, { recursive: true });
+      if (dir !== '' && !Spellbook.exists(dir))
+        fsModule.mkdirSync(dir, { recursive: true });
       fd = fsModule.openSync(path, isAppend ? 'a' : 'w');
       fsModule.writeSync(fd, typeof data === 'string' ? Bytes.fromLines([data]) : data);
       fsModule.fsyncSync(fd);
@@ -133,6 +149,9 @@ var Spellbook = class Spellbook {
     } finally {
       if (fd != null) fsModule.closeSync(fd);
     }
+  }
+  static append(path, data) {
+    Spellbook.write(path, data, true);
   }
   static replace(path, data) {
     const tmpPath = Path.with(path, {
@@ -167,7 +186,7 @@ var Spellbook = class Spellbook {
     if (!response.ok) throw new DownloadError(url, response.status);
     Spellbook.write(path, Spellbook.#emptyBytes);
     if (response.body != null)
-      for await (const chunk of response.body) Spellbook.write(path, chunk, true);
+      for await (const chunk of response.body) Spellbook.append(path, chunk);
     return path;
   }
   static assertEqual(value1, value2, message = '') {

@@ -13,7 +13,7 @@ export async function txclAsync() {
       kurage.logger.err(kurage.color.paint('cyan', `Updated`));
     }
     kurage.logger.out(kurage.line.join(replacedLines));
-    process.exit(0);
+    return;
   }
 
   for (const path of kurage.process.args) {

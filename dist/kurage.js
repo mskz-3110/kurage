@@ -16,8 +16,8 @@ import { Time } from './time.js';
 import { Transcluder } from './transcluder.js';
 
 const runtimeName = Object.hasOwn(process.versions, 'bun') ? 'bun' : 'node';
-const execAsync = async (args, options = {}, hooks) => {
-  return await Command.new(args).execAsync(options, hooks);
+const execAsync = async (args, options = {}, hooks, caller) => {
+  return await Command.new(args).execAsync(options, hooks, caller);
 };
 const kurage = {
   isMain: (importMetaMain, scriptPath) => {
@@ -30,20 +30,21 @@ const kurage = {
     });
   },
   $: async (args, options = {}, hooks) => {
-    (await execAsync(args, options, hooks)).exitIfFailure();
+    (await execAsync(args, options, hooks, Backtrace.caller(1))).exitIfFailure();
   },
   $command: async (args, options = {}, hooks) => {
-    return await execAsync(args, options, hooks);
+    return await execAsync(args, options, hooks, Backtrace.caller(1));
   },
   $exit: async (args, options = {}, hooks) => {
-    (await execAsync(args, options, hooks)).exit();
+    (await execAsync(args, options, hooks, Backtrace.caller(1))).exit();
   },
   $out: async (args, options = {}, encoding = 'utf8') => {
     const stdout = Stream.new();
     await execAsync(
       args,
       Command.mergeStdio(options, [void 0, stdout, void 0], ['ignore', stdout, 'ignore']),
-      {}
+      {},
+      Backtrace.caller(1)
     );
     return stdout.buffer.toString(encoding).trimEnd();
   },
@@ -56,7 +57,8 @@ const kurage = {
             stdio: ['ignore', 'ignore', 'ignore'],
             ...options,
           },
-          {}
+          {},
+          Backtrace.caller(1)
         )
       ).exitCode === 0
     );

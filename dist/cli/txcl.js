@@ -11,7 +11,7 @@ async function txclAsync() {
       kurage.logger.err(kurage.color.paint('gray', `Skipped`));
     else kurage.logger.err(kurage.color.paint('cyan', `Updated`));
     kurage.logger.out(kurage.line.join(replacedLines));
-    process.exit(0);
+    return;
   }
   for (const path of kurage.process.args)
     if (await transcluder.transcludeFileAsync(path))

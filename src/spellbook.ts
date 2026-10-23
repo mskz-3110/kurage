@@ -81,7 +81,8 @@ export class Spellbook {
   }
 
   static async tmpdirAsync(block?: DirBlock): Promise<string> {
-    return await Spellbook.chdirAsync(osModule.tmpdir(), block);
+    const dir = osModule.tmpdir();
+    return block == null ? dir : await Spellbook.chdirAsync(dir, block);
   }
 
   static uuid(): string {
@@ -101,6 +102,17 @@ export class Spellbook {
     return -1;
   }
 
+  static squeezeBlankLines(lines: string[]): string[] {
+    const squeezedLines = lines.filter(
+      (line, index) =>
+        line.trim() !== '' || (index > 0 && lines[index - 1]!.trim() !== '')
+    );
+    if (squeezedLines.at(-1)?.trim() === '') {
+      squeezedLines.pop();
+    }
+    return squeezedLines;
+  }
+
   static sliceRange<T>(
     values: readonly T[],
     startIndex: number,
@@ -112,8 +124,27 @@ export class Spellbook {
       : values.slice(startIndex + 1, endIndex);
   }
 
+  static async extrangeAsync(
+    lines: string[],
+    start: string,
+    end: string,
+    invert: boolean = false
+  ): Promise<string[]> {
+    const startIndex = Spellbook.findIndex(lines, (line) => line === start);
+    if (startIndex < 0) {
+      return invert ? lines : [];
+    }
+
+    const endIndex = Spellbook.findIndex(lines, (line) => line === end, startIndex + 1);
+    if (endIndex < 0) {
+      return invert ? lines : [];
+    }
+
+    return Spellbook.sliceRange(lines, startIndex, endIndex, invert);
+  }
+
   static exists(path: string): boolean {
-    return path === '' ? true : fsModule.existsSync(path);
+    return path === '' ? false : fsModule.existsSync(path);
   }
 
   static absolute(path: string): string {
@@ -190,7 +221,7 @@ export class Spellbook {
     let fd: number | undefined;
     try {
       const dir = Spellbook.dirname(path);
-      if (!Spellbook.exists(dir)) {
+      if (dir !== '' && !Spellbook.exists(dir)) {
         fsModule.mkdirSync(dir, {
           recursive: true,
         });
@@ -205,6 +236,10 @@ export class Spellbook {
         fsModule.closeSync(fd);
       }
     }
+  }
+
+  static append(path: string, data: string | Uint8Array) {
+    Spellbook.write(path, data, true);
   }
 
   static replace(path: string, data: string | Uint8Array) {
@@ -252,7 +287,7 @@ export class Spellbook {
     Spellbook.write(path, Spellbook.#emptyBytes);
     if (response.body != null) {
       for await (const chunk of response.body) {
-        Spellbook.write(path, chunk, true);
+        Spellbook.append(path, chunk);
       }
     }
     return path;

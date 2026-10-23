@@ -15,9 +15,10 @@ export declare class Builder {
   static new(...args: ConstructorParameters<typeof Builder>): Builder;
   text: string;
   lines: string[];
+  constructor(lines?: string[]);
   append(text: string, condition?: boolean): this;
   push(): this;
-  line(text: string, condition?: boolean): this;
+  line(text?: string, condition?: boolean): this;
   toString(): string;
 }
 export declare class Line {

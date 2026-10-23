@@ -1,6 +1,9 @@
 import pathModule from 'node:path';
 
 var Path = class {
+  static isBunfs(path) {
+    return path.startsWith('/$bunfs/');
+  }
   static split(path, split = (path) => path.split(pathModule.sep).filter(Boolean)) {
     return split(path);
   }

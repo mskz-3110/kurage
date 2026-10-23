@@ -9,6 +9,10 @@ export class Backtrace {
     return 0 <= offset ? offset : 0;
   }
 
+  static caller(offset: number = 0): Frame | undefined {
+    return new Backtrace(Backtrace.normalizeOffset(offset) + 1, 1).frames[0];
+  }
+
   static new(offset: number = 0, maxLength: number = 0): Backtrace {
     return new Backtrace(Backtrace.normalizeOffset(offset) + 1, maxLength);
   }
