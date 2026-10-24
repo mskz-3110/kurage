@@ -77,36 +77,20 @@ async function removeRcActionAsync(path, name, code) {
   });
 }
 
-async function installDirenvAsync() {
-  if (isWindows) {
-    // TODO
-  } else {
+async function installAsync() {
+  if (!(await kurage.$ok(['which', 'direnv']))) {
     await installActionAsync('direnv', async (installer) => {
       await $.downloadAsync(installerUrls.direnv, installer);
       await kurage.$(['bash', installer]);
       await $.chdirAsync(project, async () => await kurage.$(['direnv', 'allow']));
     });
   }
-}
 
-async function installMiseAsync() {
-  if (isWindows) {
-    // TODO
-  } else {
+  if (!$.exists(localMise)) {
     await installActionAsync('mise', async (installer) => {
       await $.downloadAsync(installerUrls.mise, installer);
       await kurage.$(['sh', installer]);
     });
-  }
-}
-
-async function installAsync() {
-  if (!(await kurage.$ok(['which', 'direnv']))) {
-    await installDirenvAsync();
-  }
-
-  if (!$.exists(localMise)) {
-    await installMiseAsync();
   }
 
   await kurage.$([localMise, 'install']);
@@ -135,7 +119,9 @@ async function uninstallAsync() {
 
   for (const [shell, path] of Object.entries(rcPaths)) {
     let updated = false;
-    if (await removeRcActionAsync(path, 'mise', `eval "$(${localMise} activate ${shell})"`)) {
+    if (
+      await removeRcActionAsync(path, 'mise', `eval "$(${localMise} activate ${shell})"`)
+    ) {
       updated = true;
     }
     if (await removeRcActionAsync(path, 'direnv', `eval "$(direnv hook ${shell})"`)) {
@@ -164,6 +150,30 @@ await (async () => {
     }
 
     kurage.logger.out(JSON.stringify(versions, null, 2));
+    return;
+  }
+
+  if (isWindows) {
+    let hex = '';
+    await $.chdirAsync(
+      project,
+      async () =>
+        (hex = await kurage.$out([
+          'powershell',
+          '-Command',
+          '[System.BitConverter]::ToString([System.Text.Encoding]::UTF8.GetBytes((Get-Location).Path)).Replace("-", "").ToLower()',
+        ]))
+    );
+    await kurage.$([
+      kurage.path.join([
+        process.env.LOCALAPPDATA,
+        'Programs',
+        'Microsoft VS Code',
+        'Code.exe',
+      ]),
+      '--folder-uri',
+      `vscode-remote://dev-container+${hex}/workspaces/kurage`,
+    ]);
     return;
   }
 

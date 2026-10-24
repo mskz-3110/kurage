@@ -42,9 +42,9 @@
     "docker:vhs": "docker compose run --rm kurage-develop bash -c 'node tools/readme/vhs.js'",
     "build:src": "biome check --write src && rolldown --config && biome format dist --write && tsc --emitDeclarationOnly --declaration && rm -f dist/cli/*.d.ts && biome check --write .",
     "build:bin": "bun build src/cli/kurage.ts --compile --compile-autoload-package-json --outfile bin/kurage",
-    "build": "npm run build:src && npm run build:bin",
+    "build": "pnpm run build:src && pnpm run build:bin",
     "test": "vitest run --coverage",
-    "ci": "npm run build && npm run test"
+    "ci": "pnpm run build && pnpm run test"
   },
   "engines": {
     "node": ">=22",
