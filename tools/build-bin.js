@@ -11,6 +11,8 @@ await $.chdirAsync(
   kurage.path.join([$.dirname($.urlToPath(import.meta.url)), '..']),
   async () => {
     for (const target of targets) {
+      const isWindows = target.includes('windows');
+      const outputName = isWindows ? `${packageName}.exe` : packageName;
       const outputDir = `bin/${target}`;
       await $.mkdirAsync(outputDir);
       await kurage.$([
@@ -20,15 +22,15 @@ await $.chdirAsync(
         '--compile',
         '--compile-autoload-package-json',
         '--outfile',
-        `${outputDir}/${packageName}`,
+        `${outputDir}/${outputName}`,
       ]);
 
       await $.chdirAsync(outputDir, async () => {
         let args = [];
-        if (target.includes('windows')) {
-          args = ['zip', `../${packageName}-${target}.zip`, packageName];
+        if (isWindows) {
+          args = ['zip', `../${packageName}-${target}.zip`, outputName];
         } else {
-          args = ['tar', '-czf', `../${packageName}-${target}.tar.gz`, packageName];
+          args = ['tar', '-czf', `../${packageName}-${target}.tar.gz`, outputName];
         }
         await kurage.$(args);
       });
