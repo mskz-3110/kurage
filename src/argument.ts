@@ -11,6 +11,7 @@ type OptionDefinition = {
   description: string;
   required: boolean;
   defaultValue: string | boolean;
+  choices?: readonly string[];
 };
 
 type CommandDefinition = {
@@ -33,6 +34,16 @@ type OptionName<Flags extends string> = Flags extends `${string}--${infer Long}`
 type OptionValueType<Flags extends string> = Flags extends `${string}<${string}`
   ? string
   : boolean;
+
+type OptionValues<
+  Flags extends string,
+  Value,
+  Choices extends readonly string[] | undefined,
+> =
+  | (Choices extends readonly string[] ? Choices[number] : Value)
+  | (Flags extends `${string}<${string}`
+      ? (Choices extends readonly string[] ? Choices[number] : Value)[]
+      : never);
 
 export class Argument<Options extends { help: boolean } = { help: boolean }> {
   static new(
@@ -70,7 +81,8 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
     flags: string,
     description: string,
     required: boolean,
-    defaultValue: string | boolean = false
+    defaultValue: string | boolean = false,
+    choices?: readonly string[]
   ): Argument {
     const aliases = flags.match(/--?[\w-]+/g) ?? [];
     const optionName = (
@@ -92,6 +104,7 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
       description,
       required,
       defaultValue,
+      ...(choices === undefined ? {} : { choices }),
     };
     const definitionIndex = this.#optionDefinitions.findIndex(
       (optionDefinition) => optionDefinition.flags === flags
@@ -109,22 +122,38 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
     Process.abort(message, code);
   }
 
-  option<const Flags extends string, const Default extends string | boolean>(
+  option<
+    const Flags extends string,
+    const Default extends string | boolean,
+    const Choices extends readonly string[] | undefined = undefined,
+  >(
     flags: Flags,
     description: string,
-    defaultValue: Default
-  ): Argument<Options & Record<OptionName<Flags>, Default>> {
-    return this.#addOption(flags, description, false, defaultValue) as Argument<
-      Options & Record<OptionName<Flags>, Default>
+    defaultValue: Default,
+    choices?: Choices
+  ): Argument<
+    Options & Record<OptionName<Flags>, OptionValues<Flags, Default, Choices>>
+  > {
+    return this.#addOption(flags, description, false, defaultValue, choices) as Argument<
+      Options & Record<OptionName<Flags>, OptionValues<Flags, Default, Choices>>
     >;
   }
 
-  requiredOption<const Flags extends string>(
+  requiredOption<
+    const Flags extends string,
+    const Choices extends readonly string[] | undefined = undefined,
+  >(
     flags: Flags,
-    description: string
-  ): Argument<Options & Record<OptionName<Flags>, OptionValueType<Flags>>> {
-    return this.#addOption(flags, description, true) as Argument<
-      Options & Record<OptionName<Flags>, OptionValueType<Flags>>
+    description: string,
+    defaultValue: string | boolean = /[<[][^>\]]+[>\]]/.test(flags) ? '' : false,
+    choices?: Choices
+  ): Argument<
+    Options &
+      Record<OptionName<Flags>, OptionValues<Flags, OptionValueType<Flags>, Choices>>
+  > {
+    return this.#addOption(flags, description, true, defaultValue, choices) as Argument<
+      Options &
+        Record<OptionName<Flags>, OptionValues<Flags, OptionValueType<Flags>, Choices>>
     >;
   }
 
@@ -140,7 +169,10 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
 
   parse(args: readonly string[]): this {
     this.#args = [];
-    const optionValues = Object.create(null) as Record<string, string | boolean>;
+    const optionValues = Object.create(null) as Record<
+      string,
+      string | boolean | (string | boolean)[]
+    >;
     const specifiedOptionNames = new Set<string>();
     for (const optionDefinition of this.#optionDefinitions) {
       optionValues[optionDefinition.name] = optionDefinition.defaultValue;
@@ -164,6 +196,7 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
         this.abort(`Unknown option: ${args[index]}`);
       }
 
+      const wasSet = specifiedOptionNames.has(matchedOptionDefinition.name);
       specifiedOptionNames.add(matchedOptionDefinition.name);
       if (!matchedOptionDefinition.takesValue) {
         optionValues[matchedOptionDefinition.name] = true;
@@ -174,7 +207,25 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
         this.abort(`Missing value: ${matchedOptionDefinition.flags}`);
       }
 
-      optionValues[matchedOptionDefinition.name] = args[++index]!;
+      const value = args[++index]!;
+      if (
+        matchedOptionDefinition.choices != null &&
+        !matchedOptionDefinition.choices.includes(value)
+      ) {
+        this.abort(
+          `Invalid choice(${matchedOptionDefinition.flags}): ${value} ${JSON.stringify(matchedOptionDefinition.choices)}`
+        );
+      }
+      if (wasSet) {
+        const previousValue = optionValues[matchedOptionDefinition.name];
+        if (Array.isArray(previousValue)) {
+          previousValue.push(value);
+        } else {
+          optionValues[matchedOptionDefinition.name] = [previousValue as string, value];
+        }
+      } else {
+        optionValues[matchedOptionDefinition.name] = value;
+      }
     }
 
     const helpSpecified = specifiedOptionNames.has('help');
@@ -197,11 +248,13 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
   }
 
   help(): string {
-    const options = this.#optionDefinitions.toSorted(
-      (a, b) => Number(a.name === 'help') - Number(b.name === 'help')
-    );
-    const typeLabel = (option: OptionDefinition) =>
-      `(${option.takesValue ? 'string' : 'boolean'}:${option.required ? 'Required' : JSON.stringify(option.defaultValue)})`;
+    const requiredOptions = this.#optionDefinitions.filter((option) => option.required);
+    const options = this.#optionDefinitions
+      .filter((option) => !option.required)
+      .toSorted((a, b) => Number(a.name === 'help') - Number(b.name === 'help'));
+    const allOptions = [...requiredOptions, ...options];
+    const typeDefaultValue = (option: OptionDefinition) =>
+      `(${option.takesValue ? 'string' : 'boolean'}:${JSON.stringify(option.defaultValue)})`;
     const commandWidths = {
       usage: Math.max(
         0,
@@ -211,9 +264,24 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
       ),
     };
     const optionWidths = {
-      flags: Math.max(0, ...options.map((option) => option.flags.length)),
-      typeLabel: Math.max(0, ...options.map((option) => typeLabel(option).length)),
-      description: Math.max(0, ...options.map((option) => option.description.length)),
+      flags: Math.max(0, ...allOptions.map((option) => option.flags.length)),
+      typeDefaultValue: Math.max(
+        0,
+        ...allOptions.map((option) => typeDefaultValue(option).length)
+      ),
+      description: Math.max(0, ...allOptions.map((option) => option.description.length)),
+    };
+    const appendOptions = (title: string, definitions: OptionDefinition[]) => {
+      if (definitions.length === 0) {
+        return;
+      }
+
+      builder.line(`${title}:`);
+      for (const option of definitions) {
+        builder.line(
+          `  ${option.flags.padEnd(optionWidths.flags)} ${typeDefaultValue(option).padEnd(optionWidths.typeDefaultValue)} ${option.description}${option.choices == null ? '' : ` ${JSON.stringify(option.choices)}`}`
+        );
+      }
     };
     const builder = Line.builder
       .new()
@@ -221,13 +289,9 @@ export class Argument<Options extends { help: boolean } = { help: boolean }> {
       .append(this.#name)
       .append(' [options]')
       .append(' [command]', this.#commandDefinitions.length > 0)
-      .push()
-      .line('Options:');
-    for (const option of options) {
-      builder.line(
-        `  ${option.flags.padEnd(optionWidths.flags)} ${typeLabel(option).padEnd(optionWidths.typeLabel)} ${option.description.padEnd(optionWidths.description)}`
-      );
-    }
+      .push();
+    appendOptions('Required Options', requiredOptions);
+    appendOptions('Options', options);
     if (this.#commandDefinitions.length > 0) {
       builder.line('Commands:');
       for (const commandDefinition of this.#commandDefinitions) {

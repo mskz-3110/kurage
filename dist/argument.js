@@ -23,7 +23,7 @@ var Argument = class Argument {
     this.#name = name;
     this.option('-h, --help', 'Display help', false);
   }
-  #addOption(flags, description, required, defaultValue = false) {
+  #addOption(flags, description, required, defaultValue = false, choices) {
     const aliases = flags.match(/--?[\w-]+/g) ?? [];
     const optionName = (
       aliases.find((alias) => alias.startsWith('--')) ??
@@ -42,6 +42,7 @@ var Argument = class Argument {
       description,
       required,
       defaultValue,
+      ...(choices === void 0 ? {} : { choices }),
     };
     const definitionIndex = this.#optionDefinitions.findIndex(
       (optionDefinition) => optionDefinition.flags === flags
@@ -54,11 +55,16 @@ var Argument = class Argument {
     Logger.err(this.help());
     Process.abort(message, code);
   }
-  option(flags, description, defaultValue) {
-    return this.#addOption(flags, description, false, defaultValue);
+  option(flags, description, defaultValue, choices) {
+    return this.#addOption(flags, description, false, defaultValue, choices);
   }
-  requiredOption(flags, description) {
-    return this.#addOption(flags, description, true);
+  requiredOption(
+    flags,
+    description,
+    defaultValue = /[<[][^>\]]+[>\]]/.test(flags) ? '' : false,
+    choices
+  ) {
+    return this.#addOption(flags, description, true, defaultValue, choices);
   }
   command(usage, description) {
     this.#commandDefinitions.push({
@@ -90,6 +96,7 @@ var Argument = class Argument {
         optionDefinition.aliases.includes(args[index])
       );
       if (matchedOptionDefinition == null) this.abort(`Unknown option: ${args[index]}`);
+      const wasSet = specifiedOptionNames.has(matchedOptionDefinition.name);
       specifiedOptionNames.add(matchedOptionDefinition.name);
       if (!matchedOptionDefinition.takesValue) {
         optionValues[matchedOptionDefinition.name] = true;
@@ -97,7 +104,19 @@ var Argument = class Argument {
       }
       if (index + 1 >= args.length)
         this.abort(`Missing value: ${matchedOptionDefinition.flags}`);
-      optionValues[matchedOptionDefinition.name] = args[++index];
+      const value = args[++index];
+      if (
+        matchedOptionDefinition.choices != null &&
+        !matchedOptionDefinition.choices.includes(value)
+      )
+        this.abort(
+          `Invalid choice(${matchedOptionDefinition.flags}): ${value} ${JSON.stringify(matchedOptionDefinition.choices)}`
+        );
+      if (wasSet) {
+        const previousValue = optionValues[matchedOptionDefinition.name];
+        if (Array.isArray(previousValue)) previousValue.push(value);
+        else optionValues[matchedOptionDefinition.name] = [previousValue, value];
+      } else optionValues[matchedOptionDefinition.name] = value;
     }
     const helpSpecified = specifiedOptionNames.has('help');
     const missingRequiredOption = this.#optionDefinitions.find(
@@ -113,11 +132,13 @@ var Argument = class Argument {
     return this;
   }
   help() {
-    const options = this.#optionDefinitions.toSorted(
-      (a, b) => Number(a.name === 'help') - Number(b.name === 'help')
-    );
-    const typeLabel = (option) =>
-      `(${option.takesValue ? 'string' : 'boolean'}:${option.required ? 'Required' : JSON.stringify(option.defaultValue)})`;
+    const requiredOptions = this.#optionDefinitions.filter((option) => option.required);
+    const options = this.#optionDefinitions
+      .filter((option) => !option.required)
+      .toSorted((a, b) => Number(a.name === 'help') - Number(b.name === 'help'));
+    const allOptions = [...requiredOptions, ...options];
+    const typeDefaultValue = (option) =>
+      `(${option.takesValue ? 'string' : 'boolean'}:${JSON.stringify(option.defaultValue)})`;
     const commandWidths = {
       usage: Math.max(
         0,
@@ -127,9 +148,20 @@ var Argument = class Argument {
       ),
     };
     const optionWidths = {
-      flags: Math.max(0, ...options.map((option) => option.flags.length)),
-      typeLabel: Math.max(0, ...options.map((option) => typeLabel(option).length)),
-      description: Math.max(0, ...options.map((option) => option.description.length)),
+      flags: Math.max(0, ...allOptions.map((option) => option.flags.length)),
+      typeDefaultValue: Math.max(
+        0,
+        ...allOptions.map((option) => typeDefaultValue(option).length)
+      ),
+      description: Math.max(0, ...allOptions.map((option) => option.description.length)),
+    };
+    const appendOptions = (title, definitions) => {
+      if (definitions.length === 0) return;
+      builder.line(`${title}:`);
+      for (const option of definitions)
+        builder.line(
+          `  ${option.flags.padEnd(optionWidths.flags)} ${typeDefaultValue(option).padEnd(optionWidths.typeDefaultValue)} ${option.description}${option.choices == null ? '' : ` ${JSON.stringify(option.choices)}`}`
+        );
     };
     const builder = Line.builder
       .new()
@@ -137,12 +169,9 @@ var Argument = class Argument {
       .append(this.#name)
       .append(' [options]')
       .append(' [command]', this.#commandDefinitions.length > 0)
-      .push()
-      .line('Options:');
-    for (const option of options)
-      builder.line(
-        `  ${option.flags.padEnd(optionWidths.flags)} ${typeLabel(option).padEnd(optionWidths.typeLabel)} ${option.description.padEnd(optionWidths.description)}`
-      );
+      .push();
+    appendOptions('Required Options', requiredOptions);
+    appendOptions('Options', options);
     if (this.#commandDefinitions.length > 0) {
       builder.line('Commands:');
       for (const commandDefinition of this.#commandDefinitions)

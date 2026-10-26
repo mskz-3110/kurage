@@ -68,6 +68,14 @@ describe('Argument', () => {
       expect(argument.options.color).toBe('always');
     });
 
+    it('collects repeated option values in an array', () => {
+      const argument = Argument.new('test')
+        .option('--value <value>', 'Input value', '')
+        .parse(['--value', 'first', '--value', 'second', '--value', 'third']);
+
+      expect(argument.options.value).toEqual(['first', 'second', 'third']);
+    });
+
     it('accepts a required boolean option', () => {
       const argument = Argument.new('test')
         .requiredOption('-f, --force', 'Force operation')
@@ -148,6 +156,22 @@ describe('Argument', () => {
 
       expect(exitCodes).toEqual([2]);
       expect(messages[1]).toContain('Missing value: --token <value>');
+    });
+
+    it('aborts when an option value is not one of its choices', () => {
+      const { exitCodes, messages } = withProcessMocks(({ exitCodes, messages }) => {
+        expect(() => {
+          Argument.new('test')
+            .requiredOption('--value <value>', 'Input value', 'a', ['a', 'b'])
+            .parse(['--value', 'c']);
+        }).toThrow('process.exit');
+        return { exitCodes, messages };
+      }, () => {
+        throw new Error('process.exit');
+      });
+
+      expect(exitCodes).toEqual([2]);
+      expect(messages[1]).toContain('Invalid choice(--value <value>): c ["a","b"]');
     });
 
     it('aborts for an unknown option', () => {
