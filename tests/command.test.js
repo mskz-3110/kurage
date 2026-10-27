@@ -130,6 +130,8 @@ describe('Command', () => {
       ]).execAsync({ stdio: ['ignore', stdout, stderr] }, {});
 
       expect(command.exitCode).toBe(0);
+      expect(stdout.buffer.toString()).toBe('out');
+      expect(stderr.buffer.toString()).toBe('err');
       expect(stdout.closed).toBe(true);
       expect(stderr.closed).toBe(true);
       expect(stdout.writableFinished).toBe(true);

@@ -7,6 +7,7 @@ import pathModule from 'node:path';
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('Spellbook', () => {
@@ -357,7 +358,6 @@ describe('Spellbook', () => {
       await expect(Spellbook.downloadAsync('https://example.com/file.bin', file)).resolves.toBe(file);
       expect(fsModule.readFileSync(file)).toEqual(Buffer.from([0, 1, 255]));
       expect(fetch).toHaveBeenCalledWith('https://example.com/file.bin');
-      vi.unstubAllGlobals();
     });
 
     it('rejects unsuccessful HTTP responses', async () => {
@@ -375,7 +375,6 @@ describe('Spellbook', () => {
         });
         expect(error.name).toBe('DownloadError');
       }
-      vi.unstubAllGlobals();
     });
 
     it('writes an empty file when the response has no body', async () => {
@@ -384,7 +383,6 @@ describe('Spellbook', () => {
 
       await expect(Spellbook.downloadAsync('https://example.com/empty', file)).resolves.toBe(file);
       expect(fsModule.readFileSync(file)).toEqual(Buffer.alloc(0));
-      vi.unstubAllGlobals();
     });
   });
 
