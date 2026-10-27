@@ -44,7 +44,7 @@ export class Command {
     return Stream;
   }
 
-  static #signals: NodeJS.Signals[] = [
+  static readonly #signals: NodeJS.Signals[] = [
     'SIGINT',
     'SIGTERM',
     'SIGHUP',
@@ -140,13 +140,13 @@ export class Command {
     }
   }
 
-  #args: string[] = [];
+  readonly #args: string[];
 
   get args(): readonly string[] {
     return this.#args;
   }
 
-  #stopwatch: Stopwatch = Stopwatch.new();
+  readonly #stopwatch: Stopwatch = Stopwatch.new();
 
   get stopwatch(): Stopwatch {
     return this.#stopwatch;

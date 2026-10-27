@@ -23,7 +23,7 @@ export class Parser {
     return new Parser(...args);
   }
 
-  #scanner: Scanner = Scanner.new({
+  readonly #scanner: Scanner = Scanner.new({
     comment: /<!--\s*:\s*([\s\S]*\S)\s*-->/,
   });
 

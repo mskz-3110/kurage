@@ -19,7 +19,7 @@ export class Logger {
 
   static #errStreams: NodeJS.WritableStream[] = [process.stderr];
 
-  static #invalidNames: string[] = [
+  static readonly #invalidNames: string[] = [
     ...Object.getOwnPropertyNames(Logger),
     ...Object.getOwnPropertyNames(Logger.prototype),
   ];

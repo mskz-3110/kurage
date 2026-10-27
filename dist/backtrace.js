@@ -11,14 +11,15 @@ var Backtrace = class Backtrace {
   static new(offset = 0, maxLength = 0) {
     return new Backtrace(Backtrace.normalizeOffset(offset) + 1, maxLength);
   }
-  frames = [];
+  frames;
   constructor(offset = 0, maxLength = 0) {
     try {
       Error.prepareStackTrace = (_, stackTraces) => {
         return stackTraces.slice(Backtrace.normalizeOffset(offset) + 1);
       };
-      this.frames = /* @__PURE__ */ new Error().stack;
-      if (0 < maxLength && maxLength < this.frames.length) this.frames.length = maxLength;
+      const frames = /* @__PURE__ */ new Error().stack;
+      if (0 < maxLength && maxLength < frames.length) frames.length = maxLength;
+      this.frames = frames;
     } finally {
       Error.prepareStackTrace = Backtrace.#prepareStackTrace;
     }

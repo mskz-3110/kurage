@@ -4,7 +4,7 @@ export declare class Backtrace {
   static normalizeOffset(offset: number): number;
   static caller(offset?: number): Frame | undefined;
   static new(offset?: number, maxLength?: number): Backtrace;
-  frames: Frame[];
+  readonly frames: Frame[];
   constructor(offset?: number, maxLength?: number);
   toString(prefix?: string): string;
 }

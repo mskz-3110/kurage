@@ -15,7 +15,7 @@ export class Scanner {
     return new RegExp(matcher.source, matcher.flags.replace(/[gy]/g, ''));
   }
 
-  #matchers: Matchers;
+  readonly #matchers: Matchers;
 
   constructor(matchers: Matchers) {
     this.#matchers = matchers;

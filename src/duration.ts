@@ -6,7 +6,7 @@ type TimeScale = {
 };
 
 export class Duration {
-  static #timeScales: TimeScale[] = [
+  static readonly #timeScales: TimeScale[] = [
     { threshold: 1000 * 60 * 60 * 24, unit: 'd' },
     { threshold: 1000 * 60 * 60, unit: 'h' },
     { threshold: 1000 * 60, unit: 'm' },
@@ -14,7 +14,7 @@ export class Duration {
     { threshold: 0, unit: 'ms' },
   ];
 
-  static #formatter = new Intl.NumberFormat('ja-JP', {
+  static readonly #formatter = new Intl.NumberFormat('ja-JP', {
     maximumFractionDigits: 3,
   });
 

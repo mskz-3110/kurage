@@ -103,7 +103,7 @@ var Command = class Command {
       Logger.write('command-end', command);
     }
   }
-  #args = [];
+  #args;
   get args() {
     return this.#args;
   }

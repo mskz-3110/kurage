@@ -68,7 +68,7 @@ export class Time {
     return new Time(...args);
   }
 
-  #date: Date;
+  readonly #date: Date;
 
   get date(): Date {
     return this.#date;
