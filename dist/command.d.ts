@@ -9,9 +9,14 @@ export type ExecHooks = {
 };
 export declare class Stream extends PassThrough {
   #private;
-  static new(...args: ConstructorParameters<typeof PassThrough>): Stream;
+  static readonly maxBufferSize: number;
+  static new(...args: ConstructorParameters<typeof Stream>): Stream;
   get buffer(): Buffer;
-  constructor(...args: ConstructorParameters<typeof PassThrough>);
+  constructor(
+    options?: ConstructorParameters<typeof PassThrough>[0] & {
+      maxBufferSize?: number;
+    }
+  );
 }
 export declare class Command {
   #private;

@@ -3,8 +3,12 @@ import kurage from '../kurage.js';
 
 export async function execJsonAsync() {
   let stdinBytes = Buffer.alloc(0);
-  const stdout = kurage.command.stream.new();
-  const stderr = kurage.command.stream.new();
+  const stdout = kurage.command.stream.new({
+    maxBufferSize: kurage.command.stream.maxBufferSize,
+  });
+  const stderr = kurage.command.stream.new({
+    maxBufferSize: kurage.command.stream.maxBufferSize,
+  });
   const command = kurage.command.new(kurage.process.args);
   const exec = command.execAsync({ stdio: ['pipe', stdout, stderr] }, {});
   if (!process.stdin.isTTY && command.process?.stdin != null) {

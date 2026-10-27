@@ -9,6 +9,7 @@ import { Path } from './path.js';
 import { Stopwatch } from './stopwatch.js';
 
 var Stream = class Stream extends PassThrough {
+  static maxBufferSize = 64 * 1024 * 1024;
   static new(...args) {
     return new Stream(...args);
   }
@@ -16,11 +17,19 @@ var Stream = class Stream extends PassThrough {
   get buffer() {
     return this.#buffer;
   }
-  constructor(...args) {
-    super(...args);
+  constructor(options) {
+    const { maxBufferSize = 0, ...streamOptions } = options ?? {};
+    const normalizedMaxBufferSize = Number.isNaN(maxBufferSize)
+      ? 0
+      : Math.max(0, Math.round(maxBufferSize));
+    super(streamOptions);
     const chunks = [];
+    let capturedSize = 0;
     this.on('data', (chunk) => {
+      if (normalizedMaxBufferSize !== 0 && normalizedMaxBufferSize <= capturedSize)
+        return;
       chunks.push(chunk);
+      capturedSize += chunk.length;
     });
     this.on('close', () => {
       this.#buffer = Buffer.concat(chunks);
@@ -184,7 +193,7 @@ var Command = class Command {
       if (this.#process.stderr != null && stderr != null)
         this.#process.stderr.pipe(stderr);
       await new Promise((resolve) => {
-        this.#process.on('close', (_, signalName) => {
+        this.#process.once('close', (_, signalName) => {
           this.#stopwatch.stop();
           if (this.#exception == null) {
             if (signalName != null) {
@@ -194,7 +203,7 @@ var Command = class Command {
           }
           resolve();
         });
-        this.#process.on('error', (e) => {
+        this.#process.once('error', (e) => {
           this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();

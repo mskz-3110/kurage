@@ -39,7 +39,7 @@ const kurage = {
     (await execAsync(args, options, hooks, Backtrace.caller(1))).exit();
   },
   $out: async (args, options = {}, encoding = 'utf8') => {
-    const stdout = Stream.new();
+    const stdout = Stream.new({ maxBufferSize: Stream.maxBufferSize });
     await execAsync(
       args,
       Command.mergeStdio(options, [void 0, stdout, void 0], ['ignore', stdout, 'ignore']),

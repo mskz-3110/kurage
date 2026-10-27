@@ -17,7 +17,9 @@ export type ExecHooks = {
 };
 
 export class Stream extends PassThrough {
-  static new(...args: ConstructorParameters<typeof PassThrough>): Stream {
+  static readonly maxBufferSize = 64 * 1024 * 1024;
+
+  static new(...args: ConstructorParameters<typeof Stream>): Stream {
     return new Stream(...args);
   }
 
@@ -27,11 +29,23 @@ export class Stream extends PassThrough {
     return this.#buffer;
   }
 
-  constructor(...args: ConstructorParameters<typeof PassThrough>) {
-    super(...args);
+  constructor(
+    options?: ConstructorParameters<typeof PassThrough>[0] & { maxBufferSize?: number }
+  ) {
+    const { maxBufferSize = 0, ...streamOptions } = options ?? {};
+    const normalizedMaxBufferSize = Number.isNaN(maxBufferSize)
+      ? 0
+      : Math.max(0, Math.round(maxBufferSize));
+    super(streamOptions);
     const chunks: Buffer[] = [];
+    let capturedSize = 0;
     this.on('data', (chunk: Buffer) => {
+      if (normalizedMaxBufferSize !== 0 && normalizedMaxBufferSize <= capturedSize) {
+        return;
+      }
+
       chunks.push(chunk);
+      capturedSize += chunk.length;
     });
     this.on('close', () => {
       this.#buffer = Buffer.concat(chunks);
@@ -250,7 +264,7 @@ export class Command {
       }
 
       await new Promise<void>((resolve) => {
-        this.#process!.on('close', (_, signalName) => {
+        this.#process!.once('close', (_, signalName) => {
           this.#stopwatch.stop();
           if (this.#exception == null) {
             if (signalName != null) {
@@ -261,7 +275,7 @@ export class Command {
           resolve();
         });
 
-        this.#process!.on('error', (e) => {
+        this.#process!.once('error', (e) => {
           this.#stopwatch.stop();
           this.#exception = Exception.new(e);
           this.#appendExceptionMessage();

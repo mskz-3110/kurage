@@ -57,6 +57,39 @@ describe('Command', () => {
 
       expect(stream.buffer.toString()).toBe('first');
     });
+
+    it('keeps the whole chunk that crosses maxBufferSize', async () => {
+      const stream = Command.stream.new({ maxBufferSize: 4.6 });
+      stream.end('123456');
+      await new Promise((resolve) => stream.on('close', resolve));
+
+      expect(stream.buffer.toString()).toBe('123456');
+    });
+
+    it('discards chunks received after maxBufferSize is reached', async () => {
+      const stream = Command.stream.new({ maxBufferSize: 3 });
+      stream.write('abc');
+      stream.end('def');
+      await new Promise((resolve) => stream.on('close', resolve));
+
+      expect(stream.buffer.toString()).toBe('abc');
+    });
+
+    it('treats NaN maxBufferSize as unlimited', async () => {
+      const stream = Command.stream.new({ maxBufferSize: Number.NaN });
+      stream.end('data');
+      await new Promise((resolve) => stream.on('close', resolve));
+
+      expect(stream.buffer.toString()).toBe('data');
+    });
+
+    it('captures all data when maxBufferSize is zero', async () => {
+      const stream = Command.stream.new({ maxBufferSize: 0 });
+      stream.end('unlimited');
+      await new Promise((resolve) => stream.on('close', resolve));
+
+      expect(stream.buffer.toString()).toBe('unlimited');
+    });
   });
 
   describe('mergeStdio', () => {
@@ -157,7 +190,7 @@ describe('Command', () => {
       expect(stderr.writableFinished).toBe(true);
     });
 
-    it('waits for connected streams to close after the child process closes', async () => {
+    it('waits for connected streams to finish after the child process closes', async () => {
       const stdout = Command.stream.new();
       const stderr = Command.stream.new();
       const child = Object.assign(new eventsModule.EventEmitter(), {
@@ -184,11 +217,13 @@ describe('Command', () => {
 
       child.stdout.end();
       child.stderr.end();
+      stdout.end();
+      stderr.end();
       const command = await commandPromise;
 
       expect(command.exitCode).toBe(0);
-      expect(stdout.closed).toBe(true);
-      expect(stderr.closed).toBe(true);
+      expect(stdout.writableFinished).toBe(true);
+      expect(stderr.writableFinished).toBe(true);
     });
 
     it('returns a failing exit code without an exception', async () => {
@@ -206,6 +241,19 @@ describe('Command', () => {
 
       expect(command.exception.error.message).toContain(unavailableCommand);
       expect(command.exception.error.stack).toContain(command.toString());
+    });
+
+    it('keeps the whole command output chunk that crosses maxBufferSize', async () => {
+      const stdout = Command.stream.new({ maxBufferSize: 4 });
+      const command = await Command.new([
+        process.execPath,
+        '-e',
+        "process.stdout.write('12345')",
+      ]).execAsync({ stdio: ['ignore', stdout, 'ignore'] }, {});
+
+      expect(command.exitCode).toBe(0);
+      expect(command.exception).toBeUndefined();
+      expect(stdout.buffer.toString()).toBe('12345');
     });
 
     it.skipIf(process.platform === 'win32')('records signal termination', async () => {

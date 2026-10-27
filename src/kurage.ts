@@ -71,7 +71,7 @@ export const kurage = {
     options: SpawnOptions = {},
     encoding: BufferEncoding = 'utf8'
   ): Promise<string> => {
-    const stdout = Stream.new();
+    const stdout = Stream.new({ maxBufferSize: Stream.maxBufferSize });
     await execAsync(
       args,
       Command.mergeStdio(
