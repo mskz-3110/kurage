@@ -1,5 +1,7 @@
 import childProcessModule from 'node:child_process';
 import { PassThrough } from 'node:stream';
+import { buffer } from 'node:stream/consumers';
+import { finished } from 'node:stream/promises';
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
 import { Duration } from './duration.js';
@@ -9,31 +11,13 @@ import { Path } from './path.js';
 import { Stopwatch } from './stopwatch.js';
 
 var Stream = class Stream extends PassThrough {
-  static maxBufferSize = 64 * 1024 * 1024;
   static new(...args) {
     return new Stream(...args);
   }
-  #buffer = Buffer.alloc(0);
-  get buffer() {
+  #buffer;
+  buffer() {
+    this.#buffer ??= buffer(this);
     return this.#buffer;
-  }
-  constructor(options) {
-    const { maxBufferSize = 0, ...streamOptions } = options ?? {};
-    const normalizedMaxBufferSize = Number.isNaN(maxBufferSize)
-      ? 0
-      : Math.max(0, Math.round(maxBufferSize));
-    super(streamOptions);
-    const chunks = [];
-    let capturedSize = 0;
-    this.on('data', (chunk) => {
-      if (normalizedMaxBufferSize !== 0 && normalizedMaxBufferSize <= capturedSize)
-        return;
-      chunks.push(chunk);
-      capturedSize += chunk.length;
-    });
-    this.on('close', () => {
-      this.#buffer = Buffer.concat(chunks);
-    });
   }
 };
 var Command = class Command {
@@ -151,10 +135,10 @@ var Command = class Command {
     for (const signal of Command.#signals) process.on(signal, this.kill);
     return hooks.onStart?.(this);
   }
-  #cleanupExec(hooks, context) {
+  #cleanupExec(hooks, context, started) {
     this.#stopwatch.stop();
     for (const signal of Command.#signals) process.off(signal, this.kill);
-    hooks.onEnd?.(this, context);
+    if (started) hooks.onEnd?.(this, context);
   }
   async execAsync(
     options = {},
@@ -165,8 +149,10 @@ var Command = class Command {
     caller
   ) {
     let context;
+    let started = false;
     try {
       context = this.#setupExec(hooks, caller ?? Backtrace.caller(1));
+      started = true;
       this.#process = void 0;
       this.#exception = void 0;
       if (this.#args.length === 0) return this;
@@ -192,6 +178,8 @@ var Command = class Command {
         this.#process.stdout.pipe(stdout);
       if (this.#process.stderr != null && stderr != null)
         this.#process.stderr.pipe(stderr);
+      stdout?.resume();
+      stderr?.resume();
       await new Promise((resolve) => {
         this.#process.once('close', (_, signalName) => {
           this.#stopwatch.stop();
@@ -210,22 +198,22 @@ var Command = class Command {
           this.#exception.error.stack = this.#exception.error.message;
           this.#process.stdout?.destroy();
           this.#process.stderr?.destroy();
-          stdout?.destroy();
-          stderr?.destroy();
+          stdout?.end();
+          stderr?.end();
           resolve();
         });
       });
       await Promise.all(
         [stdout, stderr]
-          .filter((stream) => stream != null && !stream.closed)
-          .map((stream) => new Promise((resolve) => stream.once('close', resolve)))
+          .filter((stream) => stream != null)
+          .map((stream) => finished(stream))
       );
     } catch (e) {
       this.#stopwatch.stop();
       this.#exception = Exception.new(e);
       this.#appendExceptionMessage();
     } finally {
-      this.#cleanupExec(hooks, context);
+      this.#cleanupExec(hooks, context, started);
     }
     return this;
   }

@@ -9,7 +9,6 @@ const mockCommandOutput = (output) => {
   return vi.spyOn(kurage.command, 'new').mockImplementationOnce(() => ({
     execAsync: async (options) => {
       const stdout = options.stdio[1];
-      Object.defineProperty(stdout, 'buffer', { value: Buffer.from(output) });
       stdout.end(output);
       return {
         exitIfFailure() {

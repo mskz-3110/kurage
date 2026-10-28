@@ -1,6 +1,8 @@
 import type { ChildProcess, SpawnOptions, StdioOptions } from 'node:child_process';
 import childProcessModule from 'node:child_process';
 import { PassThrough } from 'node:stream';
+import { buffer } from 'node:stream/consumers';
+import { finished } from 'node:stream/promises';
 import type { Frame } from './backtrace.js';
 import { Backtrace } from './backtrace.js';
 import { Color } from './color.js';
@@ -17,39 +19,15 @@ export type ExecHooks = {
 };
 
 export class Stream extends PassThrough {
-  static readonly maxBufferSize = 64 * 1024 * 1024;
-
   static new(...args: ConstructorParameters<typeof Stream>): Stream {
     return new Stream(...args);
   }
 
-  #buffer: Buffer = Buffer.alloc(0);
+  #buffer: Promise<Buffer> | undefined;
 
-  get buffer(): Buffer {
+  buffer(): Promise<Buffer> {
+    this.#buffer ??= buffer(this);
     return this.#buffer;
-  }
-
-  constructor(
-    options?: ConstructorParameters<typeof PassThrough>[0] & { maxBufferSize?: number }
-  ) {
-    const { maxBufferSize = 0, ...streamOptions } = options ?? {};
-    const normalizedMaxBufferSize = Number.isNaN(maxBufferSize)
-      ? 0
-      : Math.max(0, Math.round(maxBufferSize));
-    super(streamOptions);
-    const chunks: Buffer[] = [];
-    let capturedSize = 0;
-    this.on('data', (chunk: Buffer) => {
-      if (normalizedMaxBufferSize !== 0 && normalizedMaxBufferSize <= capturedSize) {
-        return;
-      }
-
-      chunks.push(chunk);
-      capturedSize += chunk.length;
-    });
-    this.on('close', () => {
-      this.#buffer = Buffer.concat(chunks);
-    });
   }
 }
 
@@ -211,12 +189,14 @@ export class Command {
     return hooks.onStart?.(this);
   }
 
-  #cleanupExec(hooks: ExecHooks, context: any) {
+  #cleanupExec(hooks: ExecHooks, context: any, started: boolean) {
     this.#stopwatch.stop();
     for (const signal of Command.#signals) {
       process.off(signal, this.kill);
     }
-    hooks.onEnd?.(this, context);
+    if (started) {
+      hooks.onEnd?.(this, context);
+    }
   }
 
   async execAsync(
@@ -228,8 +208,10 @@ export class Command {
     caller?: Frame
   ): Promise<Command> {
     let context: any;
+    let started = false;
     try {
       context = this.#setupExec(hooks, caller ?? Backtrace.caller(1));
+      started = true;
       this.#process = undefined;
       this.#exception = undefined;
 
@@ -262,6 +244,8 @@ export class Command {
       if (this.#process.stderr != null && stderr != null) {
         this.#process.stderr.pipe(stderr);
       }
+      stdout?.resume();
+      stderr?.resume();
 
       await new Promise<void>((resolve) => {
         this.#process!.once('close', (_, signalName) => {
@@ -282,23 +266,23 @@ export class Command {
           this.#exception.error.stack = this.#exception.error.message;
           this.#process!.stdout?.destroy();
           this.#process!.stderr?.destroy();
-          stdout?.destroy();
-          stderr?.destroy();
+          stdout?.end();
+          stderr?.end();
           resolve();
         });
       });
 
       await Promise.all(
         [stdout, stderr]
-          .filter((stream): stream is Stream => stream != null && !stream.closed)
-          .map((stream) => new Promise<void>((resolve) => stream.once('close', resolve)))
+          .filter((stream): stream is Stream => stream != null)
+          .map((stream) => finished(stream))
       );
     } catch (e: unknown) {
       this.#stopwatch.stop();
       this.#exception = Exception.new(e);
       this.#appendExceptionMessage();
     } finally {
-      this.#cleanupExec(hooks, context);
+      this.#cleanupExec(hooks, context, started);
     }
     return this;
   }

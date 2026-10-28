@@ -50,45 +50,11 @@ describe('Command', () => {
   });
 
   describe('stream', () => {
-    it('exposes Stream & buffers written data', async () => {
+    it('exposes Stream as a readable PassThrough', async () => {
       const stream = Command.stream.new();
+      const output = stream.buffer();
       stream.end('first');
-      await new Promise((resolve) => stream.on('close', resolve));
-
-      expect(stream.buffer.toString()).toBe('first');
-    });
-
-    it('keeps the whole chunk that crosses maxBufferSize', async () => {
-      const stream = Command.stream.new({ maxBufferSize: 4.6 });
-      stream.end('123456');
-      await new Promise((resolve) => stream.on('close', resolve));
-
-      expect(stream.buffer.toString()).toBe('123456');
-    });
-
-    it('discards chunks received after maxBufferSize is reached', async () => {
-      const stream = Command.stream.new({ maxBufferSize: 3 });
-      stream.write('abc');
-      stream.end('def');
-      await new Promise((resolve) => stream.on('close', resolve));
-
-      expect(stream.buffer.toString()).toBe('abc');
-    });
-
-    it('treats NaN maxBufferSize as unlimited', async () => {
-      const stream = Command.stream.new({ maxBufferSize: Number.NaN });
-      stream.end('data');
-      await new Promise((resolve) => stream.on('close', resolve));
-
-      expect(stream.buffer.toString()).toBe('data');
-    });
-
-    it('captures all data when maxBufferSize is zero', async () => {
-      const stream = Command.stream.new({ maxBufferSize: 0 });
-      stream.end('unlimited');
-      await new Promise((resolve) => stream.on('close', resolve));
-
-      expect(stream.buffer.toString()).toBe('unlimited');
+      expect((await output).toString()).toBe('first');
     });
   });
 
@@ -156,6 +122,8 @@ describe('Command', () => {
     it('connects Stream instances to child stdio', async () => {
       const stdout = Command.stream.new();
       const stderr = Command.stream.new();
+      const stdoutBuffer = stdout.buffer();
+      const stderrBuffer = stderr.buffer();
       const command = await Command.new([
         process.execPath,
         '-e',
@@ -163,27 +131,37 @@ describe('Command', () => {
       ]).execAsync({ stdio: ['ignore', stdout, stderr] }, {});
 
       expect(command.exitCode).toBe(0);
-      expect(stdout.buffer.toString()).toBe('out');
-      expect(stderr.buffer.toString()).toBe('err');
+      expect((await stdoutBuffer).toString()).toBe('out');
+      expect((await stderrBuffer).toString()).toBe('err');
       expect(stdout.closed).toBe(true);
       expect(stderr.closed).toBe(true);
       expect(stdout.writableFinished).toBe(true);
       expect(stderr.writableFinished).toBe(true);
     });
 
-    it('connects stdout-only & stderr-only streams', async () => {
+    it('discards unbuffered stdout & stderr while completing the command', async () => {
       const stdout = Command.stream.new();
       const stderr = Command.stream.new();
-      const stdoutCommand = await Command.new([process.execPath, '-e', '']).execAsync(
+      const stdoutCommand = await Command.new([
+        process.execPath,
+        '-e',
+        "process.stdout.write('discarded stdout')",
+      ]).execAsync(
         { stdio: ['ignore', stdout, 'inherit'] },
         {}
       );
-      const stderrCommand = await Command.new([process.execPath, '-e', '']).execAsync(
+      const stderrCommand = await Command.new([
+        process.execPath,
+        '-e',
+        "process.stderr.write('discarded stderr')",
+      ]).execAsync(
         { stdio: ['ignore', 'inherit', stderr] },
         {}
       );
       expect(stdoutCommand.exitCode).toBe(0);
       expect(stderrCommand.exitCode).toBe(0);
+      expect(stdout.readableLength).toBe(0);
+      expect(stderr.readableLength).toBe(0);
       expect(stdout.closed).toBe(true);
       expect(stderr.closed).toBe(true);
       expect(stdout.writableFinished).toBe(true);
@@ -243,17 +221,16 @@ describe('Command', () => {
       expect(command.exception.error.stack).toContain(command.toString());
     });
 
-    it('keeps the whole command output chunk that crosses maxBufferSize', async () => {
-      const stdout = Command.stream.new({ maxBufferSize: 4 });
-      const command = await Command.new([
-        process.execPath,
-        '-e',
-        "process.stdout.write('12345')",
-      ]).execAsync({ stdio: ['ignore', stdout, 'ignore'] }, {});
+    it('ends connected streams when spawning fails', async () => {
+      const stdout = Command.stream.new();
+      const stdoutBuffer = stdout.buffer();
+      const command = await Command.new([unavailableCommand]).execAsync(
+        { stdio: ['ignore', stdout, 'ignore'] },
+        {}
+      );
 
-      expect(command.exitCode).toBe(0);
-      expect(command.exception).toBeUndefined();
-      expect(stdout.buffer.toString()).toBe('12345');
+      expect(command.exception?.error.message).toContain(unavailableCommand);
+      expect(await stdoutBuffer).toEqual(Buffer.alloc(0));
     });
 
     it.skipIf(process.platform === 'win32')('records signal termination', async () => {

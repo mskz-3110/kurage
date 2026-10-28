@@ -71,7 +71,8 @@ export const kurage = {
     options: SpawnOptions = {},
     encoding: BufferEncoding = 'utf8'
   ): Promise<string> => {
-    const stdout = Stream.new({ maxBufferSize: Stream.maxBufferSize });
+    const stdout = Stream.new();
+    const stdoutBuffer = stdout.buffer();
     await execAsync(
       args,
       Command.mergeStdio(
@@ -82,7 +83,7 @@ export const kurage = {
       {},
       Backtrace.caller(1)
     );
-    return stdout.buffer.toString(encoding).trimEnd();
+    return (await stdoutBuffer).toString(encoding).trimEnd();
   },
   $ok: async (args: readonly string[], options: SpawnOptions = {}): Promise<boolean> => {
     return (
