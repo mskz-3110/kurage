@@ -16,7 +16,6 @@ const rcPaths = {
 };
 const localMise = kurage.path.join([process.env.HOME, '.local', 'bin', 'mise']);
 const installerUrls = {
-  direnv: 'https://direnv.net/install.sh',
   mise: 'https://mise.run',
 };
 
@@ -78,14 +77,6 @@ async function removeRcActionAsync(path, name, code) {
 }
 
 async function installAsync() {
-  if (!(await kurage.$ok(['which', 'direnv']))) {
-    await installActionAsync('direnv', async (installer) => {
-      await $.downloadAsync(installerUrls.direnv, installer);
-      await kurage.$(['bash', installer]);
-      await $.chdirAsync(project, async () => await kurage.$(['direnv', 'allow']));
-    });
-  }
-
   if (!$.exists(localMise)) {
     await installActionAsync('mise', async (installer) => {
       await $.downloadAsync(installerUrls.mise, installer);
@@ -93,7 +84,23 @@ async function installAsync() {
     });
   }
 
-  await kurage.$([localMise, 'install']);
+  await $.chdirAsync(project, async () => {
+    await kurage.$([localMise, 'install']);
+    await kurage.$([localMise, 'use', '-g', 'direnv']);
+    await $.mkdirAsync(kurage.path.join([process.env.HOME, '.config', 'direnv']), () => {
+      $.write(
+        'direnv.toml',
+        kurage.line.join(
+          kurage.line.builder
+            .new()
+            .line('[whitelist]')
+            .line('prefix = [')
+            .line(`  "${project}"`)
+            .line(']').lines
+        )
+      );
+    });
+  });
 
   for (const [shell, path] of Object.entries(rcPaths)) {
     let updated = false;
@@ -112,7 +119,6 @@ async function installAsync() {
 }
 
 async function uninstallAsync() {
-  $.remove(await kurage.$out(['which', 'direnv']));
   for (const path of $.glob(`${process.env.HOME}/{.local,.cache}/**/{direnv,mise}`)) {
     $.remove(path);
   }

@@ -25,7 +25,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && rm -rf /var/lib/apt/lists/*
 
 RUN apt update \
-  && apt install -y direnv extrepo \
+  && apt install -y extrepo \
   && extrepo enable mise \
   && apt update \
   && apt install -y mise
@@ -33,10 +33,10 @@ RUN apt update \
 WORKDIR ${WORKDIR}
 
 COPY package.json .envrc mise.toml pnpm-lock.yaml .
+RUN echo 'eval "$(mise activate bash)"' >> ~/.bashrc
 RUN mkdir -p ~/.config/direnv \
   && printf '[whitelist]\nprefix = [\n  "%s"\n]\n' "${WORKDIR}" > ~/.config/direnv/direnv.toml \
   && echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
-RUN echo 'eval "$(mise activate bash)"' >> ~/.bashrc
 RUN mise install
 RUN pnpm run install:frozen
 RUN git config --global --add safe.directory ${WORKDIR}

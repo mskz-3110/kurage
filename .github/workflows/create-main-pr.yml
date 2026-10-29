@@ -1,0 +1,55 @@
+name: Create main pull request
+
+on:
+  pull_request:
+    types: [opened]
+    branches:
+      - main
+
+jobs:
+  create-main-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Update pull request description
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git --no-pager log "$BASE_SHA..$HEAD_SHA" --pretty=format:"- %s" > commit-list.md
+          { cat commit-list.md; printf '\n\n'; cat .github/workflows/templates/main-pr-body.md; } > pr-body.md
+          gh pr edit "$PR_NUMBER" --body-file pr-body.md
+
+      - name: Setup node
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 26.12.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4.0.0
+        with:
+          version: 12.15.0
+          run_install: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2.0.2
+        with:
+          bun-version: 1.4.4
+
+      - name: Install dependencies
+        run: pnpm run install:frozen
+
+      - name: Run CI
+        run: pnpm run ci
+

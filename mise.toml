@@ -1,4 +1,5 @@
 [tools]
+direnv = "latest"
 node = "latest"
 bun = "latest"
 pnpm = "latest"

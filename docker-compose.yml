@@ -1,6 +1,6 @@
 services:
-  kurage-minimum:
-    hostname: kurage-minimum
+  minimum:
+    hostname: minimum
     command: sleep infinity
     build:
       context: .
@@ -14,8 +14,8 @@ services:
       - kurage_coverage:/workspaces/kurage/coverage
     environment:
       - TZ=UTC
-  kurage-develop:
-    hostname: kurage-develop
+  develop:
+    hostname: develop
     command: sleep infinity
     build:
       context: .
