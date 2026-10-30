@@ -1,4 +1,4 @@
-name: Create release
+name: Publish release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  create-release:
+  publish-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v4.2.0
         with:
           node-version: 26.12.1
+          cache: pnpm
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4.0.0
