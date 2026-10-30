@@ -8,5 +8,7 @@ Env PS1 '$ '
 Env KURAGE_BASE_TIME '2026/11/03 11:03:00'
 
 Hide
+Type 'source ~/.bashrc'
+Enter
 Ctrl+L
 Show

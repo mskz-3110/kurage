@@ -20,17 +20,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Update pull request description
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          git --no-pager log "$BASE_SHA..$HEAD_SHA" --pretty=format:"- %s" > commit-list.md
-          { cat commit-list.md; printf '\n\n'; cat .github/workflows/templates/main-pr-body.md; } > pr-body.md
-          gh pr edit "$PR_NUMBER" --body-file pr-body.md
-
       - name: Setup node
         uses: actions/setup-node@v4.2.0
         with:
