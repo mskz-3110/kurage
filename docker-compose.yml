@@ -1,0 +1,35 @@
+services:
+  minimum:
+    hostname: minimum
+    command: sleep infinity
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.minimum
+      args:
+        - WORKDIR=/workspaces/kurage
+    working_dir: /workspaces/kurage
+    volumes:
+      - ./:/workspaces/kurage
+      - kurage_node_modules:/workspaces/kurage/node_modules
+      - kurage_coverage:/workspaces/kurage/coverage
+    environment:
+      - TZ=UTC
+  develop:
+    hostname: develop
+    command: sleep infinity
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.develop
+      args:
+        - TTYD_VER=1.7.7
+        - WORKDIR=/workspaces/kurage
+    working_dir: /workspaces/kurage
+    volumes:
+      - ./:/workspaces/kurage
+      - kurage_node_modules:/workspaces/kurage/node_modules
+      - kurage_coverage:/workspaces/kurage/coverage
+    environment:
+      - TZ=UTC
+volumes:
+  kurage_node_modules:
+  kurage_coverage:

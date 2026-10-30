@@ -1,0 +1,71 @@
+name: Publish release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup node
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 26.12.1
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4.0.0
+        with:
+          version: 12.15.0
+          run_install: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2.0.2
+        with:
+          bun-version: 1.4.4
+
+      - name: Install dependencies
+        run: pnpm run install:frozen
+
+      - name: Build package
+        run: pnpm run build
+
+      - name: Publish package
+        run: pnpm publish --provenance
+
+      - name: Build binary archives
+        run: node tools/build-bin.js
+
+      - name: Create github release and upload binary archives
+        run: |
+          TAG_NAME="$GITHUB_REF_NAME"
+          ASSETS=(
+            bin/kurage-linux-x64.tar.gz
+            bin/kurage-linux-arm64.tar.gz
+            bin/kurage-windows-x64.zip
+            bin/kurage-darwin-arm64.tar.gz
+          )
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release edit "$TAG_NAME" \
+              --title "$TAG_NAME"
+            gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber
+          else
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --generate-notes \
+              "${ASSETS[@]}"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,42 @@
+FROM debian:bookworm-slim
+
+ARG TTYD_VER
+ARG WORKDIR
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH="/root/.local/share/mise/shims:${PATH}"
+ENV VHS_NO_SANDBOX=true
+
+RUN apt update \
+  && apt install -y --no-install-recommends ca-certificates curl git git-lfs gnupg jq unzip zip vim libatomic1 \
+  && git lfs install \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" > /etc/apt/sources.list.d/charm.list \
+  && apt update \
+  && apt install -y --no-install-recommends ffmpeg vhs \
+  && curl -L https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o chrome.deb \
+  && apt install -y ./chrome.deb \
+  && rm -f chrome.deb \
+  && curl -fL https://github.com/tsl0922/ttyd/releases/download/${TTYD_VER}/ttyd.x86_64 -o /usr/local/bin/ttyd \
+  && chmod a+x /usr/local/bin/ttyd \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN apt update \
+  && apt install -y extrepo \
+  && extrepo enable mise \
+  && apt update \
+  && apt install -y mise
+
+WORKDIR ${WORKDIR}
+
+COPY package.json .envrc mise.toml pnpm-lock.yaml .
+RUN echo 'eval "$(mise activate bash)"' >> ~/.bashrc
+RUN mkdir -p ~/.config/direnv \
+  && printf '[whitelist]\nprefix = [\n  "%s"\n]\n' "${WORKDIR}" > ~/.config/direnv/direnv.toml \
+  && echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+RUN mise install
+RUN pnpm run install:frozen
+RUN git config --global --add safe.directory ${WORKDIR}
