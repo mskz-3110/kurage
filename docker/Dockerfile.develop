@@ -39,7 +39,7 @@ WORKDIR ${WORKDIR}
 COPY package.json .envrc mise.toml pnpm-lock.yaml .
 RUN printf 'set encoding=utf-8\nset fileencoding=utf-8\nset fileencodings=utf-8,ucs-bom,default,latin1\n' > /root/.vimrc
 RUN echo 'eval "$(mise activate bash)"' >> ~/.bashrc \
-  && echo "export PS1='\\u@\\h:\\w\\n# '" >> ~/.bashrc \
+  && printf '%s\n' "export PS1='\\u@\\h:\\w\\n# '" >> ~/.bashrc \
   && echo "alias ll='ls -alF'" >> ~/.bashrc
 RUN mkdir -p ~/.config/direnv \
   && printf '[whitelist]\nprefix = [\n  "%s"\n]\n' "${WORKDIR}" > ~/.config/direnv/direnv.toml \
