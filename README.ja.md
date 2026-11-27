@@ -25,9 +25,6 @@ JavaScript の実行、外部コマンドの実行、JSON 形式での実行結�
 [![GitHub Codespaces で開く](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)
 
 GitHub Codespaces を使えば、ローカル環境にインストールせずにブラウザから試せます。
-
-セットアップスクリプトが環境の違いを吸収し、必要な開発環境を構築します。
-
 (コンテナのビルド時間：約3分)
 
 ### pnpm でインストール
@@ -38,9 +35,7 @@ pnpm add kurage
 
 ### 単一バイナリで利用
 
-GitHub Releases から単一バイナリをダウンロードして利用できます。
-
-[GitHub Releases](https://github.com/mskz-3110/kurage/releases)
+[GitHub Releases](https://github.com/mskz-3110/kurage/releases) から単一バイナリをダウンロードして利用できます。
 
 ## クイックスタート
 
