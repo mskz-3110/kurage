@@ -1,6 +1,8 @@
 # Kurage
 
-![Kurage](docs/readme/logo.png)
+<p align="center"><img src="docs/readme/logo.png" alt="Kurage" width="160"></p>
+
+[![Kurage の概要図](docs/readme/overview.png)](docs/readme/overview.png)
 
 ## 概要
 
@@ -20,15 +22,13 @@ JavaScript の実行、外部コマンドの実行、JSON 形式での実行結�
 
 ### ブラウザで試す
 
+[![GitHub Codespaces で開く](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)
+
 GitHub Codespaces を使えば、ローカル環境にインストールせずにブラウザから試せます。
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)
+セットアップスクリプトが環境の違いを吸収し、必要な開発環境を構築します。
 
-[GitHub Codespaces で開く](https://codespaces.new/mskz-3110/kurage?quickstart=1)
-
-セットアップスクリプトにより、環境の違いを吸収し、必要な開発環境を構築します。
-
-コンテナのビルド時間：約3分
+(コンテナのビルド時間：約3分)
 
 ### pnpm でインストール
 
@@ -54,12 +54,14 @@ GitHub Releases から単一バイナリをダウンロードして利用でき�
 kurage repl
 ```
 
+REPL で `kurage.logger.out('REPL');` を実行します。
+
 ### JavaScript を直接実行する
 
 ![eval](docs/readme/eval.gif)
 
 ```bash
-kurage eval 'kurage.logger.out("Hello, Kurage!")'
+kurage eval "kurage.logger.out('EVAL');"
 ```
 
 ### 外部コマンドを実行する
@@ -67,7 +69,7 @@ kurage eval 'kurage.logger.out("Hello, Kurage!")'
 ![exec](docs/readme/exec.gif)
 
 ```bash
-kurage exec node --version
+kurage exec node -v
 ```
 
 ### JavaScript ファイルを実行する
@@ -75,7 +77,7 @@ kurage exec node --version
 ![run](docs/readme/run.gif)
 
 ```bash
-kurage run script.js
+kurage run examples/log.js
 ```
 
 ## 便利な機能
@@ -104,9 +106,24 @@ kurage info-json
 kurage txcl README.md
 ```
 
+Markdown コメントで指定したファイルの内容を埋め込みます。
+
+ファイルを指定するとファイルを更新し、標準入力を使う場合は変換結果を標準出力に出力します。
+
 ### JavaScript API
 
-ファイル操作、テキスト処理、ログ、時間計測などの API を利用できます。
+パッケージをインポートすると、コマンド実行、ファイル操作、ログ、時間計測などの API を利用できます。
+
+`kurage` と `$` は、グローバル変数として利用できます。
+
+`$out` は外部コマンドの標準出力を文字列で返します。
+
+```js
+import kurage from 'kurage';
+
+const output = await kurage.$out(['node', '--version']);
+kurage.logger.out(output);
+```
 
 ## ライセンス
 
