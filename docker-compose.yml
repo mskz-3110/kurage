@@ -5,7 +5,8 @@ services:
     command: sleep infinity
     build:
       context: .
-      dockerfile: docker/Dockerfile.minimum
+      dockerfile: docker/Dockerfile
+      target: minimum
       args:
         - WORKDIR=/workspaces/kurage
     working_dir: /workspaces/kurage
@@ -21,9 +22,9 @@ services:
     command: sleep infinity
     build:
       context: .
-      dockerfile: docker/Dockerfile.develop
+      dockerfile: docker/Dockerfile
+      target: develop
       args:
-        - MINIMUM_IMAGE=kurage-minimum
         - TTYD_VER=1.7.7
         - WORKDIR=/workspaces/kurage
     working_dir: /workspaces/kurage

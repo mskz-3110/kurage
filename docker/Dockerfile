@@ -1,5 +1,22 @@
-ARG MINIMUM_IMAGE
-FROM ${MINIMUM_IMAGE}
+FROM debian:bookworm-slim AS minimum
+
+ARG WORKDIR
+
+ENV LANG=ja_JP.UTF-8
+ENV LC_ALL=ja_JP.UTF-8
+
+RUN apt update \
+  && apt install -y --no-install-recommends ca-certificates curl vim tmux libatomic1 locales \
+  && sed -i '/^# ja_JP.UTF-8 UTF-8/s/^# //' /etc/locale.gen \
+  && locale-gen \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN printf 'set encoding=utf-8\nset fileencoding=utf-8\nset fileencodings=utf-8,ucs-bom,default,latin1\n' > /root/.vimrc \
+  && printf '%s\n' "export PS1='\\u@\\h:\\w\\n# '" 'alias ll="ls -alF"' >> /root/.bashrc
+
+WORKDIR ${WORKDIR}
+
+FROM minimum AS develop
 
 ARG TTYD_VER
 ARG WORKDIR
@@ -31,9 +48,7 @@ RUN apt update \
   && apt update \
   && apt install -y mise
 
-WORKDIR ${WORKDIR}
-
-COPY package.json .envrc mise.toml pnpm-lock.yaml .
+COPY package.json .envrc mise.toml pnpm-lock.yaml ./
 
 RUN echo 'eval "$(mise activate bash)"' >> ~/.bashrc
 RUN mkdir -p ~/.config/direnv \
