@@ -20,7 +20,7 @@
     "automation"
   ],
   "type": "module",
-  "packageManager": "pnpm@12.15.0",
+  "packageManager": "pnpm@12.23.0",
   "bin": {
     "kurage": "./dist/cli/kurage.js"
   },
@@ -46,6 +46,7 @@
     "build": "pnpm run build:src && pnpm run build:bin",
     "test": "vitest run --coverage",
     "ci": "pnpm run build && pnpm run test",
+    "check": "pnpm audit --fix",
     "upgrade": "mise upgrade --bump",
     "v:patch": "npm version patch",
     "v:minor": "npm version minor",
@@ -54,7 +55,7 @@
   "engines": {
     "node": ">=22.23.4",
     "bun": ">=1.4.4",
-    "pnpm": ">=12.15.0"
+    "pnpm": ">=12.23.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.1",
