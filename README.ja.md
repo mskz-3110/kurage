@@ -40,9 +40,16 @@ pnpm add kurage
 
 ### 単一バイナリで利用
 
-[GitHub Releases](https://github.com/mskz-3110/kurage/releases) から OS・アーキテクチャに合ったアーカイブをダウンロードして展開します。
+[GitHub Releases](https://github.com/mskz-3110/kurage/releases) から、ファイル名で OS・アーキテクチャを確認して該当するアーカイブを選び、展開してください。
 
-Linux x64 の場合は `kurage-linux-x64.tar.gz` に含まれる `kurage` を実行します。
+| OS・アーキテクチャ | アーカイブ |
+| --- | --- |
+| Linux x64 | `kurage-linux-x64.tar.gz` |
+| Linux arm64 | `kurage-linux-arm64.tar.gz` |
+| Windows x64 | `kurage-windows-x64.zip` |
+| macOS arm64 | `kurage-darwin-arm64.tar.gz` |
+
+Linux x64 での展開・実行例:
 
 ```bash
 tar -xzf kurage-linux-x64.tar.gz
