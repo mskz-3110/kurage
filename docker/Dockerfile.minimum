@@ -11,9 +11,7 @@ RUN apt update \
   && locale-gen \
   && rm -rf /var/lib/apt/lists/*
 
-RUN printf 'set encoding=utf-8\nset fileencoding=utf-8\nset fileencodings=utf-8,ucs-bom,default,latin1\n' > /root/.vimrc
+RUN printf 'set encoding=utf-8\nset fileencoding=utf-8\nset fileencodings=utf-8,ucs-bom,default,latin1\n' > /root/.vimrc \
+  && printf '%s\n' "export PS1='\\u@\\h:\\w\\n# '" 'alias ll="ls -alF"' >> /root/.bashrc
 
 WORKDIR ${WORKDIR}
-
-RUN printf '%s\n' "export PS1='\\u@\\h:\\w\\n# '" >> /root/.bashrc \
-  && echo "alias ll='ls -alF'" >> /root/.bashrc
