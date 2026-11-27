@@ -20,12 +20,17 @@ JavaScript の実行、外部コマンドの実行、JSON 形式での実行結�
 
 ## インストール
 
+| ツール | 必要なバージョン |
+| --- | --- |
+| Node.js | 22.23.4 以上 |
+| Bun | 1.4.5 以上 |
+| pnpm | 12.23.0 以上 |
+
 ### ブラウザで試す
 
 [![GitHub Codespaces で開く](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)
 
-GitHub Codespaces を使えば、ローカル環境にインストールせずにブラウザから試せます。
-(コンテナのビルド時間：約3分)
+GitHub Codespaces を使えば、ローカル環境にインストールせずにブラウザから試せます。(コンテナのビルド時間：約3分)
 
 ### pnpm でインストール
 
@@ -35,7 +40,14 @@ pnpm add kurage
 
 ### 単一バイナリで利用
 
-[GitHub Releases](https://github.com/mskz-3110/kurage/releases) から単一バイナリをダウンロードして利用できます。
+[GitHub Releases](https://github.com/mskz-3110/kurage/releases) から OS・アーキテクチャに合ったアーカイブをダウンロードして展開します。
+
+Linux x64 の場合は `kurage-linux-x64.tar.gz` に含まれる `kurage` を実行します。
+
+```bash
+tar -xzf kurage-linux-x64.tar.gz
+./kurage --version
+```
 
 ## クイックスタート
 
@@ -101,17 +113,28 @@ kurage info-json
 kurage txcl README.md
 ```
 
-Markdown コメントで指定したファイルの内容を埋め込みます。
+`<!-- :< ファイルパス { -->` と `<!-- :} -->` で囲んだ範囲に、指定したファイルの内容を埋め込みます。
 
-ファイルを指定するとファイルを更新し、標準入力を使う場合は変換結果を標準出力に出力します。
+````markdown
+<!-- :< examples/txcl/engines.json {```json -->
+<!-- :}``` -->
+````
+
+ファイルを指定すると、そのファイルを更新します。
+
+標準入力を使う場合は、変換結果を標準出力に出力します。
 
 ### JavaScript API
 
-パッケージをインポートすると、コマンド実行、ファイル操作、ログ、時間計測などの API を利用できます。
+パッケージを使う場合は `kurage` をインポートします。
 
-`kurage` と `$` は、グローバル変数として利用できます。
+コマンド実行、ファイル操作、ログ、時間計測などの API を利用できます。
 
-`$out` は外部コマンドの標準出力を文字列で返します。
+`eval`、`run`、REPL では `kurage` と `$` がグローバル変数として利用できます。
+
+`$` はファイル操作などを提供する API です。
+
+インポートした `kurage` の `$out` メソッドは、外部コマンドの標準出力を文字列として返します。
 
 ```js
 import kurage from 'kurage';
