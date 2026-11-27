@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/readme/logo.png" alt="Kurage" width="160"></p>
 
-[![npm version](https://img.shields.io/npm/v/kurage)](https://www.npmjs.com/package/kurage) [![npm downloads](https://img.shields.io/npm/dw/kurage)](https://www.npmjs.com/package/kurage) [![License](https://img.shields.io/github/license/mskz-3110/kurage)](LICENSE)
+<p align="center"><a href="https://www.npmjs.com/package/kurage"><img src="https://img.shields.io/npm/v/kurage" alt="npm version"></a> <a href="https://www.npmjs.com/package/kurage"><img src="https://img.shields.io/npm/dw/kurage" alt="npm downloads"></a> <a href="LICENSE"><img src="https://img.shields.io/github/license/mskz-3110/kurage" alt="License"></a></p>
 
 [![Kurage の概要図](docs/readme/overview.png)](docs/readme/overview.png)
 
