@@ -13,3 +13,8 @@ await $.chdirAsync(project, async () => {
 });
 
 await kurage.$(['pnpm', 'audit', '--fix']);
+
+const gitStatus = await kurage.$out(['git', 'status', '--short']);
+if (gitStatus) {
+  kurage.process.abort(`Working tree is not clean:\n${gitStatus}`);
+}

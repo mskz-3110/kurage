@@ -11,13 +11,9 @@ await (async () => {
   const packageName = kurage.packageJson.name;
   let publishedVersions;
   try {
-    publishedVersions = JSON.parse(await kurage.$out([
-      'npm',
-      'view',
-      packageName,
-      'versions',
-      '--json',
-    ]));
+    publishedVersions = JSON.parse(
+      await kurage.$out(['npm', 'view', packageName, 'versions', '--json'])
+    );
   } catch {
     argument.abort(`Could not retrieve published versions for ${packageName} from npm.`);
   }
