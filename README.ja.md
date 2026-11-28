@@ -20,27 +20,14 @@ JavaScript の実行、外部コマンドの実行、JSON 形式での実行結�
 
 ## インストール
 
-| ツール | 必要なバージョン |
+| 方法 | 手順 |
 | --- | --- |
-| Node.js | 22.23.4 以上 |
-| Bun | 1.4.5 以上 |
-| pnpm | 12.23.0 以上 |
+| ブラウザで試す | [![GitHub Codespaces で開く](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)<br>ローカルにインストールせずに試せます（コンテナのビルド時間：約3分）。 |
+| pnpm | `pnpm add kurage` |
+| npx | `npx kurage` |
+| 単一バイナリ | [GitHub Releases](https://github.com/mskz-3110/kurage/releases) から OS・アーキテクチャに合ったアーカイブを選び、展開します。 |
 
-### ブラウザで試す
-
-[![GitHub Codespaces で開く](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)
-
-GitHub Codespaces を使えば、ローカル環境にインストールせずにブラウザから試せます。(コンテナのビルド時間：約3分)
-
-### pnpm でインストール
-
-```bash
-pnpm add kurage
-```
-
-### 単一バイナリで利用
-
-[GitHub Releases](https://github.com/mskz-3110/kurage/releases) から、ファイル名で OS・アーキテクチャを確認して該当するアーカイブを選び、展開してください。
+### 配布アーカイブ
 
 | OS・アーキテクチャ | アーカイブ |
 | --- | --- |
@@ -56,9 +43,27 @@ tar -xzf kurage-linux-x64.tar.gz
 ./kurage --version
 ```
 
+### 必要なバージョン
+
+| ツール | 必要なバージョン |
+| --- | --- |
+| Node.js | 22.23.4 以上 |
+| Bun | 1.4.5 以上 |
+| pnpm | 12.23.0 以上 |
+
 ## クイックスタート
 
 基本的なコマンドの使い方をデモで紹介します。
+
+| 機能 | コマンド | 説明 |
+| --- | --- | --- |
+| REPL | `kurage [repl]` | 対話的に JavaScript を実行 |
+| コード評価 | `kurage eval <code>` | JavaScript コードを実行 |
+| 外部コマンド | `kurage exec <command> [args...]` | 外部コマンドを実行 |
+| JSON 出力 | `kurage exec-json <command> [args...]` | 外部コマンドの実行結果を JSON で出力 |
+| run | `kurage [run] <file> [args...]` | JavaScript ファイルを実行 |
+| 環境情報 | `kurage info-json` | Kurage とプロセスの情報を JSON で出力 |
+| ファイル内容を埋め込む | `kurage txcl <files...>` | マーカー範囲にファイル内容を埋め込む |
 
 ### 対話的に実行する
 
@@ -140,6 +145,12 @@ kurage txcl README.md
 `eval`、`run`、REPL では `kurage` と `$` がグローバル変数として利用できます。
 
 `$` はファイル操作などを提供する API です。
+
+たとえば、`eval` や REPL でファイルを読み取って表示できます。
+
+```js
+kurage.logger.out($.read('README.md'));
+```
 
 インポートした `kurage` の `$out` メソッドは、外部コマンドの標準出力を文字列として返します。
 
