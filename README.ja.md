@@ -1,19 +1,19 @@
-<p align="center"><img src="docs/readme/logo.png" alt="Kurage" width="160"></p>
+<p align="center"><img src="docs/readme/logo.png" alt="kurage" width="160"></p>
 
 <p align="center"><a href="https://www.npmjs.com/package/kurage"><img src="https://img.shields.io/npm/v/kurage" alt="npm version"></a> <a href="https://www.npmjs.com/package/kurage"><img src="https://img.shields.io/npm/dw/kurage" alt="npm downloads"></a> <a href="LICENSE"><img src="https://img.shields.io/github/license/mskz-3110/kurage" alt="License"></a></p>
 
-[![Kurage の概要図](docs/readme/overview.png)](docs/readme/overview.png)
+[![kurage の概要図](docs/readme/overview.png)](docs/readme/overview.png)
 
 ## 概要
 
-Kurage は、Node.js と Bun で動作する JavaScript ランタイムツールです。
+`kurage` は、Node.js と Bun で動作する JavaScript ランタイムツールです。
 
 JavaScript の実行、外部コマンドの実行、JSON 形式での実行結果の取得など、開発やスクリプト作成に役立つ機能を提供します。
 
 ## 特徴
 
 - **複数のランタイムに対応** — Node.js と Bun で動作
-- **JavaScript をすぐに実行** — コードの評価やファイルの実行に対応
+- **JavaScript を直接実行** — コードの評価やファイルの実行に対応
 - **外部コマンドを実行** — コマンドの実行結果を JSON 形式で取得可能
 - **対話的に利用** — REPL で JavaScript を実行
 - **開発支援 API** — ファイル操作、テキスト処理、ログ、時間計測などの機能を提供
@@ -62,7 +62,7 @@ tar -xzf kurage-linux-x64.tar.gz
 | `kurage exec <command> [args...]` | 外部コマンドを実行 |
 | `kurage exec-json <command> [args...]` | 外部コマンドの実行結果を JSON で出力 |
 | `kurage [run] <file> [args...]` | JavaScript ファイルを実行 |
-| `kurage info-json` | Kurage とプロセスの情報を JSON で出力 |
+| `kurage info-json` | `kurage` とプロセスの情報を JSON で出力 |
 | `kurage txcl <files...>` | マーカー範囲にファイル内容を埋め込む |
 
 ### 対話的に実行する

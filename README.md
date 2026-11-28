@@ -1,19 +1,19 @@
-<p align="center"><img src="docs/readme/logo.png" alt="Kurage" width="160"></p>
+<p align="center"><img src="docs/readme/logo.png" alt="kurage" width="160"></p>
 
 <p align="center"><a href="https://www.npmjs.com/package/kurage"><img src="https://img.shields.io/npm/v/kurage" alt="npm version"></a> <a href="https://www.npmjs.com/package/kurage"><img src="https://img.shields.io/npm/dw/kurage" alt="npm downloads"></a> <a href="LICENSE"><img src="https://img.shields.io/github/license/mskz-3110/kurage" alt="License"></a></p>
 
-[![Kurage overview](docs/readme/overview.png)](docs/readme/overview.png)
+[![kurage overview](docs/readme/overview.png)](docs/readme/overview.png)
 
 ## Overview
 
-Kurage is a JavaScript runtime tool that runs on Node.js and Bun.
+`kurage` is a JavaScript runtime tool that runs on Node.js and Bun.
 
 It provides features useful for development and scripting, including running JavaScript, executing external commands, and retrieving execution results in JSON format.
 
 ## Features
 
 - **Multi-runtime support** — Runs on Node.js and Bun
-- **Run JavaScript directly** — Supports code evaluation and file execution
+- **Run JavaScript directly** — Evaluate code or run files
 - **Run external commands** — Get command results in JSON format
 - **Interactive use** — Run JavaScript in a REPL
 - **Development APIs** — Provides file operations, text processing, logging, time measurement, and more
@@ -62,7 +62,7 @@ The demos show how to use the basic commands.
 | `kurage exec <command> [args...]` | Run an external command |
 | `kurage exec-json <command> [args...]` | Output an external command's results as JSON |
 | `kurage [run] <file> [args...]` | Run a JavaScript file |
-| `kurage info-json` | Output information about Kurage and the process as JSON |
+| `kurage info-json` | Output information about `kurage` and the process as JSON |
 | `kurage txcl <files...>` | Embed file contents within marked sections |
 
 ### Run interactively
