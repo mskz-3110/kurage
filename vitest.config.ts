@@ -7,6 +7,7 @@ export default defineConfig({
     exclude: ['node_modules/**'],
     globals: true,
     coverage: {
+      reportsDirectory: 'coverage/vitest',
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['dist/**/*.js'],
