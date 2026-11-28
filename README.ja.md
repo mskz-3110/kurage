@@ -55,15 +55,15 @@ tar -xzf kurage-linux-x64.tar.gz
 
 基本的なコマンドの使い方をデモで紹介します。
 
-| 機能 | コマンド | 説明 |
-| --- | --- | --- |
-| REPL | `kurage [repl]` | 対話的に JavaScript を実行 |
-| コード評価 | `kurage eval <code>` | JavaScript コードを実行 |
-| 外部コマンド | `kurage exec <command> [args...]` | 外部コマンドを実行 |
-| JSON 出力 | `kurage exec-json <command> [args...]` | 外部コマンドの実行結果を JSON で出力 |
-| run | `kurage [run] <file> [args...]` | JavaScript ファイルを実行 |
-| 環境情報 | `kurage info-json` | Kurage とプロセスの情報を JSON で出力 |
-| ファイル内容を埋め込む | `kurage txcl <files...>` | マーカー範囲にファイル内容を埋め込む |
+| コマンド | 説明 |
+| --- | --- |
+| `kurage [repl]` | 対話的に JavaScript を実行 |
+| `kurage eval <code>` | JavaScript コードを実行 |
+| `kurage exec <command> [args...]` | 外部コマンドを実行 |
+| `kurage exec-json <command> [args...]` | 外部コマンドの実行結果を JSON で出力 |
+| `kurage [run] <file> [args...]` | JavaScript ファイルを実行 |
+| `kurage info-json` | Kurage とプロセスの情報を JSON で出力 |
+| `kurage txcl <files...>` | マーカー範囲にファイル内容を埋め込む |
 
 ### 対話的に実行する
 
@@ -138,19 +138,19 @@ kurage txcl README.md
 
 ### JavaScript API
 
-パッケージを使う場合は `kurage` をインポートします。
-
-コマンド実行、ファイル操作、ログ、時間計測などの API を利用できます。
-
 `eval`、`run`、REPL では `kurage` と `$` がグローバル変数として利用できます。
 
 `$` はファイル操作などを提供する API です。
 
-たとえば、`eval` や REPL でファイルを読み取って表示できます。
+たとえば、`kurage eval` でファイルを読み取って表示できます。
 
-```js
-kurage.logger.out($.read('README.md'));
+```bash
+kurage eval "kurage.logger.out($.read('README.md'));"
 ```
+
+パッケージを使う場合は `kurage` をインポートします。
+
+コマンド実行、ファイル操作、ログ、時間計測などの API を利用できます。
 
 インポートした `kurage` の `$out` メソッドは、外部コマンドの標準出力を文字列として返します。
 

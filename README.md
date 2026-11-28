@@ -13,34 +13,21 @@ It provides features useful for development and scripting, including running Jav
 ## Features
 
 - **Multi-runtime support** — Runs on Node.js and Bun
-- **Run JavaScript directly** — Evaluate code or run files
-- **Run external commands** — Retrieve results as JSON with `exec-json`
-- **Interactive REPL** — Run JavaScript interactively
-- **APIs for development** — Includes file operations, text processing, logging, time measurement, and more
+- **Run JavaScript directly** — Supports code evaluation and file execution
+- **Run external commands** — Get command results in JSON format
+- **Interactive use** — Run JavaScript in a REPL
+- **Development APIs** — Provides file operations, text processing, logging, time measurement, and more
 
 ## Installation
 
-| Tool | Required version |
+| Method | Instructions |
 | --- | --- |
-| Node.js | 22.23.4 or later |
-| Bun | 1.4.5 or later |
-| pnpm | 12.23.0 or later |
+| Try it in your browser | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)<br>Try Kurage without installing it locally (container build time: about 3 minutes). |
+| pnpm | `pnpm add kurage` |
+| npx | `npx kurage` |
+| Standalone binary | Choose the archive for your OS and architecture from [GitHub Releases](https://github.com/mskz-3110/kurage/releases), then extract it. |
 
-### Try it in your browser
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mskz-3110/kurage?quickstart=1)
-
-Use GitHub Codespaces to try Kurage in your browser without installing it locally. (Container build time: about 3 minutes)
-
-### Install with pnpm
-
-```bash
-pnpm add kurage
-```
-
-### Use as a standalone binary
-
-Download the archive for your OS and architecture from [GitHub Releases](https://github.com/mskz-3110/kurage/releases), then extract it.
+### Release archives
 
 | OS and architecture | Archive |
 | --- | --- |
@@ -49,16 +36,34 @@ Download the archive for your OS and architecture from [GitHub Releases](https:/
 | Windows x64 | `kurage-windows-x64.zip` |
 | macOS arm64 | `kurage-darwin-arm64.tar.gz` |
 
-To extract and run the Linux x64 binary:
+Example of extracting and running on Linux x64:
 
 ```bash
 tar -xzf kurage-linux-x64.tar.gz
 ./kurage --version
 ```
 
+### Required versions
+
+| Tool | Required version |
+| --- | --- |
+| Node.js | 22.23.4 or later |
+| Bun | 1.4.5 or later |
+| pnpm | 12.23.0 or later |
+
 ## Quick Start
 
-These demos show the basic commands.
+The demos show how to use the basic commands.
+
+| Command | Description |
+| --- | --- |
+| `kurage [repl]` | Run JavaScript interactively |
+| `kurage eval <code>` | Execute JavaScript code |
+| `kurage exec <command> [args...]` | Run an external command |
+| `kurage exec-json <command> [args...]` | Output an external command's results as JSON |
+| `kurage [run] <file> [args...]` | Run a JavaScript file |
+| `kurage info-json` | Output information about Kurage and the process as JSON |
+| `kurage txcl <files...>` | Embed file contents within marked sections |
 
 ### Run interactively
 
@@ -68,7 +73,7 @@ These demos show the basic commands.
 kurage repl
 ```
 
-At the REPL prompt, run `kurage.logger.out('REPL');`.
+Run `kurage.logger.out('REPL');` in the REPL.
 
 ### Run JavaScript directly
 
@@ -78,7 +83,7 @@ At the REPL prompt, run `kurage.logger.out('REPL');`.
 kurage eval "kurage.logger.out('EVAL');"
 ```
 
-### Execute an external command
+### Run an external command
 
 ![exec](docs/readme/exec.gif)
 
@@ -120,7 +125,7 @@ kurage info-json
 kurage txcl README.md
 ```
 
-In the marked section, `txcl` inserts the contents of the file named in the opening comment.
+The contents of the specified file are embedded in the section enclosed by `<!-- :< file path { -->` and `<!-- :} -->`.
 
 ````markdown
 <!-- :< examples/txcl/engines.json {```json -->
@@ -129,19 +134,25 @@ In the marked section, `txcl` inserts the contents of the file named in the open
 
 When you specify a file, Kurage updates that file.
 
-When you use standard input, Kurage writes the transformed output to standard output.
+When using standard input, Kurage writes the transformed output to standard output.
 
 ### JavaScript API
 
+In `eval`, `run`, and the REPL, `kurage` and `$` are available as global variables.
+
+`$` provides APIs such as file operations.
+
+For example, you can read and display a file with `kurage eval`.
+
+```bash
+kurage eval "kurage.logger.out($.read('README.md'));"
+```
+
 Import `kurage` to use the package.
 
-The API includes command execution, file operations, logging, time measurement, and more.
+You can use APIs for command execution, file operations, logging, time measurement, and more.
 
-When using `eval`, `run`, or the REPL, `kurage` and `$` are available as global variables.
-
-`$` provides file operations and other features.
-
-The imported `kurage` object’s `$out` method returns an external command’s standard output as a string.
+The `$out` method on the imported `kurage` object returns an external command's standard output as a string.
 
 ```js
 import kurage from 'kurage';
